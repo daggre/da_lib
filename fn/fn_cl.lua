@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 Lib.Fn.Eat = function(increaseAmount)
     if Lib.API.Active then
         Lib.API.Eat(increaseAmount)

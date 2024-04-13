@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 if Lib.API.Active ~= "TMC" then return; end
 TMC = exports.core:getCoreObject()
 

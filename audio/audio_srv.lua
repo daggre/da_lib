@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 RegisterServerEvent("da_lib:server:playStream")
 AddEventHandler("da_lib:server:playStream", function(netId, streamName, soundSet)
     local src = source

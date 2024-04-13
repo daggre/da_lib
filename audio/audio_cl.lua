@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 local AudioStreams = {}
 
 local function PlayStream(entity, streamName, soundSet)

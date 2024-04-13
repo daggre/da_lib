@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 -- String utils for lua not provided by native lib
 
 Lib.String.Split = function(str, sep)

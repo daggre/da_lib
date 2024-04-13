@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 local API = Lib.API.Active
 
 local isAPI = function() return API and Lib.API[API] end

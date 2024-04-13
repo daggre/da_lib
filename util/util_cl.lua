@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 Lib.Util.TranslateCartesian = function(r, theta)
     local x = r * -math.sin(theta * math.pi / 180.0)
     local y = r * math.cos(theta * math.pi / 180.0)

@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 local LazyCache = {}
 DefaultTimeout = 10000
 Lib.Cache.Lazy = {}

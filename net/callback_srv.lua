@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 local ServerCallbacks = {}
 local CallbackEvents = {}
 

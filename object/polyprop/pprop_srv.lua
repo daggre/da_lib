@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 local PropsId = 1
 local GetPropId = function(data)
     local propId = PropsId

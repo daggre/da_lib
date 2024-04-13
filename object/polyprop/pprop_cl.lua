@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 local ZoneCacheId = "ppZone"
 local PropCacheId = "ppProp"
 local DefaultZoneRange = 60
