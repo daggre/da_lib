@@ -36,7 +36,6 @@ Lib.API.TMC.ConsumeCharge = function(src, itemName, slot, index, info)
 end
 
 Lib.API.TMC.SetItemMetadata = function(src, item, metadata)
-    Lib.Log.Warn(item, "setItemMetadata requires item")
     local player = TMC.Functions.GetPlayer(src)
     local updateItem = false
     if not player then return; end
