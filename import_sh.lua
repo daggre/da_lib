@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 Lib = {}
 Lib.API = {}
 Lib.API.Active = "TMC"

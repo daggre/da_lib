@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 
 
 Lib.Obj.Load = function(modelHash)

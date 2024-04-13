@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 if Lib.Util.IsDev then
     RegisterCommand("dalib_log_set", function(source, args, rawCommand)
         local resource = args[1]

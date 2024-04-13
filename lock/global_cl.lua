@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 
 function Lib.Lock.Global(id, lockTimeout, callbackTimeout)
     lockTimeout = lockTimeout or 10000

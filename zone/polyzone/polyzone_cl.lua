@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 Lib.PolyZone.EnterHandler = function(zoneId, cb)
     if Lib.API.Active then
         Lib.API.PolyZoneEnterHandler(zoneId, cb)

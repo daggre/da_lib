@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 
 ---@diagnostic disable-next-line: duplicate-set-field
 Lib.Fn.AddItem = function(src, itemName, amount, slot, slotIndex)
