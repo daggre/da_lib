@@ -58,7 +58,7 @@ Lib.Zone.Remove = function(condition)
             entriesRemoved = entriesRemoved + 1
         end
     end
-    return entriesRemoved > 0 and entriesRemoved or false
+    return entriesRemoved
 end
 
 ---Update zones based on the conditions and return the number of zones updated
