@@ -1,4 +1,6 @@
-local ZoneId = "da_scene"
+--- Copyright © 2024 Joshua Nelson
+
+local ZoneId = "propZone"
 local Scenes = {}
 local LoadedScenes = {}
 
@@ -29,7 +31,7 @@ local function UnloadScene(name)
     end
 end
 
-Lib.Scene.Register = function(sceneName, scene)
+Lib.Props.Register = function(sceneName, scene)
     if not sceneName or not scene then return; end
     if Scenes[sceneName] then return; end
 
@@ -50,7 +52,7 @@ Lib.Scene.Register = function(sceneName, scene)
     end
 end
 
-Lib.Scene.Load = function(sceneName)
+Lib.Props.Load = function(sceneName)
     if not sceneName then return; end
     if not Scenes[sceneName] then return; end
     if LoadedScenes[sceneName] then
@@ -68,7 +70,7 @@ Lib.Scene.Load = function(sceneName)
     LoadScene(Scenes[sceneName])
 end
 
-Lib.Scene.Remove = function(sceneName)
+Lib.Props.Unload = function(sceneName)
     if not sceneName then return; end
     if not LoadedScenes[sceneName] then return; end
 
@@ -78,8 +80,8 @@ Lib.Scene.Remove = function(sceneName)
 end
 
 Citizen.CreateThread(function()
-    Lib.PolyZone.EnterHandler(ZoneId, function(data) Lib.Scene.Load(data.id) end)
-    Lib.PolyZone.ExitHandler(ZoneId, function(data) Lib.Scene.Remove(data.id) end)
+    Lib.PolyZone.EnterHandler(ZoneId, function(data) Lib.Props.Load(data.id) end)
+    Lib.PolyZone.ExitHandler(ZoneId, function(data) Lib.Props.Unload(data.id) end)
 end)
 
 AddEventHandler("onResourceStop", function(resourceName)
