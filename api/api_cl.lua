@@ -95,3 +95,8 @@ Lib.API.PolyZoneCreateCircle = function(zoneId, coords, radius, options)
     if not isAPI() then return; end
     return Lib.API[API].PolyZoneCreateCircle(zoneId, coords, radius, options)
 end
+
+Lib.API.CreatePed = function(modelHash, coords, option)
+    if not isAPI() then return; end
+    return Lib.API[API].CreatePed(modelHash, coords, option)
+end
