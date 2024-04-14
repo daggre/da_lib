@@ -11,9 +11,10 @@ local CreateProp = function(data)
 
     Lib.Log.Debug("Creating polyprop:", data)
     local entity = Lib.Obj.Create(data.objectHash, data.coords, data.spawnParams)
-    if data.objectHash == `p_bucket03x` and data.resourceAmount then
-        Lib.Obj.SetExpression(entity, "bucket_Fill", data.resourceAmount)
-        Lib.Log.DebugVerbose("Creating bucket, setting resource amount to "..tostring(data.resourceAmount))
+    if data.objectHash == `p_bucket03x` and data.metadata and data.metadata.resourceAmount then
+
+        Lib.Obj.SetExpression(entity, "bucket_Fill", data.metadata.resourceAmount)
+        Lib.Log.DebugVerbose("Creating bucket, setting resource amount to "..tostring(data.metadata.resourceAmount))
     end
     Lib.Cache.Temp.Add(PropCacheId, data.id, entity, true)
 end

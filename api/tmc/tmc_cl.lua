@@ -109,3 +109,15 @@ end
 Lib.API.TMC.PolyZoneCreateCircle = function(zoneId, coords, radius, options)
     return TMC.Functions.AddCircleZone(zoneId, coords, radius, options)
 end
+
+Lib.API.TMC.CreatePed = function(modelHash, coords, option)
+    local pedId = "da_npc_"..option.id
+    return TMC.Functions.CreateInteractionPed(pedId, {
+        Hash = modelHash,
+        Outfit = option.pedOutfit,
+        Location = coords,
+        Scenario = option.scenario,
+        Frozen = option.frozen,
+        Ai = option.ai,
+    })
+end
