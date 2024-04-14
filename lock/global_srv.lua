@@ -1,7 +1,5 @@
 --- Copyright © 2024 Joshua Nelson
 
-local DebugLog = Lib.Util.IsDev and true
-
 local Lock = {}
 local Config = {
     DefaultTimeout = 2 * 60, -- 2 mins
@@ -26,7 +24,7 @@ Lib.Net.RegisterServerCb("glb-lk",
 function _getLock(id) return GlobalState[id] or Lock[id]; end
 
 function _lock(src, id, timeout, currentTime)
-    if DebugLog then print(("^3[glb-lk] ^2lock ^7src=%s id=%s timeout=%s"):format(src, id, timeout)); end
+    Lib.Log.Debug(("^3[glb-lk] ^2lock ^7src=%s id=%s timeout=%s"):format(src, id, timeout))
     timeout = timeout and (timeout/1000) + currentTime or Config.DefaultTimeout + currentTime
     GlobalState[id] = {
         source = src,
@@ -39,7 +37,7 @@ function _lock(src, id, timeout, currentTime)
 end
 
 function _unlock(id)
-    if DebugLog then print(("^3[glb-lk] ^5release ^7id=%s"):format(id)); end
+    Lib.Log.Debug(("^3[glb-lk] ^5release ^7id=%s"):format(id))
     GlobalState[id] = nil
     Lock[id] = nil
 end
@@ -52,7 +50,7 @@ function ModifyLock(source, id, requestLock, timeout, currentTime)
     local src = source
 
     if not _hasLock(src, _getLock(id), currentTime) then
-        if DebugLog then print(("^3[glb-lk] ^1deny ^7src=%s id=%s"):format(src, id)); end
+        Lib.Log.Debug(("^3[glb-lk] ^1deny ^7src=%s id=%s"):format(src, id))
         return false
     end
 

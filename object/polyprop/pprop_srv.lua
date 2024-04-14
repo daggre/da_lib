@@ -11,7 +11,7 @@ local AddProp = function(data)
     data.id = data.id or GetPropId(data)
     data.metadata = data.metadata or {}
     data.metadata.timeCreated = data.metadata.timeCreated or os.time()
-    Lib.Log.Debug("Adding:", data)
+    Lib.Log.DebugVerbose("Adding polyprop:", data)
     Lib.Cache.Temp.Add("polyprops", data.id, data, true)
     TriggerClientEvent("polyprops:client:add", -1, data)
 end
@@ -25,9 +25,13 @@ local RemoveProp = function(data)
 end
 
 RegisterNetEvent("polyprops:server:add")
-AddEventHandler("polyprops:server:add", function(data) AddProp(data) end)
+AddEventHandler("polyprops:server:add", function(data)
+    AddProp(data)
+end)
 
-Lib.Net.RegisterServerCb("polyprops:server:remove", function(source, data) return RemoveProp(data) end)
+Lib.Net.RegisterServerCb("polyprops:server:remove", function(source, data)
+    return RemoveProp(data)
+end)
 
 Lib.Net.RegisterServerCb("polyprops:server:updateAmount", function(source, data, amount, removalDelay)
     local cachePropData = Lib.Cache.Temp.Get("polyprops", data.id)

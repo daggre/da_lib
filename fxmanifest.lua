@@ -48,7 +48,7 @@ client_scripts {
     'zone/polyzone/polyzone_cl.lua',
     'object/object_cl.lua',
     'object/ped_cl.lua',
-    'object/scene_cl.lua',
+    'object/props_cl.lua',
     'object/polyprop/pprop_cl.lua',
     'time/time_cl.lua',
     'util/util_cl.lua',

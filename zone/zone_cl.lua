@@ -8,9 +8,7 @@ InZone = {}
 ---@return table|nil
 Lib.Zone.Get = function(condition)
     for _, zoneData in ipairs(InZone) do
-        Lib.Log.Debug("iter zone", _, zoneData)
         if condition(zoneData) then
-            Lib.Log.Debug("found zone")
             return zoneData
         end
     end
