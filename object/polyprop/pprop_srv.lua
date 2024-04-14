@@ -19,7 +19,11 @@ end
 local RemoveProp = function(data)
     if not data or not data.id then return; end
     local removedData = Lib.Cache.Temp.Remove("polyprops", data.id)
-    Lib.Log.DebugVerbose("Removing:", removedData)
+    if not removedData then
+        Lib.Log.DebugVerbose(("Not removing prop: %s"):format(data.id))
+        return
+    end
+    Lib.Log.DebugVerbose("Removing:", data.id, removedData)
     TriggerClientEvent("polyprops:client:remove", -1, removedData)
     return removedData
 end
@@ -35,14 +39,15 @@ end)
 
 Lib.Net.RegisterServerCb("polyprops:server:updateAmount", function(source, data, amount, removalDelay)
     local cachePropData = Lib.Cache.Temp.Get("polyprops", data.id)
-    if cachePropData and cachePropData.resourceAmount then
-        cachePropData.resourceAmount = cachePropData.resourceAmount + amount
+    if cachePropData and cachePropData.metadata and cachePropData.metadata.resourceAmount then
+        cachePropData.metadata.resourceAmount = cachePropData.metadata.resourceAmount + amount
         Lib.Cache.Temp.Update("polyprops", data.id, cachePropData)
-        Lib.Log.Debug(("Changed resource amount %.3f to %.3f"):format(amount, cachePropData.resourceAmount))
+        Lib.Log.Debug(("Changed resource amount %.3f to %.3f"):format(amount, cachePropData.metadata.resourceAmount))
         Lib.Log.DebugVerbose(cachePropData)
         if cachePropData.resourceAmount <= 0 then
-            Citizen.Wait(removalDelay)
-            RemoveProp(data)
+            Citizen.SetTimeOut(removalDelay, function()
+                RemoveProp(data)
+            end)
         end
     else
         Lib.Log.Warning(("Could not find prop to udpate: %s"):format(data.id))
