@@ -6,7 +6,7 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 
 author 'daggre_actual'
 description 'Library of shared functions and utilities for daggre_actual resources'
-version '0.2'
+version '0.8'
 lua54 'yes'
 
 server_scripts {
