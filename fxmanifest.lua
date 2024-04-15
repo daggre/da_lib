@@ -24,7 +24,7 @@ server_scripts {
     'cache/temp_sh.lua',
     'fn/fn_srv.lua',
     'lock/global_srv.lua',
-    'object/polyprop/pprop_srv.lua',
+    'object/intprop/intprop_srv.lua',
     'string/string_sh.lua',
     'time/time_srv.lua',
 }
@@ -49,7 +49,7 @@ client_scripts {
     'object/object_cl.lua',
     'object/ped_cl.lua',
     'object/props_cl.lua',
-    'object/polyprop/pprop_cl.lua',
+    'object/intprop/intprop_cl.lua',
     'time/time_cl.lua',
     'util/util_cl.lua',
     'util/draw_cl.lua',
