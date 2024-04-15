@@ -1,5 +1,20 @@
 --- Copyright © 2024 Joshua Nelson
 
+Lib.Util.CalcBoundaryCenter = function(boundary)
+    if not boundary or type(boundary) ~= "table" then Lib.Log.Warn("Invalid boundary:", boundary); return; end
+    local minX, minY, maxX, maxY = nil, nil, nil, nil
+    for _, edgeCoord in ipairs(boundary) do
+        if minX ~= nil then minX = math.min(minX, edgeCoord.x); else minX = edgeCoord.x; end
+        if maxX ~= nil then maxX = math.max(maxX, edgeCoord.x); else maxX = edgeCoord.x; end
+        if minY ~= nil then minY = math.min(minY, edgeCoord.y); else minY = edgeCoord.y; end
+        if maxY ~= nil then maxY = math.max(maxY, edgeCoord.y); else maxY = edgeCoord.y; end
+    end
+    xRange = maxX - minX
+    yRange = maxY - minY
+    center = vector2(minX+(xRange/2), minY+(yRange/2))
+    return center, xRange, yRange
+end
+
 Lib.Util.TranslateCartesian = function(r, theta)
     local x = r * -math.sin(theta * math.pi / 180.0)
     local y = r * math.cos(theta * math.pi / 180.0)
