@@ -25,6 +25,7 @@ Lib.API.TMC.Eat = function(increaseAmount)
     TriggerEvent("consumeables:client:Hunger", increaseAmount)
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 Lib.API.TMC.DependencyCheck = function(resourceName)
     return TMC.Common.IsDepRunning(resourceName)
 end

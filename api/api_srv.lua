@@ -35,6 +35,12 @@ Lib.API.ConsumeCharge = function(src, name, slot, index, info)
     return Lib.API[API].ConsumeCharge(src, name, slot, index, info)
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
+Lib.API.DependencyCheck = function(resourceName)
+    if not isAPI() then return; end
+    return Lib.API[API].DependencyCheck(resourceName)
+end
+
 Lib.Net.RegisterServerCb("da_lib:consumeCharge", function(src, name, slot, index, info)
     return Lib.API.ConsumeCharge(src, name, slot, index, info)
 end)
