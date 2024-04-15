@@ -37,6 +37,11 @@ Lib.API.TMC.ConsumeCharge = function(src, itemName, slot, index, info)
     return true
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
+Lib.API.TMC.DependencyCheck = function(resourceName)
+    return TMC.Common.IsDepRunning(resourceName)
+end
+
 Lib.API.TMC.SetItemMetadata = function(src, item, metadata)
     local player = TMC.Functions.GetPlayer(src)
     local updateItem = false

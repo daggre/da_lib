@@ -9,6 +9,7 @@ Lib.API.Eat = function(increaseAmount)
     Lib.API[API].Eat(increaseAmount)
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 Lib.API.DependencyCheck = function(resourceName)
     if not isAPI() then return; end
     return Lib.API[API].DependencyCheck(resourceName)
