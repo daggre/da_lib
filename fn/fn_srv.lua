@@ -26,3 +26,10 @@ Lib.Fn.ReplaceItem = function(src, removeItem, addItem)
     end
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("ReplaceItem"))
 end
+
+Lib.Fn.IsMale = function(src)
+    if Lib.API.Active then
+        return Lib.API.IsCharMale(src)
+    end
+    Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("IsMale"))
+end

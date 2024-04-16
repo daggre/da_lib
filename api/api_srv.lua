@@ -41,6 +41,16 @@ Lib.API.DependencyCheck = function(resourceName)
     return Lib.API[API].DependencyCheck(resourceName)
 end
 
+Lib.API.CreateUseableItem = function(src, itemName, fn)
+    if not isAPI() then return; end
+    return Lib.API[API].CreateUseableItem(src, itemName, fn)
+end
+
+Lib.API.IsCharMale = function(src)
+    if not isAPI() then return; end
+    return Lib.API[API].IsCharMale(src)
+end
+
 Lib.Net.RegisterServerCb("da_lib:consumeCharge", function(src, name, slot, index, info)
     return Lib.API.ConsumeCharge(src, name, slot, index, info)
 end)
