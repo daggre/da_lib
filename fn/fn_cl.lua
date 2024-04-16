@@ -70,7 +70,7 @@ end
 Lib.Fn.ReplaceItem = function(removeItem, addItem, isInternalMove)
     if Lib.API.Active then
         if Lib.API.RemoveItem(removeItem.name, removeItem.amount, removeItem.slot, removeItem.slotIndex, isInternalMove) then
-            Lib.API.AddItem(addItem.name, addItem.amount, addItem.slot, addItem.slotIndex, isInternalMove)
+            return Lib.API.AddItem(addItem.name, addItem.amount, addItem.slot, addItem.slotIndex, isInternalMove)
         end
     end
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("ReplaceItem"))
