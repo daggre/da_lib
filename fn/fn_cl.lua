@@ -8,6 +8,11 @@ Lib.Fn.Eat = function(increaseAmount)
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("Eat"))
 end
 
+RegisterNetEvent("da_lib:eat")
+AddEventHandler("da_lib:eat", function(increaseAmount)
+    Lib.Fn.Eat(increaseAmount)
+end)
+
 Lib.Fn.Drink = function(increaseAmount)
     if Lib.API.Active then
         Lib.API.Drink(increaseAmount)
