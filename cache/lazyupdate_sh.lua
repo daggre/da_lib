@@ -20,9 +20,9 @@ end
 --- @vararg any Additional arguments to pass to the item's function if it needs to be called
 --- @return any any The value of the item
 Lib.Cache.Lazy.Get = function(id, name, ...)
-    if not LazyCache[id] or not LazyCache[id][name] then return nil; end
+    if LazyCache[id] == nil or LazyCache[id][name] == nil then return nil; end
 
-    if not LazyCache[id][name].value or LazyCache[id][name].expires < GetGameTimer() then
+    if LazyCache[id][name].value == nil or LazyCache[id][name].expires < GetGameTimer() then
         local timeout = LazyCache[id][name].timeout or DefaultTimeout
         LazyCache[id][name].value = LazyCache[id][name].fn(...)
         LazyCache[id][name].expires = GetGameTimer() + timeout
