@@ -18,10 +18,10 @@ Lib.Fn.RemoveItem = function(src, itemName, amount, slot, slotIndex)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-Lib.Fn.ReplaceItem = function(src, removeItem, addItem)
+Lib.Fn.ReplaceItem = function(src, removeItem, addItem, isInternalMove)
     if Lib.API.Active then
-        if Lib.API.RemoveItem(src, removeItem.name, removeItem.amount, removeItem.slot, removeItem.slotIndex) then
-            Lib.API.AddItem(src, addItem.name, addItem.amount, addItem.slot, addItem.slotIndex)
+        if Lib.API.RemoveItem(src, removeItem.name, removeItem.amount, removeItem.slot, removeItem.slotIndex, isInternalMove) then
+            Lib.API.AddItem(src, addItem.name, addItem.amount, addItem.slot, addItem.slotIndex, isInternalMove)
         end
     end
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("ReplaceItem"))
