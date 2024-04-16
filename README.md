@@ -8,21 +8,21 @@ Library of utilities and tools for use in support of other scripts.
 ## Usage
 This resource provides a library for other scripts to use. To use this
 library import it into your working script:
-```
+```lua
 da = exports.da_lib:importLib()
 ```
 
 ## Installation
 Clone the **da_lib** repository into your servers resources folder:
-```
+```bash
 cd resources
 git clone git@github.com:daggre/da_lib.git
 ```
 Add `ensure da_lib` to your preferred resource config. (Default: server.cfg)
 
 ## Support
-Discord: daggre
-Discord Server: TBA
+- Discord: daggre
+- Discord Server: TBA
 
 ## Authors and Acknowledgment
-daggre_actual
+- daggre_actual
