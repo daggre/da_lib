@@ -73,3 +73,16 @@ Lib.API.TMC.SetItemMetadata = function(src, item, metadata)
         end
     end
 end
+
+Lib.API.TMC.CreateUseableItem = function(src, itemName, fn)
+    TMC.Functions.CreateUseableItem(src, itemName, fn)
+end
+
+Lib.API.TMC.IsCharMale = function(src)
+    local player = TMC.Functions.GetPlayer(src)
+    if player and player.PlayerData and player.PlayerData.charinfo and player.PlayerData.charinfo.gender ~= nil then
+        return player.PlayerData.charinfo.gender == 0
+    end
+    -- If we dont know, then just return male
+    return true
+end
