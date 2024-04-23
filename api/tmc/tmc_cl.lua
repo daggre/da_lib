@@ -22,7 +22,8 @@ local ItemHasUses = {
 
 Lib.API.TMC.Eat = function(increaseAmount)
     increaseAmount = tonumber(increaseAmount) or 10
-    TriggerEvent("consumeables:client:Hunger", increaseAmount)
+    local newHunger = LocalPlayer.state.metadata.hunger + increaseAmount
+    TMC.Functions.TriggerServerEvent('TMC:Server:SetMetaData', 'hunger', newHunger)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
