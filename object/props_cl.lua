@@ -16,11 +16,12 @@ local function LoadScene(data)
         else
             obj = Lib.Obj.Create(prop.model, prop.position, prop)
         end
-        if not LoadedScenes[data.name].loaded then
+        if not LoadedScenes[data.name] or not LoadedScenes[data.name].loaded then
             Lib.Obj.Delete(obj)
+            obj = nil
             break
         end
-        if obj then table.insert(LoadedScenes[data.name].props, obj) end
+        if obj and LoadedScenes[data.name] then table.insert(LoadedScenes[data.name].props, obj) end
     end
 end
 
