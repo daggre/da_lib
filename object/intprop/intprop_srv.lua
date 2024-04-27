@@ -44,7 +44,7 @@ Lib.Net.RegisterServerCb("intprop:server:updateAmount", function(source, propDat
         Lib.Cache.Temp.Update("intprop", propData.id, cachePropData)
         Lib.Log.Debug(("Changed resource amount %.3f to %.3f"):format(amount, cachePropData.metadata.resourceAmount))
         if cachePropData.metadata.resourceAmount <= 0 then
-            Citizen.SetTimeOut(removalDelay, function()
+            Citizen.SetTimeout(2000, function()
                 RemoveProp(propData)
             end)
         end
