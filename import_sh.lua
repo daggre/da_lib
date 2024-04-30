@@ -4,6 +4,7 @@ Lib = {}
 Lib.API = {}
 Lib.API.Active = "TMC"
 Lib.API.TMC = {}
+Lib.Anim = {}
 Lib.Audio = {}
 Lib.Cache = {}
 Lib.Draw = {}

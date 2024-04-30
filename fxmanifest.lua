@@ -40,6 +40,7 @@ client_scripts {
     'string/string_sh.lua',
     'api/tmc/tmc_cl.lua',
     'api/api_cl.lua',
+    'anim/anim_cl.lua',
     'audio/audio_cl.lua',
     'cache/lazyupdate_sh.lua',
     'cache/temp_sh.lua',
