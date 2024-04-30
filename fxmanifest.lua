@@ -44,6 +44,7 @@ client_scripts {
     'audio/audio_cl.lua',
     'cache/lazyupdate_sh.lua',
     'cache/temp_sh.lua',
+    'control/control_cl.lua',
     'fn/fn_cl.lua',
     'lock/global_cl.lua',
     'zone/polyzone/polyzone_cl.lua',

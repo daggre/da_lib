@@ -7,6 +7,7 @@ Lib.API.TMC = {}
 Lib.Anim = {}
 Lib.Audio = {}
 Lib.Cache = {}
+Lib.Control = {}
 Lib.Draw = {}
 Lib.Fn = {}
 Lib.Lock = {}
