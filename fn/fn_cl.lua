@@ -75,3 +75,18 @@ Lib.Fn.ReplaceItem = function(removeItem, addItem, isInternalMove)
     end
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("ReplaceItem"))
 end
+
+Lib.Fn.HolsterWeapon = function()
+    -- if Lib.API.Active then
+    --     return Lib.API.HolsterWeapon()
+    -- end
+    SetCurrentPedWeapon(PlayerPedId(), `weapon_unarmed`, false, 0, false, false)
+    Citizen.Wait(500)
+end
+
+Lib.Fn.Teleport = function(coords)
+    if Lib.API.Active then
+        return Lib.API.Teleport(coords)
+    end
+    Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("Teleport"))
+end

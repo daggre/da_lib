@@ -48,7 +48,7 @@ Lib.Props.Register = function(sceneName, scene)
         for index, ped in ipairs(scene.Peds) do
             local option = ped
             option.id = ("%s_%s"):format(sceneName, index)
-            Lib.Ped.Create(ped.ped, ped.loc, option)
+            Lib.NPC.New(ped.ped, ped.loc, option)
         end
     end
 end
@@ -81,8 +81,8 @@ Lib.Props.Unload = function(sceneName)
 end
 
 Citizen.CreateThread(function()
-    Lib.PolyZone.EnterHandler(ZoneId, function(data) Lib.Props.Load(data.id) end)
-    Lib.PolyZone.ExitHandler(ZoneId, function(data) Lib.Props.Unload(data.id) end)
+    Lib.PolyZone.OnEnter(ZoneId, function(data) Lib.Props.Load(data.id) end)
+    Lib.PolyZone.OnExit(ZoneId, function(data) Lib.Props.Unload(data.id) end)
 end)
 
 AddEventHandler("onResourceStop", function(resourceName)
