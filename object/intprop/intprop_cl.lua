@@ -44,12 +44,12 @@ local AddInteractivePropZone = function(data)
     Lib.Cache.Temp.Add(ZoneCacheId, data.id.."_int", zone, true)
 end
 
-Lib.PolyZone.EnterHandler(InteractZoneId, function(data)
+Lib.PolyZone.OnEnter(InteractZoneId, function(data)
     if not Lib.Cache.Temp.Hit(ZoneCacheId, data.id.."_int") then return; end
     TriggerEvent("interactionZone:enter", data)
 end)
 
-Lib.PolyZone.ExitHandler(InteractZoneId, function(data)
+Lib.PolyZone.OnExit(InteractZoneId, function(data)
     if not Lib.Cache.Temp.Hit(ZoneCacheId, data.id.."_int") then return; end
     TriggerEvent("interactionZone:exit", data)
 end)
@@ -64,11 +64,11 @@ local AddPropZone = function(data)
     AddInteractivePropZone(data)
 end
 
-Lib.PolyZone.EnterHandler(InteractPropZoneId, function(data)
+Lib.PolyZone.OnEnter(InteractPropZoneId, function(data)
     CreateProp(data)
 end)
 
-Lib.PolyZone.ExitHandler(InteractPropZoneId, function(data)
+Lib.PolyZone.OnExit(InteractPropZoneId, function(data)
     DeleteProp(data.id)
 end)
 

@@ -61,3 +61,8 @@ AddEventHandler("da_lib:setItemMetadata", function(item, metadata)
     local src = source
     Lib.API[API].SetItemMetadata(src, item, metadata)
 end)
+
+RegisterServerEvent("da_lib:npcAnimate")
+AddEventHandler("da_lib:npcAnimate", function(source, id, options)
+    TriggerClientEvent("da_lib:npc:animate", -1, id, options)
+end)

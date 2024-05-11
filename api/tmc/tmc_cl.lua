@@ -112,6 +112,13 @@ Lib.API.TMC.PolyZoneCreateCircle = function(zoneId, coords, radius, options)
     return TMC.Functions.AddCircleZone(zoneId, coords, radius, options)
 end
 
+Lib.API.TMC.PolyZoneCreateZone = function(zoneId, points, options)
+    assert(options.minZ, "PolyZoneCreateZone: minZ is required")
+    assert(options.maxZ, "PolyZoneCreateZone: maxZ is required")
+    assert(options.minZ < options.maxZ, "PolyZoneCreateZone: minZ must be less than maxZ")
+    return TMC.Functions.AddPolyZone(zoneId, points, options)
+end
+
 Lib.API.TMC.CreatePed = function(modelHash, coords, option)
     local pedId = "da_npc_"..option.id
     return TMC.Functions.CreateInteractionPed(pedId, {
@@ -122,4 +129,74 @@ Lib.API.TMC.CreatePed = function(modelHash, coords, option)
         Frozen = option.frozen,
         Ai = option.ai,
     })
+end
+
+Lib.API.TMC.PromptCreate = function(title, key)
+    return TMC.Functions.CreatePrompt(title, key, 99999)
+end
+
+Lib.API.TMC.PromptHide = function(prompt)
+    TMC.Functions.RemovePromptFromGroup(prompt)
+end
+
+Lib.API.TMC.PromptUpdate = function(promptGroup, data, zoneData)
+    if data.title then TMC.Functions.UpdatePromptText(promptGroup, data.title) end
+    if data.key and data.fn then TMC.Functions.UpdatePromptComplete(promptGroup, data.key, function() data.fn(zoneData) end) end
+end
+
+Lib.API.TMC.PromptReset = function(promptGroup)
+    TMC.Functions.RemoveAllPromptsFromPromptGroup(promptGroup)
+end
+
+Lib.API.TMC.PromptGroupCreate = function(title)
+    return TMC.Functions.CreatePromptGroup(title, {})
+end
+
+Lib.API.TMC.PromptGroupAddPrompt = function(promptGroup, prompt, data, zoneData)
+    Lib.Log.Debug(data, zoneData)
+    TMC.Functions.AddPromptToGroup(prompt, data.key, promptGroup, function() data.onTrigger(zoneData) end)
+end
+
+Lib.API.TMC.PromptGroupHide = function(promptGroup)
+    TMC.Functions.HidePromptGroup(promptGroup)
+end
+
+Lib.API.TMC.PromptGroupShow = function(promptGroup)
+    TMC.Functions.ShowPromptGroup(promptGroup)
+end
+
+Lib.API.TMC.PromptGroupSetTitle = function(promptGroup, title)
+    TMC.Functions.UpdatePromptGroupTitle(promptGroup, title)
+end
+
+Lib.API.TMC.Teleport = function(coords)
+    TMC.Functions.TeleportToCoords(coords)
+end
+
+Lib.API.TMC.SetNPCAnimate = function(key, options)
+    TMC.Functions.ChangePedOptions(key, options)
+end
+
+Lib.API.TMC.IsJob = function(job, active)
+    local jobMap = {
+        any = { "judge", "stategovt", "attorneygeneral", "doctor", "leo", "dop", "conductor", "rancher", "gunsmith" },
+        good = { "leo", "dop", "judge", "stategovt", "attorneygeneral", },
+        gov = { "judge", "stategovt", "attorneygeneral" },
+        medical = { "doctor", },
+        police = { "leo", "dop" },
+        train = { "conductor", }
+    }
+
+    if jobMap[job] then
+        for _,v in ipairs(jobMap[job]) do
+            if TMC.Functions.HasJob(v) and not active or TMC.Functions.IsOnDuty(v) then return true; end
+        end
+        return false
+    end
+
+    return TMC.Functions.HasJob(job) and not active or TMC.Functions.IsOnDuty(job) ~= false
+end
+
+Lib.API.TMC.Inventory = function(type, id, data)
+    TMC.Functions.TriggerServerEvent("inventory:server:openInventory", type, id, data)
 end

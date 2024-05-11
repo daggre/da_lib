@@ -62,7 +62,7 @@ Lib.Anim.Object = function(entity, animDict, animName, p3, loop, stayInAnim, p6,
     delta = delta or 0.0
     bitset = bitset or 0
 
-    Lib.Log.DebugVerbose(("Anim:Object %s %s loop:%d stay:%d delta:%.1f bitset:%d"):format(
+    Lib.Log.DebugVerbose(("Anim:Object %s %s loop:%s stay:%s delta:%.1f bitset:%d"):format(
         animDict, animName, loop, stayInAnim, delta, bitset
     ))
     LoadAnimDict(animDict)
