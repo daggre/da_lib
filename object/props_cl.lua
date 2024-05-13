@@ -9,6 +9,7 @@ local function LoadScene(data)
     if LoadedScenes[data.name] then return; end
 
     LoadedScenes[data.name] = { loaded = true, props = {} }
+    local objectGroup = nil
     for _, prop in ipairs(data.Props) do
         local obj = nil
         if prop.vehicle then
@@ -21,8 +22,46 @@ local function LoadScene(data)
             obj = nil
             break
         end
-        if obj and LoadedScenes[data.name] then table.insert(LoadedScenes[data.name].props, obj) end
+        if obj and LoadedScenes[data.name] then
+            table.insert(LoadedScenes[data.name].props, obj)
+            if prop.animation then
+                Lib.Log.DebugVerbose(("Playing animation %s on %s"):format(prop.animation.anim, prop.model))
+                Lib.Anim.Object(obj,
+                    prop.animation.dict,
+                    prop.animation.anim,
+                    prop.animation.flags.p3,
+                    prop.animation.flags.loop,
+                    prop.animation.flags.stayInAnim,
+                    prop.animation.flags.p6,
+                    prop.animation.flags.delta,
+                    prop.animation.flags.bitset
+                )
+                if prop.animation.flags then
+                    local animSpeed = tonumber(prop.animation.flags.speed) and prop.animation.flags.speed > 0 and prop.animation.flags.speed or nil
+                    local animTime = prop.animation.flags.time
+                    if animSpeed ~= nil or animTime ~= nil then
+                        -- Wait for the animation to start playing before we can change its speed
+                        SetTimeout(200, function()
+                            Lib.Log.Debug(("Setting object %s time:%s speed:%s"):format(obj, animTime or "-", animSpeed or "-"))
+                            Lib.Anim.SetObject(obj, prop.animation.dict, prop.animation.anim, animTime, animSpeed)
+                        end)
+                    end
+                end
+            end
+            if prop.group then
+                if not objectGroup then objectGroup = {}; end
+                if not objectGroup.prop.group then objectGroup[prop.group] = {}; end
+                table.insert(objectGroup[prop.group], obj)
+            end
+        end
     end
+    if (objectGroup or data.GroupEvent) and LoadedScenes[data.name] then
+        if not objectGroup then Lib.Log.Warn("GroupEvent is set but no objectGroups created"); end
+        local groupEvent = data.GroupEvent or ("%s:ObjectGroup"):format(data.name)
+        -- Callback to deliver entity groups
+        TriggerEvent(groupEvent, objectGroup)
+    end
+
 end
 
 local function UnloadScene(name)
