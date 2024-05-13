@@ -69,3 +69,31 @@ Lib.Anim.Object = function(entity, animDict, animName, p3, loop, stayInAnim, p6,
     PlayEntityAnim(entity, animName, animDict, p3, loop, stayInAnim, p6, delta, bitset)
     RemoveAnimDict(animDict)
 end
+
+Lib.Anim.SetObject = function(entity, animDict, anim, time, speedMultiplier)
+    if time then
+        if time < 0 then
+            StopEntityAnim(entity, animDict, anim, 0.0)
+        else
+            SetEntityAnimCurrentTime(entity, animDict, anim, time)
+        end
+    end
+    if speedMultiplier then
+        SetEntityAnimSpeed(entity, animDict, anim, speedMultiplier)
+    end
+end
+
+Lib.Anim.GetState = function(entity, animDict, anim)
+    if animDict and anim then
+        if HasEntityAnimFinished(entity, animDict, anim) then
+            Lib.Log.Debug(("Anim:GetState %s %s finished"):format(animDict, anim))
+            return 0
+        end
+        return GetEntityAnimCurrentTime(entity, animDict, anim)
+    else
+        local playingAnim = IsEntityPlayingAnyAnim(entity, 1)
+        Lib.Log.Debug(("Anim:GetState EntityPlayingAnim %s"):format(playingAnim))
+        return playingAnim
+    end
+end
+
