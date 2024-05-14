@@ -12,6 +12,7 @@ Lib.Check = {}
 Lib.Control = {}
 Lib.Draw = {}
 Lib.Fn = {}
+Lib.Fx = {}
 Lib.Lock = {}
 Lib.Log = {}
 Lib.Net = {}

@@ -48,6 +48,7 @@ client_scripts {
     'check/check_cl.lua',
     'control/control_cl.lua',
     'fn/fn_cl.lua',
+    'fx/fx_cl.lua',
     'lock/global_cl.lua',
     'zone/polyzone/polyzone_cl.lua',
     'object/npc_cl.lua',
