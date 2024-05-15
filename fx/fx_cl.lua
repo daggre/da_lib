@@ -21,6 +21,7 @@ end
 
 local UsePtfxAsset = function(ptfxDictHash) Citizen.InvokeNative(0xA10DB07FC234DD12, ptfxDictHash) end
 
+-- Clientside fx functions
 local StartParticleFxLoopedOnEntity = function(ptfxName, entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
     return Citizen.InvokeNative(0xBD41E1440CE39800, ptfxName, entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis, false)
 end
@@ -45,6 +46,23 @@ local StartParticleFxAtCoord = function(ptfxName, x, y, z, xRot, yRot, zRot, sca
     return Citizen.InvokeNative(0x2E80BF72EF7C87AC, ptfxName, x, y, z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis, false)
 end
 
+--Networked fx functions
+local StartNetParticleFxLoopedOnEntity = function(ptfxName, entity, xOffset, yOffset, zOffset, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+    return Citizen.InvokeNative(0x8F90AB32E1944BDE, ptfxName, entity, xOffset, yOffset, zOffset, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+end
+
+local StartNetParticleFxOnEntity = function(ptfxName, entity, xOffset, yOffset, zOffset, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+    return Citizen.InvokeNative(0xE6CFE43937061143, ptfxName, entity, xOffset, yOffset, zOffset, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+end
+
+local StartNetParticleFxLoopedOnBone = function(ptfxName, entity, boneIndex, xOffset, yOffset, zOffset, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+    return Citizen.InvokeNative(0x9C56621462FFE7A6, ptfxName, entity, boneIndex, xOffset, yOffset, zOffset, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+end
+
+local StartNetParticleFxAtCoord = function(ptfxName, x, y, z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+    return Citizen.InvokeNative(0xFB97618457994A62, ptfxName, x, y, z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+end
+
 local StartPtfx = function(ptfxName, options)
     local coords = options.coords
     local boneIndex = options.entity and options.bone and GetEntityBoneIndexByName(options.entity, options.bone) or false
@@ -56,31 +74,63 @@ local StartPtfx = function(ptfxName, options)
     local yAxis = options.yAxis or 0.0
     local zAxis = options.zAxis or 0.0
 
-    if options.entity then
-        if options.bone then
-            if options.loop then
-                Lib.Log.Debug("Starting looped ptfx on bone")
-                return StartParticleFxLoopedOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+    if options.networked then
+        if options.entity then
+            if options.bone then
+                if options.loop then
+                    Lib.Log.Debug("Starting looped ptfx on bone")
+                    return StartNetParticleFxLoopedOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                else
+                    Lib.Log.Error("Networked ptfx non-looped on bone is not supported")
+                    -- Lib.Log.Debug("Starting ptfx on bone")
+                    -- return StartNetParticleFxOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                end
             else
-                Lib.Log.Debug("Starting ptfx on bone")
-                return StartParticleFxOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                if options.loop then
+                    Lib.Log.Debug("Starting looped ptfx on entity")
+                    return StartNetParticleFxLoopedOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                else
+                    Lib.Log.Debug("Starting ptfx on entity")
+                    return StartNetParticleFxOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                end
             end
-        else
+        elseif options.coords then
             if options.loop then
-                Lib.Log.Debug("Starting looped ptfx on entity")
-                return StartParticleFxLoopedOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                Lib.Log.Error("Networked looped ptfx at location is not supported")
+                -- Lib.Log.Debug("Starting looped ptfx at location", ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                -- return StartNetParticleFxLoopedAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
             else
-                Lib.Log.Debug("Starting ptfx on entity")
-                return StartParticleFxOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                Lib.Log.Debug("Starting ptfx at location", options)
+                return StartNetParticleFxAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
             end
         end
-    elseif options.coords then
-        if options.loop then
-            Lib.Log.Debug("Starting looped ptfx at location", ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
-            return StartParticleFxLoopedAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
-        else
-            Lib.Log.Debug("Starting ptfx at location", options)
-            return StartParticleFxAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+    else
+        if options.entity then
+            if options.bone then
+                if options.loop then
+                    Lib.Log.Debug("Starting looped ptfx on bone")
+                    return StartParticleFxLoopedOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                else
+                    Lib.Log.Debug("Starting ptfx on bone")
+                    return StartParticleFxOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                end
+            else
+                if options.loop then
+                    Lib.Log.Debug("Starting looped ptfx on entity")
+                    return StartParticleFxLoopedOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                else
+                    Lib.Log.Debug("Starting ptfx on entity")
+                    return StartParticleFxOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                end
+            end
+        elseif options.coords then
+            if options.loop then
+                Lib.Log.Debug("Starting looped ptfx at location", ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+                return StartParticleFxLoopedAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+            else
+                Lib.Log.Debug("Starting ptfx at location", options)
+                return StartParticleFxAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
+            end
         end
     end
 end
@@ -126,10 +176,12 @@ if Lib.Util.IsDev then
         local ptfxName = args[2]
         local fxHandle = Lib.Fx.New(ptfxDict, ptfxName, {
             coords = Lib.Util.GetOffsetFromEntity(PlayerPedId(), 0, 1.0, 0.0).coords,
-            -- loop = true,
+            -- entity = PlayerPedId(),
+            -- bone = "SKEL_R_Hand",
+            loop = true,
         })
         Lib.Log.Debug("Created ptfx fxHandle", fxHandle)
-        SetTimeout(10000, function()
+        SetTimeout(tonumber(args[3]) or 10000, function()
             Lib.Log.Debug("Removing fxHandle", fxHandle)
             Lib.Fx.Remove({handle = fxHandle})
         end)
