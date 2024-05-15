@@ -1,14 +1,17 @@
 local RequestNamedPtfxAsset = function(ptfxDictHash) Citizen.InvokeNative(0xF2B2353BBC0D4E8F, ptfxDictHash) end
 
-local HasNamedPtfxAssetLoaded = function(ptfxDictHash) Citizen.InvokeNative(0x65BB72F29138F5D6, ptfxDictHash) end
+local HasNamedPtfxAssetLoaded = function(ptfxDictHash) return Citizen.InvokeNative(0x65BB72F29138F5D6, ptfxDictHash) end
 
-local LoadPtfxDict = function(ptfxDictHash)
+local LoadPtfxDict = function(ptfxDict)
+    local ptfxDictHash = GetHashKey(ptfxDict)
     if HasNamedPtfxAssetLoaded(ptfxDictHash) then return true; end
 
+    Lib.Log.Debug("Requesting Asset ptfxDict", ptfxDictHash)
     RequestNamedPtfxAsset(ptfxDictHash)
     local timeout = GetGameTimer() + 1000
     while not HasNamedPtfxAssetLoaded(ptfxDictHash) do
         if GetGameTimer() > timeout then
+            Lib.Log.Debug("Failed to load ptfxDict", ptfxDictHash)
             return false
         end
         Citizen.Wait(100)
@@ -19,11 +22,11 @@ end
 local UsePtfxAsset = function(ptfxDictHash) Citizen.InvokeNative(0xA10DB07FC234DD12, ptfxDictHash) end
 
 local StartParticleFxLoopedOnEntity = function(ptfxName, entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
-    return Citizen.InvokeNative(0x1AE42C1660FD6517, ptfxName, entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis, false)
+    return Citizen.InvokeNative(0xBD41E1440CE39800, ptfxName, entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis, false)
 end
 
 local StartParticleFxOnEntity = function(ptfxName, entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
-    return Citizen.InvokeNative(0x8F90ABD54E5C5A63, ptfxName, entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis, false)
+    return Citizen.InvokeNative(0xFF4C64C513388C12, ptfxName, entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis, false)
 end
 
 local StartParticleFxLoopedOnBone = function(ptfxName, entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
@@ -35,7 +38,7 @@ local StartParticleFxOnBone = function(ptfxName, entity, boneIndex, xOff, yOff, 
 end
 
 local StartParticleFxLoopedAtCoord = function(ptfxName, x, y, z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
-    return Citizen.InvokeNative(0x6E06C0D8B3921E5C, ptfxName, x, y, z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis, false)
+    return Citizen.InvokeNative(0xBA32867E86125D3A, ptfxName, x, y, z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis, false)
 end
 
 local StartParticleFxAtCoord = function(ptfxName, x, y, z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
@@ -43,34 +46,40 @@ local StartParticleFxAtCoord = function(ptfxName, x, y, z, xRot, yRot, zRot, sca
 end
 
 local StartPtfx = function(ptfxName, options)
-    local coords = options.coords.xyz
+    local coords = options.coords
     local boneIndex = options.entity and options.bone and GetEntityBoneIndexByName(options.entity, options.bone) or false
-    local xRot = options.coords.xRot or 0.0
-    local yRot = options.coords.yRot or 0.0
-    local zRot = options.coords.zRot or 0.0
+    local xRot = options.xRot or 0.0
+    local yRot = options.yRot or 0.0
+    local zRot = options.zRot or 0.0
     local scale = options.scale or 1.0
-    local xAxis = options.xAxis or 0
-    local yAxis = options.yAxis or 0
-    local zAxis = options.zAxis or 0
+    local xAxis = options.xAxis or 0.0
+    local yAxis = options.yAxis or 0.0
+    local zAxis = options.zAxis or 0.0
 
     if options.entity then
         if options.bone then
             if options.loop then
+                Lib.Log.Debug("Starting looped ptfx on bone")
                 return StartParticleFxLoopedOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
             else
+                Lib.Log.Debug("Starting ptfx on bone")
                 return StartParticleFxOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
             end
         else
             if options.loop then
+                Lib.Log.Debug("Starting looped ptfx on entity")
                 return StartParticleFxLoopedOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
             else
+                Lib.Log.Debug("Starting ptfx on entity")
                 return StartParticleFxOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
             end
         end
     elseif options.coords then
         if options.loop then
+            Lib.Log.Debug("Starting looped ptfx at location", ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
             return StartParticleFxLoopedAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
         else
+            Lib.Log.Debug("Starting ptfx at location", options)
             return StartParticleFxAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
         end
     end
@@ -93,16 +102,16 @@ local RemoveParticleFxInRange = function(x, y, z, radius)
 end
 
 Lib.Fx.New = function(ptfxDict, ptfxName, options)
-    local ptfxDictHash = GetHashKey(ptfxDict)
-    if not LoadPtfxDict(ptfxDictHash) then return; end
+    if not LoadPtfxDict(ptfxDict) then return; end
+    Lib.Log.Debug("Loaded ptfxDict", ptfxDict)
     UsePtfxAsset(ptfxDict)
-    StartPtfx(ptfxName, options)
+    return StartPtfx(ptfxName, options)
 end
 
 Lib.Fx.Remove = function(options)
     if options.handle then
-        if DoesParticleFxExist(ptfxHandle) then
-            RemoveParticleFx(ptfxHandle)
+        if DoesParticleFxExist(options.handle) then
+            RemoveParticleFx(options.handle)
         end
     elseif options.entity then
         RemoveParticleFxFromEntity(entity)
@@ -111,3 +120,18 @@ Lib.Fx.Remove = function(options)
     end
 end
 
+if Lib.Util.IsDev then
+    RegisterCommand("da_fx_test", function(source, args, rawCommand)
+        local ptfxDict = args[1]
+        local ptfxName = args[2]
+        local fxHandle = Lib.Fx.New(ptfxDict, ptfxName, {
+            coords = Lib.Util.GetOffsetFromEntity(PlayerPedId(), 0, 1.0, 0.0).coords,
+            -- loop = true,
+        })
+        Lib.Log.Debug("Created ptfx fxHandle", fxHandle)
+        SetTimeout(10000, function()
+            Lib.Log.Debug("Removing fxHandle", fxHandle)
+            Lib.Fx.Remove({handle = fxHandle})
+        end)
+    end, false)
+end
