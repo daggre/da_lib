@@ -50,7 +50,7 @@ local function LoadScene(data)
             end
             if prop.group then
                 if not objectGroup then objectGroup = {}; end
-                if not objectGroup.prop.group then objectGroup[prop.group] = {}; end
+                if not objectGroup[prop.group] then objectGroup[prop.group] = {}; end
                 table.insert(objectGroup[prop.group], obj)
             end
         end
