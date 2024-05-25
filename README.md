@@ -22,7 +22,7 @@ Add `ensure da_lib` to your preferred resource config. (Default: server.cfg)
 
 ## Support
 - Discord: daggre
-- Discord Server: TBA
+- Discord Server: [da_dev](https://discord.com/invite/JgteBpXGaA)
 
 ## Authors and Acknowledgment
 - daggre_actual
