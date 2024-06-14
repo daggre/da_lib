@@ -11,6 +11,15 @@ local function PlayStream(entity, streamName, soundSet)
     end
     local streamId = Citizen.InvokeNative(0x0556C784FA056628, soundSet, streamName) or 0 -- GetLoadedStreamIdFromCreation
     PlayStreamFromPed(entity, streamId)
+    if Lib.Util.IsDev then
+        Citizen.CreateThread(function()
+            local startTime = GetGameTimer()/1000
+            while IsStreamPlaying(streamId) do
+                Citizen.Wait(500)
+            end
+            Lib.Log.Debug(("Stream %s end @ %.1fs duration %.1fs"):format(streamId, GetGameTimer()/1000, (GetGameTimer()/1000) - startTime))
+        end)
+    end
     return streamId
 end
 
