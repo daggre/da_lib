@@ -2,6 +2,9 @@ local RequestNamedPtfxAsset = function(ptfxDictHash) Citizen.InvokeNative(0xF2B2
 
 local HasNamedPtfxAssetLoaded = function(ptfxDictHash) return Citizen.InvokeNative(0x65BB72F29138F5D6, ptfxDictHash) end
 
+---Load Particle Fx Dictionary
+---@param ptfxDict string The name of the particle fx dictionary
+---@return boolean success Returns true if the dictionary was successfully loaded
 local LoadPtfxDict = function(ptfxDict)
     local ptfxDictHash = GetHashKey(ptfxDict)
     if HasNamedPtfxAssetLoaded(ptfxDictHash) then return true; end
@@ -63,6 +66,10 @@ local StartNetParticleFxAtCoord = function(ptfxName, x, y, z, xRot, yRot, zRot, 
     return Citizen.InvokeNative(0xFB97618457994A62, ptfxName, x, y, z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
 end
 
+---Given a particle fx name, play the particle fx based on the options
+---@param ptfxName string The name of the particle fx
+---@param options table The options for the particle fx
+---@return number|nil fxHandleThe The handle of the particle fx
 local StartPtfx = function(ptfxName, options)
     local coords = options.coords
     local boneIndex = options.entity and options.bone and GetEntityBoneIndexByName(options.entity, options.bone) or false
@@ -75,64 +82,87 @@ local StartPtfx = function(ptfxName, options)
     local zAxis = options.zAxis or 0.0
 
     if options.networked then
+        -- If the particle fx is networked
         if options.entity then
+            -- If the particle fx is networked and should be attached to an entity
             if options.bone then
+                -- If the particle fx is networked, attached to an entity bone
                 if options.loop then
+                    -- If the particle fx is networked, attached to an entity bone, and looped
                     Lib.Log.Debug("Starting looped ptfx on bone")
                     return StartNetParticleFxLoopedOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
                 else
+                    -- If the particle fx is networked, attached to an entity bone, and not looped
                     Lib.Log.Error("Networked ptfx non-looped on bone is not supported")
                     -- Lib.Log.Debug("Starting ptfx on bone")
                     -- return StartNetParticleFxOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
                 end
             else
+                -- If the particle fx is networked, attached to an entity, and not attached to a bone
                 if options.loop then
+                    -- If the particle fx is networked, attached to an entity, not attached to a bone, and looped
                     Lib.Log.Debug("Starting looped ptfx on entity")
                     return StartNetParticleFxLoopedOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
                 else
+                    -- If the particle fx is networked, attached to an entity, not attached to a bone, and not looped
                     Lib.Log.Debug("Starting ptfx on entity")
                     return StartNetParticleFxOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
                 end
             end
         elseif options.coords then
+            -- If the particle fx is networked and should be attached to a location
             if options.loop then
+                -- If the particle fx is networked, attached to a location, and looped
                 Lib.Log.Error("Networked looped ptfx at location is not supported")
                 -- Lib.Log.Debug("Starting looped ptfx at location", ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
                 -- return StartNetParticleFxLoopedAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
             else
+                -- If the particle fx is networked, attached to a location, and not looped
                 Lib.Log.Debug("Starting ptfx at location", options)
                 return StartNetParticleFxAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
             end
         end
     else
+        -- If the particle fx is not networked
         if options.entity then
+            -- If the particle fx is not networked and attached to an entity
             if options.bone then
+                -- If the particle fx is not networked, attached to an entity bone
                 if options.loop then
+                    -- If the particle fx is not networked, attached to an entity bone, and looped
                     Lib.Log.Debug("Starting looped ptfx on bone")
                     return StartParticleFxLoopedOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
                 else
+                    -- If the particle fx is not networked, attached to an entity bone, and not looped
                     Lib.Log.Debug("Starting ptfx on bone")
                     return StartParticleFxOnBone(ptfxName, options.entity, boneIndex, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
                 end
             else
+                -- If the particle fx is not networked, attached to an entity, and not attached to a bone
                 if options.loop then
+                    -- If the particle fx is not networked, attached to an entity, not attached to a bone, and looped
                     Lib.Log.Debug("Starting looped ptfx on entity")
                     return StartParticleFxLoopedOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
                 else
+                    -- If the particle fx is not networked, attached to an entity, not attached to a bone, and not looped
                     Lib.Log.Debug("Starting ptfx on entity")
                     return StartParticleFxOnEntity(ptfxName, options.entity, xOff, yOff, zOff, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
                 end
             end
         elseif options.coords then
+            -- If the particle fx is not networked and should be attached to a location
             if options.loop then
+                -- If the particle fx is not networked, attached to a location, and looped
                 Lib.Log.Debug("Starting looped ptfx at location", ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
                 return StartParticleFxLoopedAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
             else
+                -- If the particle fx is not networked, attached to a location, and not looped
                 Lib.Log.Debug("Starting ptfx at location", options)
                 return StartParticleFxAtCoord(ptfxName, coords.x, coords.y, coords.z, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis)
             end
         end
     end
+    return nil
 end
 
 local DoesParticleFxExist = function(ptfxHandle)
@@ -151,13 +181,19 @@ local RemoveParticleFxInRange = function(x, y, z, radius)
     return Citizen.InvokeNative(0x87B5905ECA623B68, x, y, z, radius)
 end
 
+---Create a new particle fx effect and return the id
+---@param ptfxDict string The name of the particle fx dictionary
+---@param ptfxName string The name of the particle fx
+---@param options table The options for creating the particle fx
+---@return number|nil fxHandle The particle fx handle
 Lib.Fx.New = function(ptfxDict, ptfxName, options)
-    if not LoadPtfxDict(ptfxDict) then return; end
-    Lib.Log.Debug("Loaded ptfxDict", ptfxDict)
+    if not LoadPtfxDict(ptfxDict) then return nil; end
     UsePtfxAsset(ptfxDict)
     return StartPtfx(ptfxName, options)
 end
 
+---Remove a particle fx effect
+---@param options any
 Lib.Fx.Remove = function(options)
     if options.handle then
         if DoesParticleFxExist(options.handle) then
@@ -171,6 +207,10 @@ Lib.Fx.Remove = function(options)
 end
 
 if Lib.Util.IsDev then
+    -- If in dev mode, register test commands to test particle fx
+
+    --- Generate a particle fx
+    ---@param args table Arg 1: ptfxDict, Arg 2: ptfxName, Arg 3: duration
     RegisterCommand("da_fx_test", function(source, args, rawCommand)
         local ptfxDict = args[1]
         local ptfxName = args[2]

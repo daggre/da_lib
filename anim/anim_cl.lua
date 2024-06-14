@@ -1,3 +1,6 @@
+--- Load an animation dictionary
+---@param animDict string
+---@return boolean boolean Did the animDict load
 local LoadAnimDict = function(animDict)
     local timeout = GetGameTimer() + 200
     while not HasAnimDictLoaded(animDict) do
@@ -10,6 +13,17 @@ local LoadAnimDict = function(animDict)
     return true
 end
 
+--- Play an animation on a ped
+---@param entity number entity id
+---@param animDict string animation dictionary
+---@param animName string animation name
+---@param blendIn number animation blend in speed
+---@param blendOut number animation blend out speed
+---@param duration number length in ms the animation should play
+---@param flags number flags determining how the animation is applied to the entity
+---@param playbackRate number speed of the animation (doesn't work on peds)
+---@param ikFlags number flags determining the inverse kinematics
+---@param taskFilter any overrides to false
 Lib.Anim.Ped = function(entity, animDict, animName, blendIn, blendOut, duration, flags, playbackRate, ikFlags, taskFilter)
     blendIn = tonumber(blendIn) or 3.0
     blendOut = tonumber(blendOut) or 3.0
@@ -30,6 +44,22 @@ Lib.Anim.Ped = function(entity, animDict, animName, blendIn, blendOut, duration,
     RemoveAnimDict(animDict)
 end
 
+--- Play an animation on an entity using advanced parameters
+---@param entity number entity id
+---@param animDict string animation dictionary
+---@param animName string animation name
+---@param posX number|boolean x coordinate to playback the animation from
+---@param posY number|boolean y coordinate to playback the animation from
+---@param posZ number|boolean z coordinate to playback the animation from
+---@param rotZ number rotation on the z axis to apply to the animation
+---@param speed number the playback speed of the animation
+---@param speedMultiplier any the speed multiplier of the animation
+---@param duration number length in ms the animation should play
+---@param flags number flags determining how the animation is applied to the entity
+---@param animTime any the time in the animation to start playing from
+---@param p14 any unknown
+---@param p15 any unknown
+---@param p16 any unknown
 Lib.Anim.Adv = function(entity, animDict, animName, posX, posY, posZ, rotZ, speed, speedMultiplier, duration, flags, animTime, p14, p15, p16)
     posX = tonumber(posX) or false
     posY = tonumber(posY) or false
@@ -54,6 +84,16 @@ Lib.Anim.Adv = function(entity, animDict, animName, posX, posY, posZ, rotZ, spee
     RemoveAnimDict(animDict)
 end
 
+--- Play an object animation
+---@param entity number entity id of the object
+---@param animDict string animation dictionary
+---@param animName string animation name
+---@param p3 any unknown
+---@param loop number loop the animation
+---@param stayInAnim number stay in the animation
+---@param p6 string unknown
+---@param delta number unknown
+---@param bitset number unknown
 Lib.Anim.Object = function(entity, animDict, animName, p3, loop, stayInAnim, p6, delta, bitset)
     p3 = 0.0
     loop = loop or 0
@@ -70,6 +110,12 @@ Lib.Anim.Object = function(entity, animDict, animName, p3, loop, stayInAnim, p6,
     RemoveAnimDict(animDict)
 end
 
+--- Set the current time and speed of an animation playing on an object
+---@param entity number entity id of the object
+---@param animDict string animation dictionary
+---@param anim string animation name
+---@param time number|nil the time in the animation to play from
+---@param speedMultiplier number|nil the speed multiplier of the animation
 Lib.Anim.SetObject = function(entity, animDict, anim, time, speedMultiplier)
     if time then
         if time < 0 then
@@ -83,6 +129,11 @@ Lib.Anim.SetObject = function(entity, animDict, anim, time, speedMultiplier)
     end
 end
 
+--- Get the animation state of an entity
+---@param entity number entity id
+---@param animDict string animation dictionary currently playing
+---@param anim string animation name currently playing
+---@return integer time current time in the animation or 0
 Lib.Anim.GetState = function(entity, animDict, anim)
     if animDict and anim then
         if HasEntityAnimFinished(entity, animDict, anim) then

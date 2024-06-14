@@ -3,7 +3,7 @@
 ---Zone cache
 InZone = {}
 
----Get the first zone by condition
+---Get the first zone matching the condition
 ---@param condition function
 ---@return table|nil
 Lib.Zone.Get = function(condition)
@@ -46,23 +46,23 @@ Lib.Zone.Add = function(zoneData)
 end
 
 ---Remove zones based on the conditions and return the number of zones removed
----@param condition function
----@return boolean|integer
+---@param condition function The condition to remove zones
+---@return integer|boolean removedZones The number of zones removed
 Lib.Zone.Remove = function(condition)
-    local entriesRemoved = 0
+    local zonesRemoved = 0
     for i, zoneData in ipairs(InZone) do
         if condition(zoneData) then
             table.remove(InZone, i)
-            entriesRemoved = entriesRemoved + 1
+            zonesRemoved = zonesRemoved + 1
         end
     end
-    return entriesRemoved
+    return zonesRemoved > 0 and zonesRemoved or false
 end
 
 ---Update zones based on the conditions and return the number of zones updated
----@param condition any
----@param t any
----@return boolean|integer
+---@param condition function The condition to match and update zones
+---@param t table The table of values to update
+---@return boolean|integer zonesUpdated The number of zones updated
 Lib.Zone.Update = function(condition, t)
     local updated = 0
     for _, zoneData in ipairs(InZone) do
@@ -76,12 +76,14 @@ Lib.Zone.Update = function(condition, t)
     return updated > 0 and updated or false
 end
 
+-- Add the zone to the cache when entering
 RegisterNetEvent("interactionZone:enter")
 AddEventHandler("interactionZone:enter", function(zoneData)
     Lib.Zone.Add(zoneData)
     Lib.Log.Debug("Entered zone: " .. zoneData.id)
 end)
 
+-- Remove the zone from the cache when exiting
 RegisterNetEvent("interactionZone:exit")
 AddEventHandler("interactionZone:exit", function(zoneData)
     local zonesRemoved = Lib.Zone.Remove(function(data)

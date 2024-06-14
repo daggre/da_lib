@@ -1,26 +1,36 @@
 --- Copyright © 2024 Joshua Nelson
 
-Lib.Fn.Eat = function(increaseAmount)
+---Adjust the hunger status of the player
+---@param amount integer the amount to adjust the hunger by (positive values decrease hunger)
+Lib.Fn.Eat = function(amount)
     if Lib.API.Active then
-        Lib.API.Eat(increaseAmount)
+        Lib.API.Eat(amount)
         return
     end
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("Eat"))
 end
 
+--- Event handler for calling the Eat functionality
 RegisterNetEvent("da_lib:eat")
 AddEventHandler("da_lib:eat", function(increaseAmount)
     Lib.Fn.Eat(increaseAmount)
 end)
 
-Lib.Fn.Drink = function(increaseAmount)
+---Adjust the thirst status of the player
+---@param amount integer the amount to adjust the thirst by (positive values decrease thirst)
+Lib.Fn.Drink = function(amount)
     if Lib.API.Active then
-        Lib.API.Drink(increaseAmount)
+        Lib.API.Drink(amount)
         return
     end
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("Drink"))
 end
 
+---Automatically move the player to a set of coordinates
+---@param ped integer the id of the entity/ped
+---@param coords table vector3 coordinates to move to
+---@param timeout number the amount of time in ms to wait for the task to complete
+---@param forceCoords boolean whether to force the player to the coordinates
 Lib.Fn.Move = function(ped, coords, timeout, forceCoords)
     local speed = 1.0
     local slideDistance = 0.3
@@ -39,6 +49,7 @@ Lib.Fn.Consume = function(name, data)
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("Consume"))
 end
 
+-- TODO: Move this to chance lib
 Lib.Fn.ChanceItem = function(itemName, amount, chance)
     if chance and chance < 100 then
         local chanceResult = math.random(100)
