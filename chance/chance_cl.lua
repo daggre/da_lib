@@ -1,3 +1,10 @@
+--- Copyright © 2024 Joshua Nelson
+
+---Give an item to the player based on chance
+---@param itemName string The item name
+---@param amount integer The amount of the item to give
+---@param chance integer The percent chance out of 100 to receive the item
+---@return unknown|nil
 Lib.Chance.Item = function(itemName, amount, chance)
     if chance and chance < 100 then
         local chanceResult = math.random(100)
@@ -9,12 +16,23 @@ Lib.Chance.Item = function(itemName, amount, chance)
     end
 end
 
+---Given a base chance and a max chance, calculate how many disadvantages to
+---apply based on how many times the chance goes into the max chance.
+---@param chance integer the base chance or skill to calculate disadvantages for
+---@param max integer the max chance or skill to calculate disadvantages for
+---@param disadvantageCap integer the maximum number of disadvantages to apply
+---@return integer disadvantages the number of disadvantages to apply
 Lib.Chance.Disadvantage = function(chance, max, disadvantageCap)
     disadvantageCap = disadvantageCap or 2
     -- Calculate how many disadvantages to apply based on skill level
     return math.min(disadvantageCap, math.floor(max/chance))
 end
 
+---Roll for chance and apply disadvantages
+---@param min integer base chance of success (roll lower than value to succeed)
+---@param max integer maximum chance
+---@param disadvantage integer number of disadvantages to apply
+---@return integer roll the value of the roll after applying disadvantages
 Lib.Chance.Roll = function(min, max, disadvantage)
     disadvantage = disadvantage or 0
     local value = min
@@ -24,6 +42,10 @@ Lib.Chance.Roll = function(min, max, disadvantage)
     return value
 end
 
+---Calculate the chance to break a lock given a skill value and a lock skill
+---@param skill integer the skill ability of the player to break a lock
+---@param lockSkill integer the skill level of the lock
+---@return boolean success did the player successfully break the lock
 Lib.Chance.Lockbreak = function(skill, lockSkill)
     if not skill then return false; end
     local maxChance = 95

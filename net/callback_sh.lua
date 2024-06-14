@@ -9,33 +9,36 @@ NextCallbackId = 0
 MaxCallbackId = 2^16
 
 
----GetCallbackEventId
----@param eventName string
----@param callbackId string
----@return string
+---Get a unique callback event id
+---@param eventName string The event name
+---@param callbackId string The unique callback id
+---@return string callbackEventId The unique callback event id
 GetCallbackEventId = function(eventName, callbackId)
     assert(eventName ~= nil and type(eventName) == "string", "TypeError: eventName is not type: \"string\".")
     assert(callbackId ~= nil and type(callbackId) == "string", "TypeError: callbackId is not type: \"string\".")
     return eventName .. "_" .. callbackId
 end
 
----GetCallbackId
----@return string callbackId
+---Get a unique callback id
+---@return string callbackId The unique callback id
 GetUniqueCallbackId = function()
     local callbackId = tostring(NextCallbackId)
+    -- Wrap around to 0 if we reach the max callback id
     NextCallbackId = (NextCallbackId >= MaxCallbackId) and 0 or NextCallbackId + 1
     return callbackId
 end
 
----WaitOnCallbackEvent
+---Wait on a blocking callback event
 ---@param callbackEvents table
 ---@param callbackEvent string
 ---@param timeout number
 WaitOnBlockingCallbackEvent = function(callbackEvents, callbackEvent, timeout)
     local startTime = GetGameTimer()
+    -- Wait for the event to be other than waiting (result or timeout)
     while callbackEvents[callbackEvent] == EventStatus.waiting do
         Citizen.Wait(0)
         if (GetGameTimer() >= startTime + timeout) then
+            -- Set the event to timeout if we have exceeded the timeout
             callbackEvents[callbackEvent] = EventStatus.timeout
         end
     end
