@@ -30,17 +30,18 @@ Lib.Anim.Ped = function(entity, animDict, animName, blendIn, blendOut, duration,
     duration = tonumber(duration) or -1
     flags = tonumber(flags) or 0
     playbackRate = tonumber(playbackRate) or 0
+    local p8 = false
     ikFlags = tonumber(ikFlags) or 0
-    local p10 = 0
+    local p10 = false
     taskFilter = false
-    local p12 = 0
+    local p12 = false
 
     LoadAnimDict(animDict)
     ClearPedSecondaryTask(entity)
     Lib.Log.DebugVerbose(("Anim:Ped %s %s in:%.1f out:%.1f dur:%d flags:%d rate:%d ik:%d"):format(
         animDict, animName, blendIn, blendOut, duration, flags, playbackRate, ikFlags
     ))
-    TaskPlayAnim(entity, animDict, animName, blendIn, blendOut, duration, flags, playbackRate, ikFlags, p10, taskFilter, p12)
+    TaskPlayAnim(entity, animDict, animName, blendIn, blendOut, duration, flags, playbackRate, p8, ikFlags, p10, taskFilter, p12)
     RemoveAnimDict(animDict)
 end
 
