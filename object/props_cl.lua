@@ -61,7 +61,10 @@ local function LoadScene(data)
             if prop.group then
                 if not objectGroup then objectGroup = {}; end
                 if not objectGroup[prop.group] then objectGroup[prop.group] = {}; end
-                table.insert(objectGroup[prop.group], obj)
+                objectGroup[prop.group][obj] = {
+                    animDict = prop.animation and prop.animation.dict,
+                    anim = prop.animation and prop.animation.anim,
+                }
             end
         end
         if not LoadedScenes[data.name] or not LoadedScenes[data.name].loaded then
@@ -77,6 +80,7 @@ local function LoadScene(data)
         if not objectGroup then Lib.Log.Warn("GroupEvent is set but no objectGroups created"); end
         local groupEvent = data.GroupEvent or ("%s:ObjectGroup"):format(data.name)
         -- Callback to deliver entity groups
+        Lib.Log.Debug("Triggering group event", groupEvent, objectGroup)
         TriggerEvent(groupEvent, objectGroup)
     end
 
@@ -104,6 +108,7 @@ Lib.Props.Register = function(sceneName, scene)
     if Scenes[sceneName] then return; end
 
     -- Verify the scene has valid zone data for creating the polyzone
+    Scenes[sceneName] = scene
     if not scene.Zone or not scene.Zone.Radius or not scene.Zone.Coords then
         Lib.Log.Warn(scene.Zone.Radius, ("Zone malformed %s"):format(sceneName))
         return
@@ -153,7 +158,9 @@ Lib.Props.Unload = function(sceneName)
     if not sceneName then return; end
     if not LoadedScenes[sceneName] then return; end
 
+    LoadedScenes[sceneName].loaded = false
     UnloadScene(sceneName)
+    LoadedScenes[sceneName] = nil
 end
 
 -- Register the polyzone enter/exit event handlers to load and unload scenes
