@@ -76,3 +76,24 @@ Lib.Util.GetEntitiesNearPoint = function(coords, radius, filter)
     end
     return entities
 end
+
+---Get the peds near a point
+---@param coords table The coordinates to search from
+---@param radius number The radius to search
+---@param filter function|nil The filter to apply to the peds
+---@return table entities The peds within the radius of the point matching the filter conditions
+Lib.Util.GetPedsNearPoint = function(coords, radius, filter)
+    local entities = {}
+    local itemset = CreateItemset(true)
+    local size = Citizen.InvokeNative(0x59B57C4B06531E1E, coords.x, coords.y, coords.z, radius, itemset, 1, Citizen.ResultAsInteger()) -- GetEntitiesNearPoint
+    for i = 0, size - 1 do
+        local entity = GetIndexedItemInItemset(i, itemset)
+        if not filter or filter(entity) then
+            table.insert(entities, entity)
+        end
+    end
+    if IsItemsetValid(itemset) then
+        DestroyItemset(itemset)
+    end
+    return entities
+end
