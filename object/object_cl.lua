@@ -103,8 +103,9 @@ Lib.Obj.SetParameters = function(entity, option)
     end
 
     if option.collision ~= nil then
+        if option.collisionKeepPhysics == nil then option.collisionKeepPhysics = true; end
         --  If collision is provided set the collision
-        SetEntityCollision(entity, option.collision, true)
+        SetEntityCollision(entity, option.collision, option.collisionKeepPhysics)
     end
 
     if option.visible ~= nil then

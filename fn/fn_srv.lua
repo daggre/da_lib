@@ -1,5 +1,10 @@
 --- Copyright © 2024 Joshua Nelson
 
+Lib.Net.RegisterServerCb("da_lib:checkPerm", function(src, level)
+    local success = Lib.API.HasPermission(src, level)
+    Lib.Log.Debug(("%s checking %s perm: %s"):format(src, level, success))
+    return success
+end)
 
 ---@diagnostic disable-next-line: duplicate-set-field
 Lib.Fn.AddItem = function(src, itemName, amount, slot, slotIndex)
@@ -32,4 +37,11 @@ Lib.Fn.IsMale = function(src)
         return Lib.API.IsCharMale(src)
     end
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("IsMale"))
+end
+
+Lib.Fn.HasPermission = function(src, level)
+    if Lib.API.Active then
+        return Lib.API.HasPermission(src, level)
+    end
+    return true
 end

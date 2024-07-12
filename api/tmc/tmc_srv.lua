@@ -86,3 +86,7 @@ Lib.API.TMC.IsCharMale = function(src)
     -- If we dont know, then just return male
     return true
 end
+
+Lib.API.TMC.HasPermission = function(src, level)
+    return TMC.Functions.HasPermission(src, level)
+end

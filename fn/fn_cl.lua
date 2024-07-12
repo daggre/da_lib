@@ -1,5 +1,13 @@
 --- Copyright © 2024 Joshua Nelson
 
+---Check if the client has the permission level
+---@param level string Permission level
+---@return boolean success true if the client has the permission level
+Lib.Fn.HasPermission = function(level)
+    Lib.Log.Debug(("Checking %s permission"):format(level))
+    return Lib.Net.BlockingCb("da_lib:checkPerm", 3000, level)
+end
+
 ---Adjust the hunger status of the player
 ---@param amount integer the amount to adjust the hunger by (positive values decrease hunger)
 Lib.Fn.Eat = function(amount)
@@ -30,7 +38,7 @@ end
 ---@param ped integer the id of the entity/ped
 ---@param coords table vector3 coordinates to move to
 ---@param timeout number the amount of time in ms to wait for the task to complete
----@param forceCoords boolean whether to force the player to the coordinates
+---@param boolean forceCoords whether to force the player to the coordinates
 Lib.Fn.Move = function(ped, coords, timeout, forceCoords)
     local speed = 1.0
     local slideDistance = 0.3
