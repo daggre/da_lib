@@ -51,6 +51,11 @@ Lib.API.IsCharMale = function(src)
     return Lib.API[API].IsCharMale(src)
 end
 
+Lib.API.HasPermission = function(src, permission)
+    if not isAPI() then return; end
+    return Lib.API[API].HasPermission(src, permission)
+end
+
 Lib.Net.RegisterServerCb("da_lib:consumeCharge", function(src, name, slot, index, info)
     return Lib.API.ConsumeCharge(src, name, slot, index, info)
 end)
