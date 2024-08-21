@@ -70,14 +70,13 @@ Lib.Mode.Remove = function(mode)
     Lib.Log.Debug(("Removing mode %s"):format(mode))
     if AllActiveModes[mode] and Mode[mode].default.exitFn then
         Mode[mode].default.exitFn()
-    else
-        Mode[mode].default.updateFn({
-            focusKeyboard = false,
-            focusCursor = false,
-            keepFocus = false,
-            passthrough = false,
-        })
     end
+    Mode[mode].default.updateFn({
+        focusKeyboard = false,
+        focusCursor = false,
+        keepFocus = false,
+        passthrough = false,
+    })
     AllActiveModes[mode] = nil
     Lib.Mode.Update()
 end
