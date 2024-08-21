@@ -62,6 +62,11 @@ Lib.API.HasItems = function(items)
     return Lib.API[API].HasItems(items)
 end
 
+Lib.API.SetDoorStatus = function(data, attribute, status)
+    if not isAPI() then return; end
+    Lib.API[API].SetDoorStatus(data, attribute, status)
+end
+
 ---@diagnostic disable-next-line: duplicate-set-field
 Lib.API.Notify = function(message, notifyType, time)
     if not isAPI() then
@@ -127,6 +132,11 @@ Lib.API.PromptUpdate = function(promptGroup, data, zoneData)
     return Lib.API[API].PromptUpdate(promptGroup, data, zoneData)
 end
 
+Lib.API.PromptUpdateText = function(promptGroup, key, text)
+    if not isAPI() then return; end
+    return Lib.API[API].PromptUpdateText(promptGroup, key, text)
+end
+
 Lib.API.PromptGroupCreate = function(title)
     if not isAPI() then return; end
     return Lib.API[API].PromptGroupCreate(title)
@@ -168,11 +178,21 @@ Lib.API.SetNPCAnimate = function(id, options)
 end
 
 Lib.API.IsJob = function(job, active)
-    if not isAPI() then return; end
+    if not isAPI() then return true; end
     return Lib.API[API].IsJob(job, active)
 end
 
 Lib.API.Inventory = function(type, id, data)
     if not isAPI() then return; end
     return Lib.API[API].Inventory(type, id, data)
+end
+
+Lib.API.AddSkill = function(skill, amount)
+    if not isAPI() then return; end
+    TriggerServerEvent("da_lib:addSkill", skill, amount)
+end
+
+Lib.API.SetSkill = function(skill, amount)
+    if not isAPI() then return; end
+    TriggerServerEvent("da_lib:setSkill", skill, amount)
 end

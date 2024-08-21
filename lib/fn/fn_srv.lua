@@ -45,3 +45,18 @@ Lib.Fn.HasPermission = function(src, level)
     end
     return true
 end
+
+Lib.Fn.SendTelegram = function(src, category, message, location, sender)
+    if Lib.API.Active then
+        return Lib.API.SendTelegram(src, category, message, location, sender)
+    end
+    Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("SendTelegram"))
+end
+
+Lib.Fn.SendLetter = function(src, category, message, location, sender)
+    if Lib.API.Active then
+        return Lib.API.SendLetter(src, category, message, location, sender)
+    end
+    Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("SendLetter"))
+end
+

@@ -36,7 +36,7 @@ end
 
 ---Format any type into a readable string
 ---@param m any The value to format
----@param addQuotes boolean Whether to add quotes to strings
+---@param addQuotes boolean|nil Whether to add quotes to strings
 ---@return string string The formatted string
 Lib.String.Format = function(m, addQuotes)
     if type(m) == 'nil' then return "nil"
