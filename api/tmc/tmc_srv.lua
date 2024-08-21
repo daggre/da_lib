@@ -21,10 +21,10 @@ Lib.API.TMC.Notify = function(src, message, notifyType, duration)
 end
 
 Lib.API.TMC.ConsumeCharge = function(src, itemName, slot, index, info)
-    assert(itemName, "name was nil "..Lib.String.Format(itemName, slot, index, info))
-    assert(slot, "slot invalid "..Lib.String.Format(itemName, slot, index, info))
-    assert(index, "index invalid "..Lib.String.Format(itemName, slot, index, info))
-    assert(info, "info invalid "..Lib.String.Format(itemName, slot, index, info))
+    assert(itemName, "name was nil "..Lib.String.Format(itemName, slot))
+    assert(slot, "slot invalid "..Lib.String.Format(itemName, slot))
+    assert(index, "index invalid "..Lib.String.Format(itemName, slot))
+    assert(info, "info invalid "..Lib.String.Format(itemName, slot))
 
     local amount = 1
     local player = TMC.Functions.GetPlayer(src)
@@ -90,3 +90,40 @@ end
 Lib.API.TMC.HasPermission = function(src, level)
     return TMC.Functions.HasPermission(src, level)
 end
+
+Lib.API.TMC.AddSkill = function(src, skill, amount)
+    local player = TMC.Functions.GetPlayer(src)
+    if player then
+        player.Functions.AddReputation(skill, amount)
+    end
+end
+
+Lib.API.TMC.SetSkill = function(src, skill, amount)
+    local player = TMC.Functions.GetPlayer(src)
+    if player then
+        player.Functions.SetReputation(skill, amount)
+    end
+end
+
+Lib.API.TMC.SendTelegram = function(src, category, message, location, sender)
+    TMC.Functions.TriggerEvent('SendLetOrTele', {
+        client = src,
+        type = 'telegram',
+        teletype = category,
+        sender = sender,
+        location = location,
+        message = message,
+    }, true)
+end
+
+Lib.API.TMC.SendLetter = function(src, category, message, location, sender)
+    TMC.Functions.TriggerEvent('SendLetOrTele', {
+        client = src,
+        type = 'letter',
+        teletype = category,
+        sender = sender,
+        location = location,
+        message = message,
+    }, true)
+end
+

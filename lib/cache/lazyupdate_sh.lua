@@ -42,8 +42,7 @@ Lib.Cache.Lazy.Delay = function(id, name, timeout)
 
     if not LazyCache[id][name].delay then
         LazyCache[id][name].delay = true
-        Citizen.CreateThread(function()
-            Citizen.Wait(timeout or DefaultTimeout)
+        Citizen.SetTimeout(timeout or DefaultTimeout, function()
             LazyCache[id][name].delay = nil
         end)
         return true

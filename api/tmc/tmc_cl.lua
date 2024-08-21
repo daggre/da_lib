@@ -4,20 +4,23 @@ if Lib.API.Active ~= "TMC" then return; end
 TMC = exports.core:getCoreObject()
 
 local ItemCategories = {
-    cig = { .cannabis, .cigarette, .rolledcigarette, },
-    cigar = { .cigar, },
-    nails = { .nails, },
-    fenceRail = { .splitrail, },
-    oyster = { .oyster, },
-    clam = { .clam, },
-    apple = { .apple, },
-    bread = { .bread, },
-    guitar = { .guitar, .attach_back_guitar, },
+    cig = { cannabis = true, cigarette = true, rolledcigarette = true, },
+    cigar = { cigar = true, },
+    nails = { nails = true, },
+    fenceRail = { splitrail = true, },
+    oyster = { oyster = true, },
+    clam = { clam = true, },
+    apple = { apple = true, },
+    bread = { bread = true, },
+    guitar = { guitar = true, attach_back_guitar = true, },
+    pipetobac = { pipetobacco = true, finetobacco = true, },
+
 }
 
 local ItemHasUses = {
     cigarette = "cigarettes",
     nails = "uses",
+    pipetobacco = "tobacco",
 }
 
 Lib.API.TMC.Eat = function(increaseAmount)
@@ -50,6 +53,10 @@ Lib.API.TMC.HasItems = function(items)
     return TMC.Functions.HasItems(items)
 end
 
+Lib.API.TMC.SetDoorStatus = function(data, attribute, status)
+    TMC.Functions.TriggerServerEvent("doorlocks:server:updateDamageStatus", data, { [attribute] = status })
+end
+
 ---@diagnostic disable-next-line: duplicate-set-field
 Lib.API.TMC.Notify = function(message, type, time)
     TMC.Functions.SimpleNotify(message, type, time)
@@ -71,6 +78,10 @@ local ConsumeItem = function(name, slot, index, info)
 end
 
 Lib.API.TMC.Consume = function(name, data)
+    if data and data.name and data.name ~= name then
+        -- Bad data, clear it and move on as if none was sent
+        data = nil
+    end
     name = data and data.name or name
     local slot = data and data.slot or nil
     local index = data and data.index or nil
@@ -144,6 +155,10 @@ Lib.API.TMC.PromptUpdate = function(promptGroup, data, zoneData)
     if data.key and data.fn then TMC.Functions.UpdatePromptComplete(promptGroup, data.key, function() data.fn(zoneData) end) end
 end
 
+Lib.API.TMC.PromptUpdateText = function(promptGroup, key, text)
+    TMC.Functions.UpdatePromptText(promptGroup, key, text)
+end
+
 Lib.API.TMC.PromptReset = function(promptGroup)
     TMC.Functions.RemoveAllPromptsFromPromptGroup(promptGroup)
 end
@@ -153,7 +168,7 @@ Lib.API.TMC.PromptGroupCreate = function(title)
 end
 
 Lib.API.TMC.PromptGroupAddPrompt = function(promptGroup, prompt, data, zoneData)
-    Lib.Log.Debug(data, zoneData)
+    Lib.Log.Debug("Adding prompt to group", promptGroup, prompt, data.key, zoneData)
     TMC.Functions.AddPromptToGroup(prompt, data.key, promptGroup, function() data.onTrigger(zoneData) end)
 end
 
@@ -162,6 +177,7 @@ Lib.API.TMC.PromptGroupHide = function(promptGroup)
 end
 
 Lib.API.TMC.PromptGroupShow = function(promptGroup)
+    Lib.Log.Debug("Showing prompt group", promptGroup)
     TMC.Functions.ShowPromptGroup(promptGroup)
 end
 
@@ -174,9 +190,15 @@ Lib.API.TMC.Teleport = function(coords)
 end
 
 Lib.API.TMC.SetNPCAnimate = function(key, options)
+    Lib.Log.Debug("Setting NPC animate", key, options)
+    Lib.Log.Debug("fn", TMC.Functions.ChangePedOptions)
     TMC.Functions.ChangePedOptions(key, options)
 end
 
+---Check if the player has a specific job or job category
+---@param job string
+---@param active boolean|nil
+---@return boolean
 Lib.API.TMC.IsJob = function(job, active)
     local jobMap = {
         any = { "judge", "stategovt", "attorneygeneral", "doctor", "leo", "dop", "conductor", "rancher", "gunsmith" },
@@ -189,7 +211,11 @@ Lib.API.TMC.IsJob = function(job, active)
 
     if jobMap[job] then
         for _,v in ipairs(jobMap[job]) do
-            if TMC.Functions.HasJob(v) and not active or TMC.Functions.IsOnDuty(v) then return true; end
+            if active and TMC.Functions.HasJob(v) and TMC.Functions.IsOnDuty(v) then
+                return true
+            elseif not active and TMC.Functions.HasJob(v) then
+                return true
+            end
         end
         return false
     end
@@ -200,3 +226,4 @@ end
 Lib.API.TMC.Inventory = function(type, id, data)
     TMC.Functions.TriggerServerEvent("inventory:server:openInventory", type, id, data)
 end
+

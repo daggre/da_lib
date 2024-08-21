@@ -6,58 +6,79 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 
 author 'daggre_actual'
 description 'Library of shared functions and utilities for daggre_actual resources'
-version '0.8'
+version '0.9'
 lua54 'yes'
 
+shared_scripts {
+    'src/import_sh.lua',
+    'lib/loglevel/commands_sh.lua',
+    'lib/loglevel/level_sh.lua',
+    'lib/loglevel/resource_sh.lua',
+    'lib/net/callback_sh.lua',
+    'lib/string/string_sh.lua',
+}
+
 server_scripts {
-    'import_sh.lua',
-    'loglevel/commands_sh.lua',
-    'loglevel/level_sh.lua',
-    'loglevel/resource_sh.lua',
-    'net/callback_sh.lua',
-    'net/callback_srv.lua',
+    'lib/net/callback_srv.lua',
     -- Order necessary above this line
+
+    -- Libraries
+    'lib/audio/audio_srv.lua',
+    'lib/cache/lazyupdate_sh.lua',
+    'lib/cache/temp_sh.lua',
+    'lib/fn/fn_srv.lua',
+    'lib/lock/global_srv.lua',
+    'lib/object/intprop/intprop_srv.lua',
+    'lib/string/string_sh.lua',
+    'lib/time/time_srv.lua',
+
+    -- API
     'api/tmc/tmc_srv.lua',
     'api/api_srv.lua',
-    'audio/audio_srv.lua',
-    'cache/lazyupdate_sh.lua',
-    'cache/temp_sh.lua',
-    'fn/fn_srv.lua',
-    'lock/global_srv.lua',
-    'object/intprop/intprop_srv.lua',
-    'string/string_sh.lua',
-    'time/time_srv.lua',
 }
 
 client_scripts {
-    'import_sh.lua',
-    'loglevel/commands_sh.lua',
-    'loglevel/level_sh.lua',
-    'loglevel/resource_sh.lua',
-    'net/callback_sh.lua',
-    'net/callback_cl.lua',
+    'lib/net/callback_cl.lua',
     -- Order necessary above this line
-    'string/string_sh.lua',
+
+    -- Data
+    'bin/data/af_flags.lua',
+    'bin/data/aik_flags.lua',
+    'bin/data/animations.lua',
+    'bin/data/objects.lua',
+    'bin/data/peds.lua',
+    'bin/data/pickups.lua',
+    'bin/data/propsets.lua',
+
+    -- Libraries
+    'lib/anim/anim_cl.lua',
+    'lib/audio/audio_cl.lua',
+    'lib/cache/lazyupdate_sh.lua',
+    'lib/cache/temp_sh.lua',
+    'lib/chance/chance_cl.lua',
+    'lib/check/check_cl.lua',
+    'lib/control/control_cl.lua',
+    'lib/data/vehicles.lua',
+    'lib/fn/fn_cl.lua',
+    'lib/fx/fx_cl.lua',
+    'lib/interact/interact_cl.lua',
+    'lib/lock/global_cl.lua',
+    'lib/mode/check.lua',
+    'lib/mode/mode.lua',
+    'lib/zone/polyzone/polyzone_cl.lua',
+    'lib/object/npc_cl.lua',
+    'lib/object/object_cl.lua',
+    'lib/object/props_cl.lua',
+    'lib/object/intprop/intprop_cl.lua',
+    'lib/prompt/prompt_cl.lua',
+    'lib/stats/stats_cl.lua',
+    'lib/time/time_cl.lua',
+    'lib/util/util_cl.lua',
+    'lib/util/draw_cl.lua',
+    'lib/weapon/weapon_cl.lua',
+    'lib/zone/zone_cl.lua',
+
+    -- API
     'api/tmc/tmc_cl.lua',
     'api/api_cl.lua',
-    'anim/anim_cl.lua',
-    'audio/audio_cl.lua',
-    'cache/lazyupdate_sh.lua',
-    'cache/temp_sh.lua',
-    'chance/chance_cl.lua',
-    'check/check_cl.lua',
-    'control/control_cl.lua',
-    'fn/fn_cl.lua',
-    'fx/fx_cl.lua',
-    'lock/global_cl.lua',
-    'zone/polyzone/polyzone_cl.lua',
-    'object/npc_cl.lua',
-    'object/object_cl.lua',
-    'object/props_cl.lua',
-    'object/intprop/intprop_cl.lua',
-    'prompt/prompt_cl.lua',
-    'time/time_cl.lua',
-    'util/util_cl.lua',
-    'util/draw_cl.lua',
-    'zone/zone_cl.lua',
 }

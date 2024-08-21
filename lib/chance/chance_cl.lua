@@ -47,11 +47,44 @@ end
 ---@param lockSkill integer the skill level of the lock
 ---@return boolean success did the player successfully break the lock
 Lib.Chance.Lockbreak = function(skill, lockSkill)
+    Lib.Log.Debug(("Lockbreak skill: %s, lockSkill: %s"):format(skill, lockSkill))
+    assert(tonumber(skill), "skill must be a number: "..skill)
+    assert(tonumber(lockSkill), "lockSkill must be a number: "..lockSkill)
     if not skill then return false; end
     local maxChance = 95
     local bonusChance = lockSkill <= 15 and 33 or lockSkill <= 25 and 20 or 0
+    local disadvantage = lockSkill <= 15 and 0 or Lib.Chance.Disadvantage(skill, lockSkill, 3)
     local chance = maxChance - bonusChance
     local skillBonus = math.floor(chance * (skill / lockSkill))
-    local roll = Lib.Chance.Roll(1, 100, Lib.Chance.Disadvantage(skill, lockSkill, 6))
-    return roll <= bonusChance + skillBonus
+    local roll = Lib.Chance.Roll(1, 100, disadvantage)
+    Lib.Log.Debug(("Lockbreak roll: %s, chance: %s, bonusChance: %s, skillBonus: %s"):format(roll, chance, bonusChance, skillBonus))
+    local success = roll <= bonusChance + skillBonus
+    if success and skill <= lockSkill then
+        Lib.Stats.Add("lockbreakrep", 1)
+    end
+    return success
+end
+
+Lib.Chance.ValueLootTable = function(lootTable, maxValue)
+    local lootedValue = 0
+    local totalChance = 1
+    local chanceLookup = {}
+    for _, lootData in ipairs(lootTable) do
+        table.insert(chanceLookup, { min = totalChance, max = totalChance + lootData.chance, value = lootData.value, item = lootData.item })
+        totalChance = totalChance + lootData.chance
+    end
+    Lib.Log.Debug("Chance lookup: ", chanceLookup)
+    Lib.Log.Debug(("Total chance: %s"):format(totalChance))
+    while lootedValue < maxValue do
+        Citizen.Wait(250)
+        local roll = math.random(totalChance)
+        for _, chanceData in ipairs(chanceLookup) do
+            if roll > chanceData.min and roll <= chanceData.max then
+                Lib.Log.Debug(("Rolled table item: %s, value: %s, currentValue: %s"):format(chanceData.item, chanceData.value, lootedValue))
+                if lootedValue ~= 0 and lootedValue + (chanceData.value/2) > maxValue then return; end
+                lootedValue = lootedValue + chanceData.value
+                Lib.Fn.AddItem(chanceData.item, 1)
+            end
+        end
+    end
 end

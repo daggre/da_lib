@@ -73,6 +73,9 @@ end
 local StartPtfx = function(ptfxName, options)
     local coords = options.coords
     local boneIndex = options.entity and options.bone and GetEntityBoneIndexByName(options.entity, options.bone) or false
+    local xOff = options.xOff or 0.0
+    local yOff = options.yOff or 0.0
+    local zOff = options.zOff or 0.0
     local xRot = options.xRot or 0.0
     local yRot = options.yRot or 0.0
     local zRot = options.zRot or 0.0
@@ -200,7 +203,7 @@ Lib.Fx.Remove = function(options)
             RemoveParticleFx(options.handle)
         end
     elseif options.entity then
-        RemoveParticleFxFromEntity(entity)
+        RemoveParticleFxFromEntity(options.entity)
     elseif options.coords then
         RemoveParticleFxInRange(options.coords.x, options.coords.y, options.coords.z, options.radius or 1.0)
     end

@@ -1,3 +1,5 @@
+--- Copyright © 2024 Joshua Nelson
+
 ---Check if a player has a specific job or job category
 ---@param job string the job name or job category
 ---@param active boolean|nil whether the player must be on duty (clocked in)
@@ -8,3 +10,4 @@ Lib.Check.IsJob = function(job, active)
     end
     return true
 end
+

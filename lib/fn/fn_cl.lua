@@ -2,7 +2,8 @@
 
 ---Check if the client has the permission level
 ---@param level string Permission level
----@return boolean success true if the client has the permission level
+---@return unknown|nil success true if the client has the permission level
+---@diagnostic disable-next-line: duplicate-set-field
 Lib.Fn.HasPermission = function(level)
     Lib.Log.Debug(("Checking %s permission"):format(level))
     return Lib.Net.BlockingCb("da_lib:checkPerm", 3000, level)
@@ -34,14 +35,25 @@ Lib.Fn.Drink = function(amount)
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("Drink"))
 end
 
+---Face the ped towards a direction
+---@param ped any
+---@param coords any
+---@param timeout any
+Lib.Fn.Face = function(ped, coords, timeout)
+    TaskTurnPedToFaceCoord(ped, coords.xyz, timeout)
+    Citizen.Wait(timeout)
+end
+
 ---Automatically move the player to a set of coordinates
 ---@param ped integer the id of the entity/ped
 ---@param coords table vector3 coordinates to move to
 ---@param timeout number the amount of time in ms to wait for the task to complete
----@param boolean forceCoords whether to force the player to the coordinates
-Lib.Fn.Move = function(ped, coords, timeout, forceCoords)
-    local speed = 1.0
-    local slideDistance = 0.3
+---@param forceCoords boolean whether to force the player to the coordinates
+---@param speed number|nil the speed of the movement
+---@param slideDistance number|nil the distance to slide the player
+Lib.Fn.Move = function(ped, coords, timeout, forceCoords, speed, slideDistance)
+    speed = speed or 1.0
+    slideDistance = slideDistance or 0.3
     TaskGoStraightToCoord(ped, coords.xyz, speed, timeout, coords.w, slideDistance)
     Citizen.Wait(timeout)
     if forceCoords then
@@ -57,16 +69,10 @@ Lib.Fn.Consume = function(name, data)
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("Consume"))
 end
 
--- TODO: Move this to chance lib
-Lib.Fn.ChanceItem = function(itemName, amount, chance)
-    if chance and chance < 100 then
-        local chanceResult = math.random(100)
-        if chanceResult <= chance then
-            return Lib.Fn.AddItem(itemName, amount)
-        end
-    else
-        return Lib.Fn.AddItem(itemName, amount)
-    end
+Lib.Fn.ChanceItem = function(...)
+    -- TODO: Deprecate this function
+    Lib.Log.Warn("Lib.Fn.ChanceItem is deprecated, use Lib.Chance.Item")
+    return Lib.Chance.Item(...)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
@@ -99,8 +105,15 @@ Lib.Fn.HolsterWeapon = function()
     -- if Lib.API.Active then
     --     return Lib.API.HolsterWeapon()
     -- end
-    SetCurrentPedWeapon(PlayerPedId(), `weapon_unarmed`, false, 0, false, false)
-    Citizen.Wait(500)
+    local playerPedId = PlayerPedId()
+    for _, handAttachPoint in pairs({0,1}) do
+        local hasWeap, weapon = GetCurrentPedWeapon(playerPedId, true, handAttachPoint)
+        if hasWeap and weapon ~= `weapon_unarmed` then
+            SetCurrentPedWeapon(playerPedId, `weapon_unarmed`, true, handAttachPoint, false, false)
+            Citizen.Wait(200)
+            return
+        end
+    end
 end
 
 Lib.Fn.Teleport = function(coords)
@@ -109,3 +122,4 @@ Lib.Fn.Teleport = function(coords)
     end
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("Teleport"))
 end
+

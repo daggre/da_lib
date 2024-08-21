@@ -1,12 +1,13 @@
 # Daggre Actual's Library (da_lib)
 ## Version & Status
-v0.8 - Early Release
+v0.9 - Early Release
 
 ## Description
-The da library is a collection of functions and utilities that are used in
-implementation of RedM resources. The library is intended to be used as an aid
-to developers by creating reliable and convenient ways to execute common coding
-practice in RedM scripts given the capabilities of the RedM game.
+The da library is a continually growing collection of functions and utilities
+that are used in implementation of RedM resources. The library is intended to
+be used as an aid to developers by creating reliable and convenient ways to
+execute common coding practice in RedM scripts given the capabilities of the
+RedM game.
 
 ### API Layer
 The da library is also designed with an API layer to make calls into other game
@@ -17,11 +18,28 @@ configured or implemented, then in the best case scenario we will try to return
 a value which best enables the scripts functionality.
 
 ### Features
-The da library has a number of features, including: animations, audio streaming,
-caching, chance logic, loot tables, controller logic, particle fx, resource
-locking, log levels, client server communication and callbacks,
-object/vehicle/prop creation, interactive prompts, string manipulation, time
-tracking, shape/line/text drawing, 3d math, and world zone management.
+The da library has a number of features, including, but not limited to:
+- Animations
+- Audio Streams
+- Caching
+- Chance
+- Loot Tables
+- Controller
+- Common Functions
+- Particle FX
+- Interact UI
+- Resource Locking
+- Log Levels
+- Mode Controller
+- Client Server Communication and Callbacks
+- Object / Vehicle / Prop Creation
+- Prompts
+- String Manipulation
+- Time Tracking
+- Drawing
+- Common 3D Space Calculations
+- Weapon Management
+- Zone Management
 
 ### Additonal Documentation
 Additional documentation for each of the features can be found in the respective

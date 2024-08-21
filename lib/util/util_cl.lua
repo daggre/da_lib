@@ -2,11 +2,14 @@
 
 ---Calculate the center of a set of boundary coordinates
 ---@param boundary table The boundary coordinates
----@return table The center of the boundary
----@return number xWidth The width of the boundary on the x-axis
----@return number yWidth The width of the boundary on the y-axis
+---@return table|nil The center of the boundary
+---@return number|nil xWidth The width of the boundary on the x-axis
+---@return number|nil yWidth The width of the boundary on the y-axis
 Lib.Util.CalcBoundaryCenter = function(boundary)
-    if not boundary or type(boundary) ~= "table" then Lib.Log.Warn("Invalid boundary:", boundary); return; end
+    if not boundary or type(boundary) ~= "table" then
+        Lib.Log.Warn("Invalid boundary:", boundary)
+        return nil
+    end
     local minX, minY, maxX, maxY = nil, nil, nil, nil
     for _, edgeCoord in ipairs(boundary) do
         if minX ~= nil then minX = math.min(minX, edgeCoord.x); else minX = edgeCoord.x; end
@@ -37,7 +40,7 @@ end
 ---@param theta number The angle in degrees
 ---@param r number The radius
 ---@param z number The z offset
----@param rotation number The rotation offset
+---@param rotation number|nil The rotation offset
 ---@return table offsetData Table containing coords and rotation of point after translation
 Lib.Util.GetOffsetFromEntity = function(entity, theta, r, z, rotation)
     rotation = rotation or vec3(0, 0, 0)
@@ -64,7 +67,7 @@ end
 Lib.Util.GetEntitiesNearPoint = function(coords, radius, filter)
     local entities = {}
     local itemset = CreateItemset(true)
-    local size = Citizen.InvokeNative(0x59B57C4B06531E1E, coords.x, coords.y, coords.z, radius, itemset, 3, Citizen.ResultAsInteger()) -- GetEntitiesNearPoint
+    local size = Citizen.InvokeNative(0x59B57C4B06531E1E, coords.xyz, radius+0.0, itemset, 3, Citizen.ResultAsInteger()) -- GetEntitiesNearPoint
     for i = 0, size - 1 do
         local entity = GetIndexedItemInItemset(i, itemset)
         if not filter or filter(entity) then
@@ -85,7 +88,7 @@ end
 Lib.Util.GetPedsNearPoint = function(coords, radius, filter)
     local entities = {}
     local itemset = CreateItemset(true)
-    local size = Citizen.InvokeNative(0x59B57C4B06531E1E, coords.x, coords.y, coords.z, radius, itemset, 1, Citizen.ResultAsInteger()) -- GetEntitiesNearPoint
+    local size = Citizen.InvokeNative(0x59B57C4B06531E1E, coords.xyz, radius+0.0, itemset, 1, Citizen.ResultAsInteger()) -- GetEntitiesNearPoint
     for i = 0, size - 1 do
         local entity = GetIndexedItemInItemset(i, itemset)
         if not filter or filter(entity) then
@@ -97,3 +100,12 @@ Lib.Util.GetPedsNearPoint = function(coords, radius, filter)
     end
     return entities
 end
+
+Lib.Util.GetModelName = function(modelhash)
+    return PedsHashLookup[modelhash] or
+        VehiclesHashLookup[modelhash] or
+        ObjectsHashLookup[modelhash] or
+        PickupsHashLookup[modelhash] or
+        modelhash
+end
+

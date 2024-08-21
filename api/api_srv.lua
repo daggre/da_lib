@@ -68,6 +68,31 @@ AddEventHandler("da_lib:setItemMetadata", function(item, metadata)
 end)
 
 RegisterServerEvent("da_lib:npcAnimate")
-AddEventHandler("da_lib:npcAnimate", function(source, id, options)
+AddEventHandler("da_lib:npcAnimate", function(id, options)
     TriggerClientEvent("da_lib:npc:animate", -1, id, options)
 end)
+
+RegisterServerEvent("da_lib:addSkill")
+AddEventHandler("da_lib:addSkill", function(skill, amount)
+    if not isAPI() then return; end
+    local src = source
+    Lib.API[API].AddSkill(src, skill, amount)
+end)
+
+RegisterServerEvent("da_lib:setSkill")
+AddEventHandler("da_lib:setSkill", function(skill, amount)
+    if not isAPI() then return; end
+    local src = source
+    Lib.API[API].SetSkill(src, skill, amount)
+end)
+
+Lib.API.SendTelegram = function(src, category, message, location, sender)
+    if not isAPI() then return; end
+    return Lib.API[API].SendTelegram(src, category, message, location, sender)
+end
+
+Lib.API.SendLetter = function(src, category, message, location, sender)
+    if not isAPI() then return; end
+    return Lib.API[API].SendLetter(src, category, message, location, sender)
+end
+

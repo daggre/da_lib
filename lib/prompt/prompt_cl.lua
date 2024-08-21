@@ -1,5 +1,6 @@
 local PromptZoneId = "daPromptZone"
 local PromptCache = {}
+local VisiblePrompts = {}
 
 ---Create a promptGroup. If there are duplicate option keys the first option
 ---with passing conditions will be shown.
@@ -15,14 +16,15 @@ Lib.Prompt.New = function(title, promptOptions)
 
     -- Add the individual promptOptions
     for _, opt in pairs(promptOptions) do
-        -- Create the promptOption
-        local promptOption = Lib.Prompt.Option.New(opt.text, opt.key, opt.onTrigger)
+        local text = type(opt.text) == "string" and opt.text or "1"
+        local promptOption = Lib.Prompt.Option.New(text, opt.key, opt.onTrigger)
         if promptOption then
 
             -- Instantiate the promptGroup cache if it doesn't exist
             if not PromptCache[promptGroup] then PromptCache[promptGroup] = {}; end
             -- Store the promptOption data
             PromptCache[promptGroup][promptOption] = {
+                text = opt.text,
                 key = opt.key,
                 onTrigger = opt.onTrigger,
                 condition = opt.condition,
@@ -41,24 +43,28 @@ end
 ---@param zoneData table|nil The data to be passed to the promptOptions
 Lib.Prompt.Add = function(promptGroup, promptOption, data, zoneData)
     data = data or {}
-    assert(promptGroup, "PromptGroup.Title: promptGroup is required")
-    assert(promptOption, "PromptGroup.Title: prompt is required")
+    assert(promptGroup, "PromptGroup.Add: promptGroup is required")
+    assert(promptOption, "PromptGroup.Add: promptOption is required")
     assert(data.key, "PromptGroup.Add: data.key is required")
     assert(data.onTrigger, "PromptGroup.Add: data.onTrigger is required")
     Lib.API.PromptGroupAddPrompt(promptGroup, promptOption, data, zoneData)
 end
 
---- Hide a promptGroup
+--- Hide a prompt group
 ---@param promptGroup integer The promptGroup handle
-Lib.Prompt.Hide = function(promptGroup)
-    assert(promptGroup, "PromptGroup.Title: promptGroup is required")
+Lib.Prompt.Hide = function(promptGroup, reset)
+    assert(promptGroup, "PromptGroup.Hide: promptGroup is required")
+    Lib.Log.Debug("PromptGroup.Hide", promptGroup, reset)
+    if not reset then VisiblePrompts[promptGroup] = false; end
     Lib.API.PromptGroupHide(promptGroup)
 end
 
 --- Show a promptGroup
 ---@param promptGroup integer The promptGroup handle
 Lib.Prompt.Show = function(promptGroup)
-    assert(promptGroup, "PromptGroup.Title: promptGroup is required")
+    assert(promptGroup, "PromptGroup.Show: promptGroup is required")
+    Lib.Log.Debug("PromptGroup.Show", promptGroup)
+    VisiblePrompts[promptGroup] = true
     Lib.API.PromptGroupShow(promptGroup)
 end
 
@@ -74,13 +80,23 @@ end
 ---Update a promptGroup
 ---@param promptGroup integer The promptGroup handle
 ---@param title string The title of the prompt to be displayed
----@param zoneData table|nil The data to be passed to the promptOptions
-Lib.Prompt.Update = function(promptGroup, title, zoneData)
-    Lib.Log.Debug("Updating promptGroup:", promptGroup, title or "", zoneData)
+---@param zoneData table|nil The data to be passed to the prompt options
+Lib.Prompt.Update = function(promptGroup, title, zoneData, enter)
+    Lib.Log.Debug("Updating promptGroup:", promptGroup, title or "", zoneData, VisiblePrompts)
+    if enter then VisiblePrompts[promptGroup] = true; end
+    if not VisiblePrompts[promptGroup] then return; end
     if not promptGroup or not PromptCache[promptGroup] then return; end
-
     -- If a new title is passed as a param, update the title
-    if title then Lib.Prompt.Title(promptGroup, title); end
+    if title then
+        local titleStr = ""
+        if type(title) == "string" then
+            titleStr = title
+        elseif type(title) == "function" or (type(title) == "table" and title.__cfx_functionReference) then
+            Lib.Log.Debug("Prompt.Update: title is a function", title)
+            titleStr = title(zoneData)
+        end
+        Lib.Prompt.Title(promptGroup, titleStr)
+    end
 
     -- Reset the promptGroup
     local promptVisible = false
@@ -95,6 +111,10 @@ Lib.Prompt.Update = function(promptGroup, title, zoneData)
             Lib.Prompt.Add(promptGroup, promptOption, { key = promptOptionData.key, onTrigger = promptOptionData.onTrigger, }, zoneData)
             -- Mark the key as used
             optionKeys[promptOptionData.key] = true
+            if type(promptOptionData.text) == "function" or (type(promptOptionData.text) == "table" and promptOptionData.text.__cfx_functionReference) then
+                local promptOptionText = promptOptionData.text(zoneData)
+                Lib.Prompt.Option.Update(promptGroup, promptOptionData.key, promptOptionText)
+            end
             -- There is at least one valid prompt option, mark the prompt to be shown
             promptVisible = true
         end
@@ -106,8 +126,9 @@ end
 ---Reset a promptGroup by removing all promptOptions
 ---@param promptGroup integer The promptGroup handle
 Lib.Prompt.Reset = function(promptGroup)
-    assert(promptGroup, "PromptGroup.Reset: promptGroup is required")
+    assert(promptGroup, "Prompt.Reset: promptGroup is required")
     Lib.API.PromptReset(promptGroup)
+    Lib.Prompt.Hide(promptGroup, true)
 end
 
 local promptZoneHandlers = false
@@ -120,7 +141,7 @@ Lib.Prompt.Zone = function(promptGroup, coords, radius, options)
     if not promptZoneHandlers then
         promptZoneHandlers = true
         Lib.PolyZone.OnEnter(PromptZoneId, function(zoneData)
-            Lib.Prompt.Update(zoneData.promptGroup, zoneData.name, zoneData)
+            Lib.Prompt.Update(zoneData.promptGroup, zoneData.name, zoneData, true)
         end)
         Lib.PolyZone.OnExit(PromptZoneId, function(zoneData)
             Lib.Prompt.Hide(zoneData.promptGroup)
@@ -132,12 +153,11 @@ Lib.Prompt.Zone = function(promptGroup, coords, radius, options)
     Lib.PolyZone.Circle(PromptZoneId, coords, radius or 1.0, options)
 end
 
----Create a promptOption
----@param title string The title of the promptOption
----@param key string The key of the promptOption
+---@param title string|table The title of the prompt option
 ---@param onTrigger function|nil The function to call when the prompt is triggered
 ---@return unknown|nil The promptOption handle
 Lib.Prompt.Option.New = function(title, key, onTrigger)
+    if type(title) ~= "string" then title = "t"; end
     local promptOption = Lib.API.PromptCreate(title, key)
     -- if not promptOption then return; end
     -- if onTrigger then
@@ -149,12 +169,19 @@ Lib.Prompt.Option.New = function(title, key, onTrigger)
     return promptOption
 end
 
+-- ---Hide a prompt option
+-- ---@param promptOption number Id of the prompt
+-- ---@return unknown|nil
+-- Lib.Prompt.Option.Hide = function(promptOption)
+--     return Lib.API.PromptHide(promptOption)
+-- end
+
 ---Update a promptOption
 ---@param promptGroup integer The promptGroup handle
----@param data table Keys include: key, onTrigger, condition
----@param zoneData table|nil The zone data to be passed to the promptOptions
-Lib.Prompt.Option.Update = function(promptGroup, data, zoneData)
-    Lib.API.PromptUpdate(promptGroup, data, zoneData)
+---@param key string The key of the prompt option
+---@param title any
+Lib.Prompt.Option.Update = function(promptGroup, key, title)
+    Lib.API.PromptUpdateText(promptGroup, key, title)
 end
 
 
