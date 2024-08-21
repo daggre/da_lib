@@ -22,6 +22,10 @@ server_scripts {
     'lib/net/callback_srv.lua',
     -- Order necessary above this line
 
+    -- API
+    'api/tmc/tmc_srv.lua',
+    'api/api_srv.lua',
+
     -- Libraries
     'lib/audio/audio_srv.lua',
     'lib/cache/lazyupdate_sh.lua',
@@ -31,10 +35,6 @@ server_scripts {
     'lib/object/intprop/intprop_srv.lua',
     'lib/string/string_sh.lua',
     'lib/time/time_srv.lua',
-
-    -- API
-    'api/tmc/tmc_srv.lua',
-    'api/api_srv.lua',
 }
 
 client_scripts {
@@ -42,13 +42,19 @@ client_scripts {
     -- Order necessary above this line
 
     -- Data
-    'bin/data/af_flags.lua',
-    'bin/data/aik_flags.lua',
-    'bin/data/animations.lua',
-    'bin/data/objects.lua',
-    'bin/data/peds.lua',
-    'bin/data/pickups.lua',
-    'bin/data/propsets.lua',
+    'bin/af_flags.lua',
+    'bin/aik_flags.lua',
+    'bin/animations.lua',
+    'bin/control.lua',
+    'bin/objects.lua',
+    'bin/peds.lua',
+    'bin/pickups.lua',
+    'bin/propsets.lua',
+    'bin/vehicles.lua',
+
+    -- API
+    'api/tmc/tmc_cl.lua',
+    'api/api_cl.lua',
 
     -- Libraries
     'lib/anim/anim_cl.lua',
@@ -58,7 +64,8 @@ client_scripts {
     'lib/chance/chance_cl.lua',
     'lib/check/check_cl.lua',
     'lib/control/control_cl.lua',
-    'lib/data/vehicles.lua',
+    'lib/control/passthrough_cl.lua',
+    'lib/data/data_cl.lua',
     'lib/fn/fn_cl.lua',
     'lib/fx/fx_cl.lua',
     'lib/interact/interact_cl.lua',
@@ -78,7 +85,4 @@ client_scripts {
     'lib/weapon/weapon_cl.lua',
     'lib/zone/zone_cl.lua',
 
-    -- API
-    'api/tmc/tmc_cl.lua',
-    'api/api_cl.lua',
 }

@@ -91,10 +91,9 @@ Lib.Control.Passthrough = function(state, haltKey, callback)
     end
 end
 
-Lib.Control.GetPressed = function(pressed, justPressed)
+Lib.Control.GetPressed = function(pressed)
     pressed = pressed or {}
-    justPressed = justPressed or {}
-    local getPressed, getJustPressed = {}, {}
+    local getPressed = {}
 
     for _, key in ipairs(pressed) do
         if Control[key] then
@@ -102,25 +101,37 @@ Lib.Control.GetPressed = function(pressed, justPressed)
         end
     end
 
+    return getPressed
+end
+
+Lib.Control.GetJustPressed = function(justPressed)
+    local getJustPressed = {}
+    justPressed = justPressed or {}
+
     for _, key in ipairs(justPressed) do
         if Control[key] then
             getJustPressed[key] = IsControlJustPressed(0, Control[key]) or IsDisabledControlJustPressed(0, Control[key])
         end
     end
 
-    return getPressed, getJustPressed
+    return getJustPressed
 end
 
-Lib.Control.GetReleased = function(released, justReleased)
+Lib.Control.GetReleased = function(released)
+    local getReleased = {}
     released = released or {}
-    justReleased = justReleased or {}
-    local getReleased, getJustReleased = {}, {}
 
     for _, key in ipairs(released) do
         if Control[key] then
             getReleased[key] = IsControlReleased(0, Control[key])
         end
     end
+    return getReleased
+end
+
+Lib.Control.GetJustReleased = function(justReleased)
+    local getJustReleased = {}
+    justReleased = justReleased or {}
 
     for _, key in ipairs(justReleased) do
         if Control[key] then
@@ -128,12 +139,14 @@ Lib.Control.GetReleased = function(released, justReleased)
         end
     end
 
-    return getReleased, getJustReleased
+    return getJustReleased
 end
 
 Lib.Control.IsLongPressed = function(key, ms)
+    local pressed = Lib.Control.GetPressed({key})
+    local justPressed = Lib.Control.GetJustPressed({key})
     ms = ms or DefaultLongPressMS
-    local pressed, justPressed = Lib.Control.GetPressed({key},{key})
+
     if justPressed[key] then
         ControlPressed[key] = GetGameTimer()
         return false
@@ -147,21 +160,21 @@ Lib.Control.IsLongPressed = function(key, ms)
 end
 
 Lib.Control.ShortPress = function(key, releaseCallback, ms)
-    ms = ms or DefaultLongPressMS -- Default to 100ms
-    local keyPressed = GetGameTimer() + ms
-    Lib.Log.Debug("Short Press started", key, keyPressed)
+    ms = ms or DefaultLongPressMS -- 100ms
+    local keyPressedTimeout = GetGameTimer() + ms
+    Lib.Log.Debug("Short Press started", key, keyPressedTimeout)
 
     Citizen.CreateThread(function()
         while true do
-            if keyPressed then
-                if GetGameTimer() > keyPressed then
+            if keyPressedTimeout then
+                if GetGameTimer() > keyPressedTimeout then
                     Lib.Log.Debug("Long Pressed, exiting short press loop", key)
                     return
                 end
             end
 
-            local pressed, _ = Lib.Control.GetPressed({key},{})
-            local _, justReleased = Lib.Control.GetReleased({},{key})
+            local pressed = Lib.Control.GetPressed({key})
+            local justReleased = Lib.Control.GetJustReleased({key})
 
             if justReleased[key] then
                 Lib.Log.Debug("Short Pressed, exiting short press loop")
@@ -180,3 +193,4 @@ Lib.Control.ShortPress = function(key, releaseCallback, ms)
 end
 
 Lib.Control.Map = Control
+Lib.Control.Keys = ControlKeys

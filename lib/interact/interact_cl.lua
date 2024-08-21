@@ -7,10 +7,12 @@ local CreateEntityInteract = function(data)
         Lib.Log.Debug("Creating new interact", Lib.Util.GetModelName(data.modelHash))
     end
     Interactions[data.modelHash] = {
+        -- interactType = "entity",
         icon = data.icon,
         label = data.label,
         callback = data.callback,
     }
+    TriggerEvent("da_xinteracts:add", data.modelHash, Interactions[data.modelHash])
 end
 
 Lib.Interact.GetAllInteracts = function()
