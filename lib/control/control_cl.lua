@@ -37,10 +37,6 @@ Control.Escape3 = `INPUT_FRONTEND_PAUSE_ALTERNATE`
 
 local passthroughThreadActive = false
 
-Lib.Control.PassthroughIsActive = function()
-    return passthroughThreadActive
-end
-
 ---Wait for key(s) to be released
 ---@param keys table|number The key(s) to wait for release
 ---@param timeout number|nil The time to wait before returning
@@ -63,32 +59,6 @@ Lib.Control.WaitForKeyRelease = function(keys, timeout)
     end
     Lib.Log.Debug("Timed out waiting for key release")
     return false
-end
-
----Disable all RDR2 controls while a thread runs or unless a pass through key
----is pressed @param state boolean whether to enable or disable the passthrough
----thread
-Lib.Control.Passthrough = function(state, haltKey, callback)
-    if passthroughThreadActive == state then return; end
-    passthroughThreadActive = state
-
-    if passthroughThreadActive then
-        local waitTime = GetGameTimer() + 1000
-        while IsDisabledControlPressed(0, haltKey, true) and GetGameTimer() < waitTime do
-            -- Give the user a chance to release the key
-            Citizen.Wait(0)
-        end
-        Citizen.CreateThread(function()
-            Lib.Log.Debug("Passthrough thread started")
-            while passthroughThreadActive do
-                Citizen.Wait(0)
-                if IsDisabledControlJustReleased(0, haltKey, true) then break; end
-            end
-            Lib.Log.Debug("Passthrough thread ended")
-            if callback then callback(); end
-            passthroughThreadActive = false
-        end)
-    end
 end
 
 Lib.Control.GetPressed = function(pressed)
