@@ -62,6 +62,7 @@ Lib.API.HasItems = function(items)
     return Lib.API[API].HasItems(items)
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 Lib.API.SetDoorStatus = function(data, attribute, status)
     if not isAPI() then return; end
     Lib.API[API].SetDoorStatus(data, attribute, status)

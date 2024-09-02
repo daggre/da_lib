@@ -53,9 +53,9 @@ Lib.Fn.SendTelegram = function(src, category, message, location, sender)
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("SendTelegram"))
 end
 
-Lib.Fn.SendLetter = function(src, category, message, location, sender)
+Lib.Fn.SendLetter = function(src, receiver, message, sender)
     if Lib.API.Active then
-        return Lib.API.SendLetter(src, category, message, location, sender)
+        return Lib.API.SendLetter(src, receiver, message, sender)
     end
     Lib.Log.Debug(("API not active, local function '%s' not implemented"):format("SendLetter"))
 end

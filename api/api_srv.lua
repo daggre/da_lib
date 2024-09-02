@@ -96,3 +96,34 @@ Lib.API.SendLetter = function(src, category, message, location, sender)
     return Lib.API[API].SendLetter(src, category, message, location, sender)
 end
 
+Lib.API.GetPlayerUniqueId = function(src)
+    if not isAPI() then return; end
+    return Lib.API[API].GetPlayerUniqueId(src)
+end
+
+Lib.API.GetItemLabel = function(item)
+    if not isAPI() then return; end
+    return Lib.API[API].GetItemLabel(item)
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+Lib.API.SetDoorStatus = function(data, attribute, status)
+    if not isAPI() then return; end
+    Lib.API[API].SetDoorStatus(data, attribute, status)
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+Lib.API.IsJob = function(src, job, active)
+    if not isAPI() then return true; end
+    return Lib.API[API].IsJob(src, job, active)
+end
+
+Lib.API.MinimumPolice = function(minAmount, active)
+    if not isAPI() then return true; end
+    return Lib.API[API].MinimumPolice(minAmount, active)
+end
+
+Lib.API.IsCrimeAllowed = function()
+    if not isAPI() then return true; end
+    return Lib.API[API].IsCrimeAllowed()
+end
