@@ -65,15 +65,22 @@ Lib.Chance.Lockbreak = function(skill, lockSkill)
     return success
 end
 
+---Given a lootTable and a value, roll for random items until the max value is met
+---@param lootTable table The loot table to roll from
+---@param maxValue number The value of items to roll for
+---@return integer lootedValue The value of items given
+---@return table lootedItems The items and item count of items given
 Lib.Chance.ValueLootTable = function(lootTable, maxValue)
+    Lib.Log.Debug("Loot table: ", maxValue)
     local lootedValue = 0
+    local lootedItems = {}
     local totalChance = 1
     local chanceLookup = {}
     for _, lootData in ipairs(lootTable) do
         table.insert(chanceLookup, { min = totalChance, max = totalChance + lootData.chance, value = lootData.value, item = lootData.item })
         totalChance = totalChance + lootData.chance
     end
-    Lib.Log.Debug("Chance lookup: ", chanceLookup)
+    Lib.Log.DebugVerbose("Chance lookup: ", chanceLookup)
     Lib.Log.Debug(("Total chance: %s"):format(totalChance))
     while lootedValue < maxValue do
         Citizen.Wait(250)
@@ -81,10 +88,15 @@ Lib.Chance.ValueLootTable = function(lootTable, maxValue)
         for _, chanceData in ipairs(chanceLookup) do
             if roll > chanceData.min and roll <= chanceData.max then
                 Lib.Log.Debug(("Rolled table item: %s, value: %s, currentValue: %s"):format(chanceData.item, chanceData.value, lootedValue))
-                if lootedValue ~= 0 and lootedValue + (chanceData.value/2) > maxValue then return; end
+                if lootedValue ~= 0 and lootedValue + (chanceData.value/2) > maxValue then
+                    return lootedValue, lootedItems;
+                end
                 lootedValue = lootedValue + chanceData.value
+                if lootedItems[chanceData.item] == nil then lootedItems[chanceData.item] = 0; end
+                lootedItems[chanceData.item] = lootedItems[chanceData.item] + 1
                 Lib.Fn.AddItem(chanceData.item, 1)
             end
         end
     end
+    return lootedValue, lootedItems
 end

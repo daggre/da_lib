@@ -53,6 +53,7 @@ Lib.API.TMC.HasItems = function(items)
     return TMC.Functions.HasItems(items)
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 Lib.API.TMC.SetDoorStatus = function(data, attribute, status)
     TMC.Functions.TriggerServerEvent("doorlocks:server:updateDamageStatus", data, { [attribute] = status })
 end
@@ -74,7 +75,6 @@ local ConsumeItem = function(name, slot, index, info)
         return
     end
     Lib.Net.AsyncCb("da_lib:removeItem", name, 1, slot, index)
-    return
 end
 
 Lib.API.TMC.Consume = function(name, data)
@@ -199,6 +199,7 @@ end
 ---@param job string
 ---@param active boolean|nil
 ---@return boolean
+---@diagnostic disable-next-line: duplicate-set-field
 Lib.API.TMC.IsJob = function(job, active)
     local jobMap = {
         any = { "judge", "stategovt", "attorneygeneral", "doctor", "leo", "dop", "conductor", "rancher", "gunsmith" },

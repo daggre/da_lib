@@ -116,14 +116,73 @@ Lib.API.TMC.SendTelegram = function(src, category, message, location, sender)
     }, true)
 end
 
-Lib.API.TMC.SendLetter = function(src, category, message, location, sender)
+Lib.API.TMC.SendLetter = function(src, receiver, message, sender)
     TMC.Functions.TriggerEvent('SendLetOrTele', {
         client = src,
         type = 'letter',
-        teletype = category,
         sender = sender,
-        location = location,
+        receiver = receiver,
         message = message,
     }, true)
 end
 
+Lib.API.TMC.GetPlayerUniqueId = function(src)
+    local player = TMC.Functions.GetPlayer(src)
+    if player then
+        return player.PlayerData.citizenid
+    end
+end
+
+Lib.API.TMC.GetItemLabel = function(item)
+    return TMC.Shared.Items[item] and TMC.Shared.Items[item].label or item
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+Lib.API.TMC.SetDoorStatus = function(data, attribute, status)
+    TMC.Functions.TriggerEvent("doorlocks:server:updateDamageStatus", data, { [attribute] = status })
+end
+
+---Check if the player has a specific job or job category
+---@param src integer Player source
+---@param job string
+---@param active boolean|nil
+---@return boolean
+---@diagnostic disable-next-line: duplicate-set-field
+Lib.API.TMC.IsJob = function(src, job, active)
+    local player = TMC.Functions.GetPlayer(src)
+    local jobMap = {
+        any = { "judge", "stategovt", "attorneygeneral", "doctor", "leo", "dop", "conductor", "rancher", "gunsmith" },
+        good = { "leo", "dop", "judge", "stategovt", "attorneygeneral", },
+        gov = { "judge", "stategovt", "attorneygeneral" },
+        medical = { "doctor", },
+        police = { "leo", "dop" },
+        train = { "conductor", }
+    }
+
+    if jobMap[job] then
+        for _,v in ipairs(jobMap[job]) do
+            if active and player.Functions.HasJob(v) and player.Functions.IsOnDuty(v) then
+                return true
+            elseif not active and TMC.Functions.HasJob(v) then
+                return true
+            end
+        end
+        return false
+    end
+
+    return player.Functions.HasJob(job) and not active or player.Functions.IsOnDuty(job) ~= false
+end
+
+Lib.API.TMC.MinimumPolice = function(minAmount, active)
+    active = active ~= nil or true
+    local numCopsOnDuty = 0
+    for _, player in pairs(TMC.Functions.GetPlayers()) do
+        if Lib.API.TMC.IsJob(player, "leo", active) then numCopsOnDuty = numCopsOnDuty + 1; end
+        if numCopsOnDuty >= minAmount then return true; end
+    end
+    return numCopsOnDuty >= minAmount
+end
+
+Lib.API.TMC.IsCrimeAllowed = function()
+    return true
+end
