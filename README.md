@@ -47,19 +47,8 @@ folders as well as comments in the code.
 
 ## Usage
 This resource provides a library for other scripts to use. To use this
-library import it into your working script:
+library import libs into your working script:
 ```lua
-da = exports.da_lib:importLib()
-```
-It is also suggested to register a callback function for the log levels so that
-RedM can properly log to the client console with respect to the script calling
-each log, the following is standard:
-```lua
-da = exports.da_lib:importLib()
-da.Log.Register(function(msg) print(msg) end)
-```
-This will set the log level to info for LIVE servers and debug for DEV servers.
-
 ## Installation
 Clone the **da_lib** repository into your servers resources folder:
 ```bash

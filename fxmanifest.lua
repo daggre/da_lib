@@ -10,79 +10,81 @@ version '0.9'
 lua54 'yes'
 
 shared_scripts {
-    'src/import_sh.lua',
-    'lib/loglevel/commands_sh.lua',
-    'lib/loglevel/level_sh.lua',
-    'lib/loglevel/resource_sh.lua',
-    'lib/net/callback_sh.lua',
-    'lib/string/string_sh.lua',
+    '@da_log/log_sh.lua',
+    'lib/cache_delay.lua',
+    'lib/cache_lazy.lua',
+    -- 'lib/cache_temp.lua',
+    'ctl/api_sh_ctl.lua',
+    'lib/kvp_sh.lua',
+    'lib/cli_sh.lua',
 }
 
 server_scripts {
-    'lib/net/callback_srv.lua',
-    -- Order necessary above this line
-
-    -- API
-    'api/tmc/tmc_srv.lua',
-    'api/api_srv.lua',
+    'lib/net_srv.lua',
+    'ctl/lock_srv_ctl.lua',
+    'ctl/epoch_srv_ctl.lua',
+    'ctl/audio_srv_ctl.lua',
 
     -- Libraries
-    'lib/audio/audio_srv.lua',
-    'lib/cache/lazyupdate_sh.lua',
-    'lib/cache/temp_sh.lua',
-    'lib/fn/fn_srv.lua',
-    'lib/lock/global_srv.lua',
-    'lib/object/intprop/intprop_srv.lua',
-    'lib/string/string_sh.lua',
-    'lib/time/time_srv.lua',
+    -- 'lib/fn/fn_srv.lua',
+    -- 'lib/object/intprop/intprop_srv.lua',
+
+    -- API
+    'api/**/*_srv.lua',
+    'api/api_sh.lua',
 }
 
 client_scripts {
-    'lib/net/callback_cl.lua',
-    -- Order necessary above this line
+    'lib/net_cl.lua',
+    'lib/lock_cl.lua',
+    'lib/audio_cl.lua',
+    'lib/chance_cl.lua',
+    'lib/control_cl.lua',
+    'lib/draw_cl.lua',
+    'lib/epoch_cl.lua',
+    'lib/fx_cl.lua',
+    'lib/object_cl.lua',
+    'ctl/mode_cl_ctl.lua',
+    'lib/mode_cl.lua',
+    'lib/trie_cl.lua',
+
+    '@polyzone/client.lua',
+    '@polyzone/CircleZone.lua',
+    'lib/polyzone_cl.lua',
 
     -- Data
-    'bin/af_flags.lua',
-    'bin/aik_flags.lua',
-    'bin/animations.lua',
-    'bin/control.lua',
-    'bin/objects.lua',
-    'bin/peds.lua',
-    'bin/pickups.lua',
-    'bin/propsets.lua',
-    'bin/vehicles.lua',
+    'dat/flags_af.lua',
+    'dat/flags_aik.lua',
+    'dat/animation.lua',
+    'dat/key.lua',
+    'dat/object.lua',
+    'dat/ped.lua',
+    'dat/pickup.lua',
+    'dat/propset.lua',
+    'dat/vehicle.lua',
 
-    -- API
-    'api/tmc/tmc_cl.lua',
-    'api/api_cl.lua',
+    'lib/anim_cl.lua',
+    'lib/util_cl.lua',
 
     -- Libraries
-    'lib/anim/anim_cl.lua',
-    'lib/audio/audio_cl.lua',
-    'lib/cache/lazyupdate_sh.lua',
-    'lib/cache/temp_sh.lua',
-    'lib/chance/chance_cl.lua',
-    'lib/check/check_cl.lua',
-    'lib/control/control_cl.lua',
-    'lib/control/passthrough_cl.lua',
-    'lib/data/data_cl.lua',
-    'lib/fn/fn_cl.lua',
-    'lib/fx/fx_cl.lua',
-    'lib/interact/interact_cl.lua',
-    'lib/lock/global_cl.lua',
-    'lib/mode/check.lua',
-    'lib/mode/mode.lua',
-    'lib/zone/polyzone/polyzone_cl.lua',
-    'lib/object/npc_cl.lua',
-    'lib/object/object_cl.lua',
-    'lib/object/props_cl.lua',
-    'lib/object/intprop/intprop_cl.lua',
-    'lib/prompt/prompt_cl.lua',
-    'lib/stats/stats_cl.lua',
-    'lib/time/time_cl.lua',
-    'lib/util/util_cl.lua',
-    'lib/util/draw_cl.lua',
-    'lib/weapon/weapon_cl.lua',
-    'lib/zone/zone_cl.lua',
+    -- 'lib/chance/chance_cl.lua',
+    -- 'lib/control/control_cl.lua',
+    -- 'lib/control/passthrough_cl.lua',
+    -- 'lib/fn/fn_cl.lua',
+    -- 'lib/fx/fx_cl.lua',
+    -- 'lib/interact/interact_cl.lua',
+    -- 'lib/mode/check.lua',
+    -- 'lib/mode/mode.lua',
+    -- 'lib/zone/polyzone/polyzone_cl.lua',
+    -- 'lib/object/npc_cl.lua',
+    -- 'lib/object/props_cl.lua',
+    -- 'lib/object/intprop/intprop_cl.lua',
+    -- 'lib/prompt/prompt_cl.lua',
+    -- 'lib/util/util_cl.lua',
+    -- 'lib/util/draw_cl.lua',
+    -- 'lib/zone/zone_cl.lua',
 
+    -- API
+    'api/**/*_cl.lua',
+    'api/api_sh.lua',
 }
