@@ -1,30 +1,30 @@
---- Copyright © 2024 Joshua Nelson
-
-if Lib.API.Active ~= "TMC" then return; end
-TMC = exports.core:getCoreObject()
+if DAAPI.ActiveFramework ~= "TMC" then return; end
+log.debug("Setting up Framework API: " .. DAAPI.ActiveFramework)
+local FW = {}
+local TMC = exports.core:getCoreObject()
 
 ---@diagnostic disable-next-line: duplicate-set-field
-Lib.API.TMC.AddItem = function(src, itemName, amount, slot, slotIndex, isInternalMove)
+FW.addItem = function(src, itemName, amount, slot, slotIndex, isInternalMove)
     local player = TMC.Functions.GetPlayer(src)
     return player.Functions.AddItem(itemName, amount, slot, slotIndex, isInternalMove)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-Lib.API.TMC.RemoveItem = function(src, itemName, amount, slot, slotIndex, isInternalMove)
+FW.removeItem = function(src, itemName, amount, slot, slotIndex, isInternalMove)
     local player = TMC.Functions.GetPlayer(src)
     return player.Functions.RemoveItem(itemName, amount or 1, slot, slotIndex, isInternalMove)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-Lib.API.TMC.Notify = function(src, message, notifyType, duration)
+FW.notify = function(src, message, notifyType, duration)
     TMC.Functions.SimpleNotify(src, message, notifyType, duration)
 end
 
-Lib.API.TMC.ConsumeCharge = function(src, itemName, slot, index, info)
-    assert(itemName, "name was nil "..Lib.String.Format(itemName, slot))
-    assert(slot, "slot invalid "..Lib.String.Format(itemName, slot))
-    assert(index, "index invalid "..Lib.String.Format(itemName, slot))
-    assert(info, "info invalid "..Lib.String.Format(itemName, slot))
+FW.consumeCharge = function(src, itemName, slot, index, info)
+    assert(itemName, "name was nil "..log.format(itemName, slot))
+    assert(slot, "slot invalid "..log.format(itemName, slot))
+    assert(index, "index invalid "..log.format(itemName, slot))
+    assert(info, "info invalid "..log.format(itemName, slot))
 
     local amount = 1
     local player = TMC.Functions.GetPlayer(src)
@@ -38,11 +38,11 @@ Lib.API.TMC.ConsumeCharge = function(src, itemName, slot, index, info)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-Lib.API.TMC.DependencyCheck = function(resourceName)
+FW.checkDepends = function(resourceName)
     return TMC.Common.IsDepRunning(resourceName)
 end
 
-Lib.API.TMC.SetItemMetadata = function(src, item, metadata)
+FW.setItemMetadata = function(src, item, metadata)
     local player = TMC.Functions.GetPlayer(src)
     local updateItem = false
     if not player then return; end
@@ -56,7 +56,7 @@ Lib.API.TMC.SetItemMetadata = function(src, item, metadata)
     end
 
     if not tmcItem then
-        Lib.Log.Debug("Could not find item in slot", item.name, item.slot, item.index)
+        log.debug("Could not find item in slot", item.name, item.slot, item.index)
         return
     end
 
@@ -74,11 +74,11 @@ Lib.API.TMC.SetItemMetadata = function(src, item, metadata)
     end
 end
 
-Lib.API.TMC.CreateUseableItem = function(src, itemName, fn)
+FW.createUseableItem = function(src, itemName, fn)
     TMC.Functions.CreateUseableItem(src, itemName, fn)
 end
 
-Lib.API.TMC.IsCharMale = function(src)
+FW.isCharMale = function(src)
     local player = TMC.Functions.GetPlayer(src)
     if player and player.PlayerData and player.PlayerData.charinfo and player.PlayerData.charinfo.gender ~= nil then
         return player.PlayerData.charinfo.gender == 0
@@ -87,25 +87,25 @@ Lib.API.TMC.IsCharMale = function(src)
     return true
 end
 
-Lib.API.TMC.HasPermission = function(src, level)
+FW.hasPermission = function(src, level)
     return TMC.Functions.HasPermission(src, level)
 end
 
-Lib.API.TMC.AddSkill = function(src, skill, amount)
+FW.addSkill = function(src, skill, amount)
     local player = TMC.Functions.GetPlayer(src)
     if player then
         player.Functions.AddReputation(skill, amount)
     end
 end
 
-Lib.API.TMC.SetSkill = function(src, skill, amount)
+FW.setSkill = function(src, skill, amount)
     local player = TMC.Functions.GetPlayer(src)
     if player then
         player.Functions.SetReputation(skill, amount)
     end
 end
 
-Lib.API.TMC.SendTelegram = function(src, category, message, location, sender)
+FW.sendTelegram = function(src, category, message, location, sender)
     TMC.Functions.TriggerEvent('SendLetOrTele', {
         client = src,
         type = 'telegram',
@@ -116,7 +116,7 @@ Lib.API.TMC.SendTelegram = function(src, category, message, location, sender)
     }, true)
 end
 
-Lib.API.TMC.SendLetter = function(src, receiver, message, sender)
+FW.sendLetter = function(src, receiver, message, sender)
     TMC.Functions.TriggerEvent('SendLetOrTele', {
         client = src,
         type = 'letter',
@@ -126,19 +126,19 @@ Lib.API.TMC.SendLetter = function(src, receiver, message, sender)
     }, true)
 end
 
-Lib.API.TMC.GetPlayerUniqueId = function(src)
+FW.getPlayerUniqueId = function(src)
     local player = TMC.Functions.GetPlayer(src)
     if player then
         return player.PlayerData.citizenid
     end
 end
 
-Lib.API.TMC.GetItemLabel = function(item)
+FW.getItemLabel = function(item)
     return TMC.Shared.Items[item] and TMC.Shared.Items[item].label or item
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-Lib.API.TMC.SetDoorStatus = function(data, attribute, status)
+FW.setDoorStatus = function(data, attribute, status)
     TMC.Functions.TriggerEvent("doorlocks:server:updateDamageStatus", data, { [attribute] = status })
 end
 
@@ -148,7 +148,7 @@ end
 ---@param active boolean|nil
 ---@return boolean
 ---@diagnostic disable-next-line: duplicate-set-field
-Lib.API.TMC.IsJob = function(src, job, active)
+FW.isJob = function(src, job, active)
     local player = TMC.Functions.GetPlayer(src)
     local jobMap = {
         any = { "judge", "stategovt", "attorneygeneral", "doctor", "leo", "dop", "conductor", "rancher", "gunsmith" },
@@ -173,16 +173,18 @@ Lib.API.TMC.IsJob = function(src, job, active)
     return player.Functions.HasJob(job) and not active or player.Functions.IsOnDuty(job) ~= false
 end
 
-Lib.API.TMC.MinimumPolice = function(minAmount, active)
+FW.minimumPolice = function(minAmount, active)
     active = active ~= nil or true
     local numCopsOnDuty = 0
     for _, player in pairs(TMC.Functions.GetPlayers()) do
-        if Lib.API.TMC.IsJob(player, "leo", active) then numCopsOnDuty = numCopsOnDuty + 1; end
+        if Framework.IsJob(player, "leo", active) then numCopsOnDuty = numCopsOnDuty + 1; end
         if numCopsOnDuty >= minAmount then return true; end
     end
     return numCopsOnDuty >= minAmount
 end
 
-Lib.API.TMC.IsCrimeAllowed = function()
+FW.isCrimeAllowed = function()
     return true
 end
+
+DAAPI.Framework = FW
