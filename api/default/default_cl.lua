@@ -30,13 +30,12 @@ FW.hasItems = function(items)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-FW.hasJob = function(jobName) return
-    false
-end
+FW.hasJob = function(jobName) return false end
 
-FW.checkDepends = function(resourceName)
+FW.checkDepends = function(resourceName, cache)
+    cache = cache == nil and 15000 or cache
     LazyCacheRegisterDependCheck(resourceName)
-    return lazy(15000)['depends_' .. resourceName]()
+    return lazy(cache)['depends_' .. resourceName]()
 end
 
 FW.teleport = function(coords, fade)
@@ -69,7 +68,7 @@ FW.revive = function(entity)
     SetEntityHealth(entity, GetEntityMaxHealth(entity))
 end
 
-FW.IsDead = function(entity)
+FW.isDead = function(entity)
     entity = entity or PlayerPedId()
     return IsEntityDead(entity)
 end

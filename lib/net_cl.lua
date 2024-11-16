@@ -63,3 +63,17 @@ AddEventHandler("ServerEvent:Blocking:Return", function(event, data)
         Event[event] = data
     end
 end)
+
+local Net = {}
+
+Net.event = function(event, fn)
+    AddEventHandler(event, fn)
+end
+
+Net.events = function(events)
+    for event, fn in pairs(events) do
+        AddEventHandler(event, fn)
+    end
+end
+
+_ENV.da_net = Net
