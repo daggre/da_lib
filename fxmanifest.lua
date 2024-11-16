@@ -46,7 +46,10 @@ client_scripts {
     'lib/object_cl.lua',
     'ctl/mode_cl_ctl.lua',
     'lib/mode_cl.lua',
+    'lib/move_cl.lua',
+    'lib/nui_cl.lua',
     'lib/trie_cl.lua',
+    'lib/weapon_cl.lua',
 
     '@polyzone/client.lua',
     '@polyzone/CircleZone.lua',
