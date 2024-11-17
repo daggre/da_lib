@@ -2,7 +2,7 @@
 local DefaultLongPressMS = 300
 local ControlPressed = {}
 
-local Control = { keyHash = {} }
+local Control = { keyHash = {}, keys = {} }
 local Passthrough = {}
 
 Control.waitForRelease = function(keys, timeout)
@@ -20,6 +20,7 @@ Control.waitForRelease = function(keys, timeout)
         for _, key in ipairs(keys) do
             if IsControlPressed(0, key) == 1 or IsDisabledControlPressed(0, key) == 1 then
                 released = false
+                DrawScreenText("Release "..key, 0.95, 0.97, {r=80, g=193, b=238, a=255})
                 break;
             end
         end
@@ -34,7 +35,7 @@ Control.isPressed = function(controls)
     local controlPressed = {}
 
     for _, key in ipairs(controls) do
-        local keyMap = Control.keyHash[key]
+        local keyMap = dat.keyHash[key]
         if keyMap then
             controlPressed[key] = IsControlPressed(0, keyMap) == 1
                 or IsDisabledControlPressed(0, keyMap) == 1
@@ -49,7 +50,7 @@ Control.isJustPressed = function(controls)
     local controlJustPressed = {}
 
     for _, key in ipairs(controls) do
-        local keyMap = Control.keyHash[key]
+        local keyMap = dat.keyHash[key]
         if keyMap then
             controlJustPressed[key] = IsControlJustPressed(0, keyMap) == 1
                 or IsDisabledControlJustPressed(0, keyMap) == 1
@@ -64,7 +65,7 @@ Control.isReleased = function(controls)
     local controlReleased = {}
 
     for _, key in ipairs(controls) do
-        local keyMap = Control.keyHash[key]
+        local keyMap = dat.keyHash[key]
         if keyMap then
             controlReleased[key] = IsControlReleased(0, keyMap) == 1
         end
@@ -77,7 +78,7 @@ Control.isJustReleased = function(controls)
     local controlJustReleased = {}
 
     for _, key in ipairs(controls) do
-        local keyMap = Control.keyHash[key]
+        local keyMap = dat.keyHash[key]
         if keyMap then
             controlJustReleased[key] = IsControlJustReleased(0, keyMap) == 1
                 or IsDisabledControlJustReleased(0, keyMap) == 1
@@ -185,50 +186,6 @@ function Passthrough:toggle(haltKey, callback)
         self:start(haltKey, callback)
     end
 end
-
-Control.keyHash = {
-    ['1'] = `INPUT_SELECT_QUICKSELECT_SIDEARMS_LEFT`,
-    ['2'] = `INPUT_SELECT_QUICKSELECT_DUALWIELD`,
-    ['3'] = `INPUT_SELECT_QUICKSELECT_SIDEARMS_RIGHT`,
-    ['4'] = `INPUT_SELECT_QUICKSELECT_UNARMED`,
-    ['5'] = `INPUT_SELECT_QUICKSELECT_MELEE_NO_UNARMED`,
-    ['6'] = `INPUT_SELECT_QUICKSELECT_SECONDARY_LONGARM`,
-    ['7'] = `INPUT_SELECT_QUICKSELECT_THROWN`,
-    ['8'] = `INPUT_SELECT_QUICKSELECT_PRIMARY_LONGARM`,
-    ['a'] = `INPUT_MOVE_LEFT_ONLY`,
-    ['c'] = `INPUT_LOOK_BEHIND`,
-    ['d'] = `INPUT_MOVE_RIGHT_ONLY`,
-    ['e'] = `INPUT_DYNAMIC_SCENARIO`,
-    ['f'] = `INPUT_CONTEXT_B`,
-    ['g'] = `INPUT_INTERACT_ANIMAL`,
-    ['h'] = `INPUT_WHISTLE`,
-    ['q'] = `INPUT_FRONTEND_LB`,
-    ['r'] = `INPUT_RELOAD`,
-    ['s'] = `INPUT_MOVE_DOWN_ONLY`,
-    ['v'] = `INPUT_NEXT_CAMERA`,
-    ['w'] = `INPUT_MOVE_UP_ONLY`,
-    ['x'] = `INPUT_SWITCH_SHOULDER`,
-    ['z'] = `INPUT_GAME_MENU_TAB_LEFT_SECONDARY`,
-    ['Crouch'] = `INPUT_DUCK`,
-    ['Spacebar'] = `INPUT_JUMP`,
-    [' '] = `INPUT_JUMP`,
-    ['Alt'] = `INPUT_HUD_SPECIAL`,
-    ['Shift'] = `INPUT_SPRINT`,
-    ['Ctrl'] = `INPUT_FRONTEND_RUP`,
-    ['MouseLR'] = `INPUT_LOOK_LR`,
-    ['MouseUD'] = `INPUT_LOOK_UD`,
-    ['MouseLeft'] = `INPUT_ATTACK`,
-    ['MouseLeft2'] = `SKIPCUTSCENE`,
-    ['MouseRight'] = `INPUT_AIM`,
-    ['MouseScrollClick'] = `INPUT_PC_FREE_LOOK`,
-    ['WheelUp'] = `INPUT_PREV_WEAPON`,
-    ['WheelDown'] = `INPUT_NEXT_WEAPON`,
-    [']'] = `INPUT_SNIPER_ZOOM_IN_ONLY`, -- Possible conflict with scroll up
-    ['RightBracket'] = `INPUT_SNIPER_ZOOM_IN_ONLY`,
-    ['Escape'] = `INPUT_GAME_MENU_CANCEL`, -- Conflict with Backspace
-    ['Escape2'] = `INPUT_FRONTEND_RRIGHT`,
-    ['Escape3'] = `INPUT_FRONTEND_PAUSE_ALTERNATE`,
-}
 
 _ENV.da_control = Control
 _ENV.da_controlpass = Passthrough

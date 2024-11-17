@@ -175,7 +175,7 @@ local load_cmd = function(cmd, data)
 		Command[path].fn(argData)
 	end, false)
 
-	log.info(("CLI command '%s' registered."):format(cmd))
+	log.spam(("CLI command '%s' registered."):format(cmd))
 end
 
 CLI.add_cmd = function(cmd, uninit_data)

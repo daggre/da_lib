@@ -40,3 +40,5 @@ AddEventHandler("da_lib.audio.stopStream", function(netId)
     end
     log.spam("Stopping networked stream", netId)
 end)
+
+_ENV.da_audio = audio

@@ -15,7 +15,6 @@ object.load = function(hash)
     return true
 end
 
-
 object.create = function(hash, coords, opts)
     if not hash or not coords then return; end
     if not object.load(hash) then return; end
