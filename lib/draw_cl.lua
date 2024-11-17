@@ -96,11 +96,8 @@ local DrawBoundingBox = function(o, c)
     end
 end
 
-lazy.poll = function(t) log.debug(t) end
-local DrawText = function(text, pos, color, size)
-    local _, sx, sy = GetScreenCoordFromWorldCoord(pos.x, pos.y, pos.z)
+local DrawScreenText = function(text, sx, sy, color, size)
     if sx <= 0 or sx >= 1 or sy <= 0 or sy >= 1 then return; end
-    -- lazy(1000).poll({sx,sy,sx1,sy1,pos,text,color,size})
     local str = CreateVarString(10, "LITERAL_STRING", text)
     color = color or { r = 255, g = 255, b = 255, a = 255 }
     SetTextScale(1, size or 0.2)
@@ -111,6 +108,12 @@ local DrawText = function(text, pos, color, size)
     DisplayText(str, sx, sy)
 end
 
+local DrawText = function(text, pos, color, size)
+    local _, sx, sy = GetScreenCoordFromWorldCoord(pos.x, pos.y, pos.z)
+    if sx <= 0 or sx >= 1 or sy <= 0 or sy >= 1 then return; end
+    DrawScreenText(text, sx, sy, color, size)
+end
+
 _ENV.DrawSphere = DrawSphere
 _ENV.DrawCylinder = DrawCylinder
 _ENV.DrawLine = DrawLine
@@ -118,3 +121,4 @@ _ENV.DrawHLine = DrawHLine
 _ENV.DrawVLine = DrawVLine
 _ENV.DrawBB = DrawBoundingBox
 _ENV.DrawText = DrawText
+_ENV.DrawScreenText = DrawScreenText

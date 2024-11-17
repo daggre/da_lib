@@ -35,6 +35,20 @@ server_scripts {
 }
 
 client_scripts {
+    -- Data
+    'dat/flags_af.lua',
+    'dat/flags_aik.lua',
+    'dat/animation.lua',
+    'dat/key.lua',
+    'dat/object.lua',
+    'dat/ped.lua',
+    'dat/pickup.lua',
+    'dat/propset.lua',
+    'dat/vehicle.lua',
+
+    'lib/anim_cl.lua',
+    'lib/util_cl.lua',
+
     'lib/net_cl.lua',
     'lib/lock_cl.lua',
     'lib/audio_cl.lua',
@@ -54,20 +68,6 @@ client_scripts {
     '@polyzone/client.lua',
     '@polyzone/CircleZone.lua',
     'lib/polyzone_cl.lua',
-
-    -- Data
-    'dat/flags_af.lua',
-    'dat/flags_aik.lua',
-    'dat/animation.lua',
-    'dat/key.lua',
-    'dat/object.lua',
-    'dat/ped.lua',
-    'dat/pickup.lua',
-    'dat/propset.lua',
-    'dat/vehicle.lua',
-
-    'lib/anim_cl.lua',
-    'lib/util_cl.lua',
 
     -- Libraries
     -- 'lib/chance/chance_cl.lua',
