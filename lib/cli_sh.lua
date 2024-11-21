@@ -9,7 +9,7 @@ end
 local init_cmd = function(data)
 	local c = {}
 
-	assert(data.desc, "desc invalid: Description is required.")
+	assert(data and data.desc, "desc invalid: Description is required.")
 	c.desc = data.desc
 	c.args = data.args or {}
 	c.subcmd = data.subcmd or {}
