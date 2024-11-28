@@ -294,12 +294,13 @@ da_net.events({
             end
         end
         -- Deactivate and unregister resource that stopped
-        if resourceName == GetCurrentResourceName() then
-            for modeName, mode in pairs(ModeController.modes) do
+        for modeName, mode in pairs(ModeController.modes) do
+            if mode.resource == resourceName then
                 if mode.active then
                     log.warn("Resource stopped with active mode: " .. modeName)
                     ModeController:deactivateMode(modeName)
                 end
+                log.debug("Unregistering mode: " .. modeName)
                 ModeController:unregisterMode(modeName)
             end
         end
