@@ -29,7 +29,10 @@ MCP.deactivate = function() MCP.active = false end
 _ENV.da_mcp = MCP
 
 local Mode = {}
-Mode.register = function(mode) TriggerEvent("modeController:registerMode", mode) end
+Mode.register = function(mode)
+    mode.resource = GetCurrentResourceName()
+    TriggerEvent("modeController:registerMode", mode)
+end
 Mode.unregister = function(mode) TriggerEvent("modeController:unregisterMode", mode) end
 Mode.activate = function(mode) TriggerEvent("modeController:activateMode", mode) end
 Mode.deactivate = function(mode) TriggerEvent("modeController:deactivateMode", mode) end
