@@ -22,7 +22,7 @@ anim.ped = function(entity, dict, name, blendIn, blendOut, duration, flags, rate
     local p8 = false
     ikFlags = tonumber(ikFlags) or 0
     local p10 = false
-    taskFilter = false
+    taskFilter = taskFilter ~= nil and taskFilter or false
     local p12 = false
 
     log.spam("Playing ped anim:", {
@@ -34,7 +34,8 @@ anim.ped = function(entity, dict, name, blendIn, blendOut, duration, flags, rate
         duration = duration,
         flags = flags,
         rate = rate,
-        ikFlags = ikFlags
+        ikFlags = ikFlags,
+        taskFilter = taskFilter
     })
     LoadAnimDict(dict)
     ClearPedSecondaryTask(entity)

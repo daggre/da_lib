@@ -6,6 +6,13 @@ NUI.callback = function(n, fn)
     end)
 end
 
+NUI.event = function(n, fn)
+    RegisterNUICallback(n, function(d, cb)
+        cb({})
+        fn(d)
+    end)
+end
+
 NUI.send = function(n, d)
     d = d or {}
     d.type = n
@@ -24,13 +31,9 @@ NUI.callbacks = function(a)
     end
 end
 
-NUI.event = function(n, fn)
-    RegisterNUICallback(n, fn)
-end
-
-NUI.events = function(h)
-    for n, fn in pairs(h) do
-        RegisterNUICallback(n, fn)
+NUI.events = function(a)
+    for n, fn in pairs(a) do
+        NUI.event(n, fn)
     end
 end
 

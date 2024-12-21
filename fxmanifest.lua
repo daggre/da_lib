@@ -15,8 +15,8 @@ shared_scripts {
     'lib/cache_lazy.lua',
     -- 'lib/cache_temp.lua',
     'ctl/api_sh_ctl.lua',
-    'lib/kvp_sh.lua',
     'lib/cli_sh.lua',
+    'lib/kvp_sh.lua',
 }
 
 server_scripts {
@@ -44,6 +44,7 @@ client_scripts {
     'dat/ped.lua',
     'dat/pickup.lua',
     'dat/propset.lua',
+    'dat/taskFilter.lua',
     'dat/vehicle.lua',
 
     'lib/anim_cl.lua',
@@ -64,6 +65,7 @@ client_scripts {
     'lib/nui_cl.lua',
     'lib/trie_cl.lua',
     'lib/weapon_cl.lua',
+    'ctl/kvp_cl_ctl.lua',
 
     '@polyzone/client.lua',
     '@polyzone/CircleZone.lua',

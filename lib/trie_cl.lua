@@ -67,14 +67,14 @@ Trie.get = function(name)
 
     tree.name = name
     tree.options = Trie.getOpt(name)
-    tree.children = {}
-    for child, childData in pairs(Menu[name]) do
-        table.insert(tree.children, {
-            name = child,
-            key = childData.key,
+    tree.submenus = {}
+    for submenu, submenuData in pairs(Menu[name]) do
+        table.insert(tree.submenus, {
+            name = submenu,
+            key = submenuData.key,
         })
     end
-    table.sort(tree.children, function(a,b) return a.key < b.key end)
+    table.sort(tree.submenus, function(a,b) return a.key < b.key end)
 
     return tree
 end
