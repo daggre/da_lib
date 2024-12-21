@@ -16,8 +16,9 @@ object.load = function(hash)
 end
 
 object.create = function(hash, coords, opts)
-    if not hash or not coords then return; end
-    if not object.load(hash) then return; end
+    log.spam("Creating object", hash)
+    if not hash or not coords then log.spam("Invalid hash/coords", hash, coords); return; end
+    if not object.load(hash) then log.debug("Failed to load hash", hash) return; end
 
     local isNetwork = opts and opts.network or false
     local netMissionEntity = opts and opts.netMissionEntity or false

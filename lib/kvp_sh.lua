@@ -40,7 +40,26 @@ KVP.search = function(prefix)
     table.sort(keys)
     return keys
 end
+KVP.rsearch = function(resource, prefix)
+    local keys = {}
+    local handle = StartFindExternalKvp(resource, prefix)
+    while true do
+        local kvp = FindKvp(handle)
+        if not kvp then break; end
+        table.insert(keys, kvp)
+    end
+    EndFindKvp(handle)
+    table.sort(keys)
+    return keys
+end
 
 KVP.flush = function() Citizen.InvokeNative(0xE27C97A0) end
 
 _ENV.kvp = KVP
+
+AddEventHandler("kvp:delete", function(resourceName, key)
+    if GetCurrentResourceName() ~= resourceName then return; end
+    KVP.delete(key)
+    log.debug("Deleted KVP key: " .. key)
+end)
+

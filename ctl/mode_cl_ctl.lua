@@ -316,10 +316,20 @@ cli.add_subcmd("mode", "primary", { desc = "List primary mode",
 })
 cli.add_subcmd("mode", "list", { desc = "List modes",
     opt = { ["mode"] = { desc = "Name of the mode", } },
-    fn = function() log.info(ModeController.modes) end,
+    fn = function(args)
+        for modeName, mode in pairs(ModeController.modes) do
+            if not args.mode or args.mode == modeName then
+                log.info(mode.name, mode.active)
+            end
+        end
+    end,
 })
 cli.add_subcmd("mode", "active", { desc = "List active modes",
-    fn = function() log.info(ModeController.activeModes) end,
+    fn = function()
+        for _, mode in ipairs(ModeController.activeModes) do
+            log.info(mode.name)
+        end
+    end,
 })
 cli.add_subcmd("mode", "control", { desc = "Control commands", })
 cli.add_subcmd("mode control", "list", { desc = "Show control maps",
@@ -340,6 +350,14 @@ cli.add_subcmd("mode control cache", "keymap", { desc = "Control cache keymap",
 -- cli.add_subcmd("mode control cache", "map", { desc = "Control cache map",
 --     fn = function() log.info(ControlCacheMap) end,
 -- })
+cli.add_subcmd("mode", "activate", { desc = "Activate mode",
+    args = { "mode" },
+    fn = function(args) ModeController:activateMode(args.mode) end,
+})
+cli.add_subcmd("mode", "deactivate", { desc = "Deactivate mode",
+    args = { "mode" },
+    fn = function(args) ModeController:deactivateMode(args.mode) end,
+})
 
 Citizen.CreateThread(function() ModeController:collectEvents() end)
 
