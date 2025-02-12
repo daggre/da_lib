@@ -31,13 +31,13 @@ function ModeController:registerMode(modeDefinition)
     local modeName = modeDefinition.name
     if not modeName then log.error("Mode must have a name") return; end
     self.modes[modeName] = modeDefinition
-    log.spam("Mode registered: " .. modeName)
+    log.debug("Mode registered: " .. modeName)
     self:cacheInputEventChecks()
 end
 
 function ModeController:unregisterMode(modeName)
     self.modes[modeName] = nil
-    log.spam("Mode unregistered: " .. modeName)
+    log.debug("Mode unregistered: " .. modeName)
 end
 
 function ModeController:activateMode(modeName)
