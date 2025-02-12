@@ -26,7 +26,6 @@ dat.animation = {
 		"base_bottlejd01x^1",
 		"base_uncle",
 	},
-
 	["mech_skin@pelt_xl_elk@carried@mount"] = {
 		"carriedbymount_exp",
 		"dump",

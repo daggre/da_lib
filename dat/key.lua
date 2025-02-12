@@ -1,5 +1,4 @@
 if dat == nil then dat = {} end
-
 dat.keyHash = {
     ['1'] = `INPUT_SELECT_QUICKSELECT_SIDEARMS_LEFT`,
     ['2'] = `INPUT_SELECT_QUICKSELECT_DUALWIELD`,
