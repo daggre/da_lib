@@ -85,7 +85,9 @@ object.detach = function(obj)
 end
 
 object.set = function(obj, opt)
+    if not obj then return; end
     if not opt then return; end
+    obj = tonumber(obj)
 
     if opt.rotation ~= nil then
         -- If a rotation is provided set the rotation
