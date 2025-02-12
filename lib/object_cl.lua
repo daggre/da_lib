@@ -119,15 +119,16 @@ object.set = function(obj, opt)
     end
 
     -- The object should be frozen unless explicitly set to false
-    opt.frozen = opt.frozen ~= false -- default true
-    if opt.settleFreeze ~= nil then
-        -- If a settle freeze time is provided freeze the object after the time
-        Citizen.SetTimeout(opt.settleFreeze, function()
+    if opt.frozen ~= nil then
+        if opt.settleFreeze ~= nil then
+            -- If a settle freeze time is provided freeze the object after the time
+            Citizen.SetTimeout(opt.settleFreeze, function()
+                FreezeEntityPosition(obj, opt.frozen)
+            end)
+        else
+            -- If no settle freeze time is provided set the object frozen state immediately
             FreezeEntityPosition(obj, opt.frozen)
-        end)
-    else
-        -- If no settle freeze time is provided set the object frozen state immediately
-        FreezeEntityPosition(obj, opt.frozen)
+        end
     end
 
     if opt.texture then
