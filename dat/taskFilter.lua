@@ -1,5 +1,4 @@
 if dat == nil then dat = {} end
-
 dat.taskFilter = {
     "",
     "accessoriesonly_filter",

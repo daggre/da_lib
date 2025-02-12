@@ -24,6 +24,7 @@ object.create = function(hash, coords, opts)
     local netMissionEntity = opts and opts.netMissionEntity or false
     local doorFlag = opts and opts.doorFlag ~= false
     -- Create the object
+    log.spam("Creating object", hash, coords.x, coords.y, coords.z, opts)
     local obj = CreateObjectNoOffset(hash, coords.x, coords.y, coords.z, isNetwork, netMissionEntity, doorFlag)
     if opts then
         -- Set the spawned objects parameters based on the options config
