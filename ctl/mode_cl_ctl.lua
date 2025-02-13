@@ -186,11 +186,50 @@ function ModeController:dispatchEvent(event)
     end
 end
 
+function ModeController:triggerEvents(events)
+    local keyEventMap = self.keyEventMap
+    local modifiers = { ctrl = false, shift = false, alt = false, }
+
+    for k in pairs(keyEventMap.modifiers) do
+        modifiers[k] = events.modifiers[k] == true
+    end
+
+    for k in pairs(keyEventMap.pressed) do
+        local dispatchEvent = events.pressed[k]
+        if dispatchEvent then
+            log.debug("Dispatching pressed event", k, modifiers)
+            self:dispatchEvent({ key = k, type = "pressed", mods = modifiers, })
+        end
+    end
+
+    for k in pairs(keyEventMap.justPressed) do
+        local dispatchEvent = events.justPressed[k]
+        if dispatchEvent then
+            log.debug("Dispatching justPressed event", k, modifiers)
+            self:dispatchEvent({ key = k, type = "justPressed", mods = modifiers, })
+        end
+    end
+
+    for k in pairs(keyEventMap.released) do
+        local dispatchEvent = events.released[k]
+        if dispatchEvent then
+            self:dispatchEvent({ key = k, type = "released", mods = modifiers, })
+        end
+    end
+
+    for k in pairs(keyEventMap.justReleased) do
+        local dispatchEvent = events.justReleased[k]
+        if dispatchEvent then
+            self:dispatchEvent({ key = k, type = "justReleased", mods = modifiers, })
+        end
+    end
+end
+
 function ModeController:collectEvents()
     while true do
         local keyEventMap = self.keyEventMap
         local eventMap = self.eventMap
-        local modifiers = {}
+        local modifiers = { ctrl = false, shift = false, alt = false, }
 
         for k in pairs(eventMap) do
             -- TODO: Add disable flag in eventMap
@@ -272,6 +311,7 @@ da_net.events({
     ["modeController:activateMCP"] = function(...) ModeController:activateMCP(...) end,
     -- ["modeController:deactivateMCP"] = function() da_mcp.deactivate() end,
     ["modeController:simulateEvent"] = function(...) ModeController:dispatchEvent(...) end,
+    ["modeController:triggerEvents"] = function(...) ModeController:triggerEvents(...) end,
     ["mode:addGameKey"] = function(key, map)
         if not dat.keyHash[key] then log.error("Key not found: " .. key) return; end
         if not map then log.error("Map required") return; end
