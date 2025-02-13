@@ -146,6 +146,10 @@ object.set = function(obj, opt)
         Citizen.InvokeNative(0xA91E6CF94404E8C9, obj)
     end
 
+    if opt.alpha then
+        SetEntityAlpha(obj, opt.alpha, false)
+    end
+
     if opt.vehicle then
         -- If the object is a vehicle set the vehicle parameters
         if opt.vehicle.tint then

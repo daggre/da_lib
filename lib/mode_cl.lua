@@ -39,6 +39,7 @@ Mode.deactivate = function(mode) TriggerEvent("modeController:deactivateMode", m
 Mode.toggle = function(mode) TriggerEvent("modeController:toggleMode", mode) end
 Mode.activateMCP = function(mode) TriggerEvent("modeController:activateMCP", mode) end
 -- Mode.deactivateMCP = function() TriggerEvent("modeController:deactivateMCP") end
+Mode.triggerEvents = function(events) TriggerEvent("modeController:triggerEvents", events) end
 
 Mode.isActive = function(mode) return exports.da_lib:isModeActive(mode) end
 Mode.isPrimary = function(mode) return exports.da_lib:isModePrimary(mode) end

@@ -18,6 +18,7 @@ dat.keyHash = {
     ['q'] = `INPUT_FRONTEND_LB`,
     ['r'] = `INPUT_RELOAD`,
     ['s'] = `INPUT_MOVE_DOWN_ONLY`,
+    ['t'] = 0x9720FCEE,
     ['v'] = `INPUT_NEXT_CAMERA`,
     ['w'] = `INPUT_MOVE_UP_ONLY`,
     ['x'] = `INPUT_SWITCH_SHOULDER`,
