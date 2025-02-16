@@ -186,7 +186,7 @@ function ModeController:dispatchEvent(event)
     end
 end
 
-function ModeController:triggerEvents(events)
+function ModeController:dispatchEvents(events)
     local keyEventMap = self.keyEventMap
     local modifiers = { ctrl = false, shift = false, alt = false, }
 
@@ -285,13 +285,14 @@ end
 function ModeController:activateMCP(modeName)
     modeName = modeName or self:primaryModeName()
     local mode = self.modes[modeName]
-    if not mode then log.error("Mode not found: " .. modeName) return; end
+    if not mode then log.error("Mode not found: " .. modeName) return false; end
 
     if mode.activateMCP then
-        mode.activateMCP()
+        return mode.activateMCP()
     else
         log.error("Mode does not support MCP: " .. modeName)
     end
+    return false
 end
 
 da_net.events({
@@ -308,10 +309,8 @@ da_net.events({
             end
         end
     end,
-    ["modeController:activateMCP"] = function(...) ModeController:activateMCP(...) end,
-    -- ["modeController:deactivateMCP"] = function() da_mcp.deactivate() end,
     ["modeController:simulateEvent"] = function(...) ModeController:dispatchEvent(...) end,
-    ["modeController:triggerEvents"] = function(...) ModeController:triggerEvents(...) end,
+    ["modeController:dispatchEvents"] = function(...) ModeController:dispatchEvents(...) end,
     ["mode:addGameKey"] = function(key, map)
         if not dat.keyHash[key] then log.error("Key not found: " .. key) return; end
         if not map then log.error("Map required") return; end
@@ -349,6 +348,7 @@ da_net.events({
 
 exports("isModeActive", function(mode) return ModeController.modes[mode] and ModeController.modes[mode].active end)
 exports("isModePrimary", function(mode) return ModeController:primaryModeName() == mode end)
+exports("activateMCP", function(mode) return ModeController:activateMCP(mode) end)
 
 cli.add_cmd("mode", { desc = "Object commands" })
 cli.add_subcmd("mode", "primary", { desc = "List primary mode",
