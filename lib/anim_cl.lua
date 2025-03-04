@@ -38,7 +38,7 @@ anim.ped = function(entity, dict, name, blendIn, blendOut, duration, flags, rate
         taskFilter = taskFilter
     })
     LoadAnimDict(dict)
-    ClearPedSecondaryTask(entity)
+    -- ClearPedSecondaryTask(entity)
     TaskPlayAnim(entity, dict, name, blendIn, blendOut, duration, flags, rate, p8, ikFlags, p10, taskFilter, p12)
     RemoveAnimDict(dict)
 end
@@ -124,6 +124,10 @@ anim.set = function(entity, dict, name, time, speedMulti)
     if speedMulti then
         SetEntityAnimSpeed(entity, dict, name, speedMulti)
     end
+end
+
+anim.stop = function(ped)
+    ClearPedTasks(ped)
 end
 
 _ENV.da_anim = anim

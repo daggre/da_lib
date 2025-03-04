@@ -1,6 +1,7 @@
 if dat == nil then dat = {} end
 dat.taskFilter = {
-    { value = "", name = "None", note = "Prevents some AnimFlags from working??" },
+    { value = false, name = "false", note = "Default value false, different than \"None\"" },
+    { value = "", name = "None", note = "No taskfilter, but different than false (None prevents some anim flags)" },
     { value = "accessoriesonly_filter", name = "Accessories Only", note = "Animate Accessories Only" },
     { value = "allfingers_and_hand_helpers_filter", name = "Helper: Fingers, Hands", note = "" },
     { value = "allfingers_and_hand_helpers_no_ch_filter", name = "Helper: Fingers, Hands (no ch)", note = "" },

@@ -27,7 +27,7 @@ dat.flags.anim = {
     { value = (1<<23), name = "AF_SKIP_IF_BLOCKED_BY_HIGHER_PRIORITY_TASK", note = "" },
     { value = (1<<24), name = "AF_USE_ABSOLUTE_MOVER", note = "" },
     { value = (1<<25), name = "AF_0xC57F16E7", note = "" },
-    { value = (1<<26), name = "AF_UPPERBODY_TAGS", note = "" },
+    { value = (1<<26), name = "AF_UPPERBODY_TAGS", note = "Disables lower spine. Only works with taskfilter false" },
     { value = (1<<27), name = "AF_PROCESS_ATTACHMENTS_ON_START", note = "" },
     { value = (1<<28), name = "AF_EXPAND_PED_CAPSULE_FROM_SKELETON", note = "" },
     { value = (1<<29), name = "AF_BLENDOUT_WRT_LAST_FRAME", note = "" },
