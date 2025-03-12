@@ -197,7 +197,7 @@ function ModeController:dispatchEvents(events)
     for k in pairs(keyEventMap.pressed) do
         local dispatchEvent = events.pressed[k]
         if dispatchEvent then
-            log.debug("Dispatching pressed event", k, modifiers)
+            log.spam("Dispatching pressed event", k, modifiers)
             self:dispatchEvent({ key = k, type = "pressed", mods = modifiers, })
         end
     end
@@ -205,7 +205,7 @@ function ModeController:dispatchEvents(events)
     for k in pairs(keyEventMap.justPressed) do
         local dispatchEvent = events.justPressed[k]
         if dispatchEvent then
-            log.debug("Dispatching justPressed event", k, modifiers)
+            log.spam("Dispatching justPressed event", k, modifiers)
             self:dispatchEvent({ key = k, type = "justPressed", mods = modifiers, })
         end
     end
