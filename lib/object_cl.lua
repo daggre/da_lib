@@ -89,18 +89,24 @@ object.set = function(obj, opt)
     if not opt then return; end
     obj = tonumber(obj)
 
-    if opt.rotation ~= nil then
-        -- If a rotation is provided set the rotation
-        SetEntityRotation(obj, opt.rotation.x, opt.rotation.y, opt.rotation.z, 0, true)
+    if opt.quaternion then
+        -- If a quaternion is provided use the quaternion
+        SetEntityQuaternion(obj, opt.quaternion.x, opt.quaternion.y, opt.quaternion.z, -opt.quaternion.w)
+    else
+        if opt.rotation ~= nil then
+            -- If a rotation is provided set the rotation
+            SetEntityRotation(obj, opt.rotation.x, opt.rotation.y, opt.rotation.z, opt.rotation_order or 0, true)
+        end
+
+        if opt.heading then
+            -- If the heading is provided set the heading
+            SetEntityHeading(obj, opt.heading)
+        elseif opt.position and opt.position.w then
+            -- If the heading is provided as a vector4 set the heading
+            SetEntityHeading(obj, opt.position.w)
+        end
     end
 
-    if opt.heading then
-        -- If the heading is provided set the heading
-        SetEntityHeading(obj, opt.heading)
-    elseif opt.position and opt.position.w then
-        -- If the heading is provided as a vector4 set the heading
-        SetEntityHeading(obj, opt.position.w)
-    end
 
     if opt.ground then
         -- If the object should be placed on the ground using the native
