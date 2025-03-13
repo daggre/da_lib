@@ -1,65 +1,56 @@
-# Daggre Actual's Library (da_lib)
-## Version & Status
-v0.9 - Early Release
+# da_lib
 
-## Description
-The da library is a continually growing collection of functions and utilities
-that are used in implementation of RedM resources. The library is intended to
-be used as an aid to developers by creating reliable and convenient ways to
-execute common coding practice in RedM scripts given the capabilities of the
-RedM game.
+A library of shared functions and utilities for RedM resources.
 
-### API Layer
-The da library is also designed with an API layer to make calls into other game
-frameworks, currently the TMC framework is supported. The API layer allows the
-da library to call API functions, which then check to see which API is currently
-configured and then calls that APIs relevant functionality. If an API is not
-configured or implemented, then in the best case scenario we will try to return
-a value which best enables the scripts functionality.
+## Features
 
-### Features
-The da library has a number of features, including, but not limited to:
-- Animations
-- Audio Streams
-- Caching
-- Chance
-- Loot Tables
-- Controller
-- Common Functions
-- Particle FX
-- Interact UI
-- Resource Locking
-- Log Levels
-- Mode Controller
-- Client Server Communication and Callbacks
-- Object / Vehicle / Prop Creation
-- Prompts
-- String Manipulation
-- Time Tracking
-- Drawing
-- Common 3D Space Calculations
-- Weapon Management
-- Zone Management
+- **Animation System** - Simplified animation handling
+- **Audio Management** - Advanced audio controls
+- **Caching System** - Multiple caching strategies
+- **Input Handling** - Keyboard and controller input management
+- **Object System** - Object creation and manipulation
+- **Networking** - Client-server communication
+- **Mode System** - Resource state management
+- **Drawing Utilities** - On-screen rendering helpers
+- **Zone Management** - Create and manage world zones
 
-### Additonal Documentation
-Additional documentation for each of the features can be found in the respective
-folders as well as comments in the code.
+## Installation
+
+1. Copy this resource to your RedM server's resources directory
+2. Add `ensure da_lib` to your server configuration
+3. Import in your resources as needed
 
 ## Usage
-This resource provides a library for other scripts to use. To use this
-library import libs into your working script:
+
 ```lua
-## Installation
-Clone the **da_lib** repository into your servers resources folder:
-```bash
-cd resources
-git clone git@github.com:daggre/da_lib.git
+-- Client-side example
+local MyResource = {}
+
+-- Import the required modules
+local anims = exports.da_lib.anim
+local audio = exports.da_lib.audio
+local cache = exports.da_lib.cache
+local draw = exports.da_lib.draw
+
+-- Use the API
+RegisterCommand('example', function()
+    anims.playAnimation('WORLD_HUMAN_SMOKE')
+    audio.playSound('DISTANT_SHOTS', 0.5)
+end)
 ```
-Add `ensure da_lib` to your preferred resource config. (Default: server.cfg)
 
-## Support
-- Discord: daggre
-- Discord Server: [da_dev](https://discord.com/invite/JgteBpXGaA)
+## Documentation
 
-## Authors and Acknowledgment
-- daggre_actual
+For detailed documentation, see the [docs](docs/README.md) directory.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute.
+
+## Credits
+
+Developed by daggre_actual
