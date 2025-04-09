@@ -1,5 +1,3 @@
---- Copyright © 2024 Joshua Nelson
-
 fx_version 'cerulean'
 games {'rdr3'}
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
@@ -67,7 +65,7 @@ client_scripts {
     '@polyzone/client.lua',
     '@polyzone/CircleZone.lua',
     'features/polyzone/polyzone_cl.lua',
-    
+
     -- API
     'features/api/api_sh.lua',
     'features/api/default/default_cl.lua',
