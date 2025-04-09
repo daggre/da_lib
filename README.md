@@ -18,24 +18,19 @@ A library of shared functions and utilities for RedM resources.
 
 1. Copy this resource to your RedM server's resources directory
 2. Add `ensure da_lib` to your server configuration
-3. Import in your resources as needed
+3. Import in your resource fxmanifest as needed
 
 ## Usage
 
 ```lua
--- Client-side example
-local MyResource = {}
+-- Import the required modules in fxmanifest.lua
+client_scripts {
+    '@da_lib/features/anim/anim_cl.lua',
+}
 
--- Import the required modules
-local anims = exports.da_lib.anim
-local audio = exports.da_lib.audio
-local cache = exports.da_lib.cache
-local draw = exports.da_lib.draw
-
--- Use the API
-RegisterCommand('example', function()
-    anims.playAnimation('WORLD_HUMAN_SMOKE')
-    audio.playSound('DISTANT_SHOTS', 0.5)
+-- Use the imported library in your script
+RegisterCommand('playerAnimTest', function()
+    da_anim.ped(PlayerPedId(), "ai@react@point@base", "point_fwd", 3.0, 0.5, -1, 0, 0, false, 0, false, false)
 end)
 ```
 
