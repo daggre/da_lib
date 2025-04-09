@@ -1,5 +1,3 @@
---- Copyright © 2024 Joshua Nelson
-
 local roll = function(max, min)
     min = min or 1
     return math.random(min, max)
