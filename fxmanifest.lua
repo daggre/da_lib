@@ -11,7 +11,6 @@ shared_scripts {
     '@da_log/log_sh.lua',
     'features/cache/cache_delay.lua',
     'features/cache/cache_lazy.lua',
-    -- 'features/cache/cache_temp.lua',
     'features/api/api_sh_ctl.lua',
     'features/cli/cli_sh.lua',
     'features/kvp/kvp_sh.lua',
