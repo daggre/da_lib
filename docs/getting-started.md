@@ -2,6 +2,9 @@
 
 This guide will help you get started with da_lib in your RedM project.
 
+> [!CAUTION]
+> This documentation was AI generated and has high chance of hallucinations.
+
 ## Installation
 
 1. Copy the da_lib folder to your server's resources directory
