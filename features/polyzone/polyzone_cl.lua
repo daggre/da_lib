@@ -14,14 +14,3 @@ zone.poly = function(points, opts)
 end
 
 _ENV.zone = zone
-
--- TODO: Remove this
-RegisterCommand("pzone", function(source, args, rawCommand)
-    if args[1] == "add" then
-        local phandle = zone.circle(GetEntityCoords(), tonumber(args[2]) or 1.0, {
-            debugPoly = true,
-            useZ = true,
-        })
-        log.info(phandle)
-    end
-end, false)
