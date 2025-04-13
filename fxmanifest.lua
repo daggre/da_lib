@@ -60,10 +60,6 @@ client_scripts {
     'features/weapon/weapon_cl.lua',
     'features/kvp/kvp_cl_ctl.lua',
 
-    '@polyzone/client.lua',
-    '@polyzone/CircleZone.lua',
-    'features/polyzone/polyzone_cl.lua',
-
     -- API
     'features/api/api_sh.lua',
     'features/api/default/default_cl.lua',
