@@ -25,7 +25,6 @@ server_scripts {
     -- API
     'features/api/api_sh.lua',
     'features/api/default/default_srv.lua',
-    'features/api/tmc/tmc_srv.lua',
 }
 
 client_scripts {
@@ -68,5 +67,4 @@ client_scripts {
     -- API
     'features/api/api_sh.lua',
     'features/api/default/default_cl.lua',
-    'features/api/tmc/tmc_cl.lua',
 }
