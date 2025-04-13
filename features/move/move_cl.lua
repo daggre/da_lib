@@ -22,8 +22,8 @@ Move.to = function(ped, coords, timeout, forceCoords, speed, slideDistance)
     TaskGoStraightToCoord(ped, coords.xyz, speed, timeout, coords.w, slideDistance)
     Citizen.Wait(timeout)
     if forceCoords then
-		SetEntityCoords(ped, coords.xyz)
-		SetEntityHeading(ped, coords.w)
+        SetEntityCoords(ped, coords.xyz)
+        SetEntityHeading(ped, coords.w)
     end
 end
 

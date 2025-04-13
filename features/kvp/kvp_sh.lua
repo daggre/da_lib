@@ -31,11 +31,11 @@ KVP.delete = function(key) DeleteResourceKvp(key) end
 KVP.search = function(prefix)
     local keys = {}
     local handle = StartFindKvp(prefix)
-	while true do
-		local kvp = FindKvp(handle)
-		if not kvp then break; end
+    while true do
+        local kvp = FindKvp(handle)
+        if not kvp then break; end
         table.insert(keys, kvp)
-	end
+    end
     EndFindKvp(handle)
     table.sort(keys)
     return keys
@@ -62,4 +62,3 @@ AddEventHandler("kvp:delete", function(resourceName, key)
     KVP.delete(key)
     log.debug("Deleted KVP key: " .. key)
 end)
-
