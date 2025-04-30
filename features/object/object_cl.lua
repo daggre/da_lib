@@ -60,6 +60,23 @@ object.createVehicle = function(hash, pos, opts)
     return obj
 end
 
+object.createPed = function(hash, pos, opts)
+    if not hash or not pos then return; end
+    -- Load the model into memory
+    if not object.load(hash) then return; end
+
+    local isNetwork = opts and opts.network or false
+    local obj = CreatePed(hash, pos.x, pos.y, pos.z, pos.w, isNetwork, true, false)
+    if opts then
+        object.set(obj, opts)
+    elseif not opts or not opts.outfit then
+        SetPedOutfitPreset(obj, 0, false)
+    end
+    -- Unload the model from memory
+    SetModelAsNoLongerNeeded(hash)
+    return obj
+end
+
 object.expression = function(obj, expr, val, type)
     type = type or 0
     Citizen.InvokeNative(0x669655FFB29EF1A9, obj, type, expr, tonumber(val) + 0.0)
@@ -185,6 +202,20 @@ object.set = function(obj, opt)
             Citizen.InvokeNative(0xBB6F89150BC9D16B, obj, opt.vehicle.extra, 0) -- SetVehicleExtra
         end
     end
+
+    if opt.outfit then
+        SetPedOutfitPreset(obj, opt.outfit, false)
+    end
+end
+
+object.getType = function(hash)
+    local objTypes = { "ped", "vehicle", "object", "pickup", "propset" }
+    for _, objType in ipairs(objTypes) do
+        if dat.lookup[lookup] and dat.lookup[lookup][hash] then
+            return objType
+        end
+    end
+    return nil
 end
 
 _ENV.da_obj = object
