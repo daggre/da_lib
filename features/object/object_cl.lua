@@ -15,7 +15,7 @@ object.load = function(hash)
     return true
 end
 
-object.create = function(hash, coords, opts)
+object.createObj = function(hash, coords, opts)
     log.spam("Creating object", hash)
     if not hash or not coords then log.spam("Invalid hash/coords", hash, coords); return; end
     if not object.load(hash) then log.debug("Failed to load hash", hash) return; end
@@ -75,6 +75,118 @@ object.createPed = function(hash, pos, opts)
     -- Unload the model from memory
     SetModelAsNoLongerNeeded(hash)
     return obj
+end
+
+object.loadPropset = function(hash)
+    RequestPropset(hash)
+
+    local cutoff = GetGameTimer() + 500
+    while not HasPropsetLoaded(hash) do
+        Wait(0)
+        if GetGameTimer() > cutoff then
+            return false
+        end
+    end
+
+    return true
+end
+
+object.propsetFullyLoaded = function(propset)
+    local cutoff = GetGameTimer() + 500
+    while not IsPropSetFullyLoaded(propset) do
+        Wait(0)
+        if GetGameTimer() > cutoff then
+            return false
+        end
+    end
+
+    return true
+end
+
+object.convertPropset = function(propset)
+    if not object.propsetFullyLoaded(propset) then return; end
+
+    local itemset = CreateItemset(true)
+    local size = GetEntitiesFromPropset(propset, itemset, 0, false, false)
+
+    if size > 0 then
+        for i = 0, size - 1 do
+            local obj = GetIndexedItemInItemset(i, itemset)
+            if obj and DoesEntityExist(obj) then
+                CloneEntity(obj)
+            end
+        end
+    end
+
+    if IsItemsetValid(itemset) then
+        DestroyItemset(itemset)
+    end
+
+    DeletePropset(propset, false, false)
+
+    return nil
+end
+
+object.createPropset = function(hash, pos, opts)
+    if true then
+        log.warn("Create Propset is currently disabled.")
+        return nil
+    end
+
+    if not object.loadPropset(hash) then return; end
+    local propset = CreatePropset(hash, pos.x, pos.y, pos.z, 0, pos.w, 0.0, false, false)
+    ReleasePropset(hash)
+
+    if not propset or propset < 1 then
+        return nil
+    end
+
+    -- object.convertPropset()
+    return propset
+end
+
+object.createPickup = function(hash, pos, opts)
+    if true then
+        log.warn("Create Pickup is currently disabled.")
+        return nil
+    end
+
+    if not hash or not pos then return; end
+
+
+    if not IsPickupTypeValid(hash) then
+        log.error("Invalid pickup type", hash)
+        return nil
+    end
+
+    local obj = CreatePickup(hash, pos.x, pos.y, pos.z, false, 0, 0, 0, 0, 0.0, 0)
+    if opts then
+        object.set(obj, opts)
+    end
+
+    return obj
+end
+
+object.create = function(hash, pos, opts, objType)
+    local handle = nil
+    objType = objType or object.getType(hash)
+    if objType == "object" then
+        handle = object.createObj(hash, pos, opts)
+    elseif objType == "ped" then
+        handle = object.createPed(hash, pos, opts)
+    elseif objType == "vehicle" then
+        handle = object.createVehicle(hash, pos, opts)
+    elseif objType == "propset" then
+        handle = object.createPropset(hash, pos, opts)
+    elseif objType == "pickup" then
+        handle = object.createPickup(hash, pos, opts)
+    else
+        log.error("Tried to create object with invalid type", objType)
+    end
+    if not handle then
+        log.error("Failed to create object", hash, pos, objType)
+    end
+    return handle
 end
 
 object.expression = function(obj, expr, val, type)
@@ -209,8 +321,7 @@ object.set = function(obj, opt)
 end
 
 object.getType = function(hash)
-    local objTypes = { "ped", "vehicle", "object", "pickup", "propset" }
-    for _, objType in ipairs(objTypes) do
+    for _, objType in ipairs({"ped", "vehicle", "object", "pickup", "propset"}) do
         if dat.lookup[lookup] and dat.lookup[lookup][hash] then
             return objType
         end
