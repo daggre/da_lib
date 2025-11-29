@@ -170,7 +170,7 @@ end
 object.create = function(hash, pos, opts, objType)
     local handle = nil
     objType = objType or object.getType(hash)
-    if objType == "object" then
+    if objType == nil or objType == "object" then
         handle = object.createObj(hash, pos, opts)
     elseif objType == "ped" then
         handle = object.createPed(hash, pos, opts)
@@ -180,8 +180,6 @@ object.create = function(hash, pos, opts, objType)
         handle = object.createPropset(hash, pos, opts)
     elseif objType == "pickup" then
         handle = object.createPickup(hash, pos, opts)
-    else
-        log.error("Tried to create object with invalid type", objType)
     end
     if not handle then
         log.error("Failed to create object", hash, pos, objType)
@@ -322,7 +320,7 @@ end
 
 object.getType = function(hash)
     for _, objType in ipairs({"ped", "vehicle", "object", "pickup", "propset"}) do
-        if dat.lookup[lookup] and dat.lookup[lookup][hash] then
+        if dat.lookup[objType] and dat.lookup[objType][hash] then
             return objType
         end
     end
