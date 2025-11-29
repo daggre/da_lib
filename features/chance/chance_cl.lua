@@ -93,7 +93,7 @@ local lockbreak = function(skill, lockSkill)
     return disadvantageSkillCheck(skill + bonus, lockSkill, rolls)
 end
 
-_ENV.Chance = {
+_ENV.da_chance = {
     disadvantage = disadvantage,
     disadvantageSkillCheck = disadvantageSkillCheck,
     item = item,

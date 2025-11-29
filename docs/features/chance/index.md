@@ -16,20 +16,20 @@ The Chance module provides a collection of utilities for probability-based opera
 ### Basic Random Functions
 
 ```lua
-local value = Chance.roll(max, [min])
+local value = da_chance.roll(max, [min])
 ```
 - `max` (number): Maximum value (inclusive)
 - `min` (number, optional): Minimum value (inclusive, default: 1)
 - **Returns** (number): Random integer between min and max
 
 ```lua
-local diceResult = Chance.dice(sides)
+local diceResult = da_chance.dice(sides)
 ```
 - `sides` (number): Number of sides on the die
 - **Returns** (number): Result of the dice roll (1 to sides)
 
 ```lua
-local results = Chance.multiDice(sides, amount)
+local results = da_chance.multiDice(sides, amount)
 ```
 - `sides` (number): Number of sides on each die
 - `amount` (number): Number of dice to roll
@@ -38,20 +38,20 @@ local results = Chance.multiDice(sides, amount)
 ### Success Checks
 
 ```lua
-local passed = Chance.success(threshold, amount)
+local passed = da_chance.success(threshold, amount)
 ```
 - `threshold` (number): Number of successes needed
 - `amount` (number): Maximum possible value
 - **Returns** (boolean): True if random roll (1 to amount) is <= threshold
 
 ```lua
-local passed = Chance.successPercent(threshold)
+local passed = da_chance.successPercent(threshold)
 ```
 - `threshold` (number): Percentage chance of success (0-100)
 - **Returns** (boolean): True if check passed
 
 ```lua
-local successCount = Chance.multiRoll(threshold, attempts)
+local successCount = da_chance.multiRoll(threshold, attempts)
 ```
 - `threshold` (number): Percentage chance of success for each attempt
 - `attempts` (number): Number of attempts to make
@@ -60,14 +60,14 @@ local successCount = Chance.multiRoll(threshold, attempts)
 ### Advantage/Disadvantage Systems
 
 ```lua
-local passed = Chance.disadvantage(threshold, [attempts])
+local passed = da_chance.disadvantage(threshold, [attempts])
 ```
 - `threshold` (number): Percentage chance of success
 - `attempts` (number, optional): Number of checks to pass (default: 2)
 - **Returns** (boolean): True if ALL checks passed
 
 ```lua
-local passed = Chance.disadvantageSkillCheck(skill, threshold, [attempts])
+local passed = da_chance.disadvantageSkillCheck(skill, threshold, [attempts])
 ```
 - `skill` (number): Skill value
 - `threshold` (number): Difficulty threshold
@@ -77,7 +77,7 @@ local passed = Chance.disadvantageSkillCheck(skill, threshold, [attempts])
 ### Weighted Selection
 
 ```lua
-local selection = Chance.weightedChoice(weights)
+local selection = da_chance.weightedChoice(weights)
 ```
 - `weights` (table): Table with key-value pairs where values are weights
 - **Returns** (any): Selected key based on weight probabilities
@@ -85,21 +85,21 @@ local selection = Chance.weightedChoice(weights)
 ### Game Mechanics
 
 ```lua
-local success = Chance.skillCheck(skill, threshold)
+local success = da_chance.skillCheck(skill, threshold)
 ```
 - `skill` (number): Skill value
 - `threshold` (number): Difficulty threshold
 - **Returns** (boolean): True if skill check passed
 
 ```lua
-local success = Chance.lockbreak(skill, lockSkill)
+local success = da_chance.lockbreak(skill, lockSkill)
 ```
 - `skill` (number): Character's skill value
 - `lockSkill` (number): Lock difficulty value
 - **Returns** (boolean): True if lock was broken
 
 ```lua
-local added = Chance.item(threshold, itemName, [amount])
+local added = da_chance.item(threshold, itemName, [amount])
 ```
 - `threshold` (number): Percentage chance (0-100)
 - `itemName` (string): Item to add if successful
@@ -112,15 +112,15 @@ local added = Chance.item(threshold, itemName, [amount])
 
 ```lua
 -- Generate a random number between 1 and 100
-local randomValue = Chance.roll(100)
+local randomValue = da_chance.roll(100)
 print("Random value: " .. randomValue)
 
 -- Roll a 20-sided die
-local d20Result = Chance.dice(20)
+local d20Result = da_chance.dice(20)
 print("D20 roll: " .. d20Result)
 
 -- Roll multiple dice (e.g., 3d6)
-local diceResults = Chance.multiDice(6, 3)
+local diceResults = da_chance.multiDice(6, 3)
 print("3d6 rolls:", table.unpack(diceResults))
 
 -- Calculate sum of dice
@@ -135,15 +135,15 @@ print("Total: " .. total)
 
 ```lua
 -- Simple 50% chance check
-if Chance.successPercent(50) then
+if da_chance.successPercent(50) then
     print("Success! This happens about half the time")
 end
 
 -- Different probabilities for item drops
 function determinePlayerLoot()
-    if Chance.successPercent(5) then -- 5% chance
+    if da_chance.successPercent(5) then -- 5% chance
         return "rare_item"
-    elseif Chance.successPercent(25) then -- 25% chance
+    elseif da_chance.successPercent(25) then -- 25% chance
         return "uncommon_item"
     else
         return "common_item"
@@ -151,7 +151,7 @@ function determinePlayerLoot()
 end
 
 -- Roll multiple times and count successes
-local numSuccesses = Chance.multiRoll(25, 4)
+local numSuccesses = da_chance.multiRoll(25, 4)
 print("Got " .. numSuccesses .. " successes out of 4 attempts")
 ```
 
@@ -168,7 +168,7 @@ local weatherWeights = {
 }
 
 -- Select weather based on weights
-local weather = Chance.weightedChoice(weatherWeights)
+local weather = da_chance.weightedChoice(weatherWeights)
 print("Today's weather: " .. weather)
 
 -- More complex example: Enemy spawn system with key-value pairs
@@ -179,7 +179,7 @@ local enemyTypes = {
     legendary_gunslinger = 1
 }
 
-local enemyType = Chance.weightedChoice(enemyTypes)
+local enemyType = da_chance.weightedChoice(enemyTypes)
 print("Spawning enemy type: " .. enemyType)
 ```
 
@@ -190,7 +190,7 @@ print("Spawning enemy type: " .. enemyType)
 local playerLockpickSkill = 65  -- Player's skill (higher is better)
 local lockDifficulty = 50       -- Lock difficulty (higher is harder)
 
-if Chance.skillCheck(playerLockpickSkill, lockDifficulty) then
+if da_chance.skillCheck(playerLockpickSkill, lockDifficulty) then
     print("Lockpicking successful!")
 else
     print("Failed to pick the lock")
@@ -200,7 +200,7 @@ end
 function attemptLockBreaking(playerSkill, lockLevel)
     print("Attempting to break lock with skill " .. playerSkill .. " vs lock level " .. lockLevel)
 
-    if Chance.lockbreak(playerSkill, lockLevel) then
+    if da_chance.lockbreak(playerSkill, lockLevel) then
         print("Lock broken successfully!")
         return true
     else
@@ -210,7 +210,7 @@ function attemptLockBreaking(playerSkill, lockLevel)
 end
 
 -- Disadvantage example (must succeed multiple times)
-local stealthCheck = Chance.disadvantage(70, 3)  -- 70% chance, but must succeed 3 times
+local stealthCheck = da_chance.disadvantage(70, 3)  -- 70% chance, but must succeed 3 times
 if stealthCheck then
     print("Successfully moved without being detected")
 else
@@ -222,7 +222,7 @@ end
 
 ```lua
 -- Try to give player an item with a 30% chance
-local received = Chance.item(30, "gold_nugget", 2)
+local received = da_chance.item(30, "gold_nugget", 2)
 if received then
     print("Found 2 gold nuggets!")
 end
@@ -233,19 +233,19 @@ function generateLoot(lootLevel)
 
     -- Common items (50-90% chance based on level)
     local commonChance = 50 + (lootLevel * 10)
-    if Chance.successPercent(commonChance) then
+    if da_chance.successPercent(commonChance) then
         table.insert(loot, "canned_food")
     end
 
     -- Uncommon items (20-60% chance)
     local uncommonChance = 20 + (lootLevel * 10)
-    if Chance.successPercent(uncommonChance) then
+    if da_chance.successPercent(uncommonChance) then
         table.insert(loot, "medicine")
     end
 
     -- Rare items (5-25% chance)
     local rareChance = 5 + (lootLevel * 5)
-    if Chance.successPercent(rareChance) then
+    if da_chance.successPercent(rareChance) then
         table.insert(loot, "gold_bar")
     end
 
@@ -259,5 +259,5 @@ end
 - The `weightedChoice` function uses cumulative weights for selection
 - Disadvantage systems require passing all checks (harder than individual checks)
 - The lockbreak system includes special bonuses based on lock difficulty
-- The chance module is accessed using the global `Chance` table
+- The chance module is accessed using the global `da_chance` table
 - Item function requires an API with addItem functionality to work properly
