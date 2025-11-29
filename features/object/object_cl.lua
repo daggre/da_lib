@@ -69,7 +69,8 @@ object.createPed = function(hash, pos, opts)
     local obj = CreatePed(hash, pos.x, pos.y, pos.z, pos.w, isNetwork, true, false)
     if opts then
         object.set(obj, opts)
-    elseif not opts or not opts.outfit then
+    end
+    if not opts or not opts.outfit then
         SetPedOutfitPreset(obj, 0, false)
     end
     -- Unload the model from memory
