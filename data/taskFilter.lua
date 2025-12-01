@@ -137,4 +137,3 @@ dat.taskFilter = {
     { value = "upperonly_filter", name = "Upper Only", note = "" },
     { value = "weaponswap_filter", name = "Weapon Swap", note = "" },
 }
-
