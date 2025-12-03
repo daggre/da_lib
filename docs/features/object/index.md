@@ -16,7 +16,7 @@ The Object module provides a comprehensive interface for creating, managing, and
 ### Model Loading
 
 ```lua
-local success = object.load(hash)
+local success = da_obj.load(hash)
 ```
 - `hash` (string/hash): The model hash to load
 - **Returns** (boolean): Whether the model was loaded successfully
@@ -24,7 +24,7 @@ local success = object.load(hash)
 ### Object Creation and Management
 
 ```lua
-local objectId = object.create(hash, coords, [options])
+local objectId = da_obj.createObj(hash, coords, [options])
 ```
 - `hash` (string/hash): The object model hash to create
 - `coords` (vector3/vector4): The position to place the object
@@ -32,22 +32,30 @@ local objectId = object.create(hash, coords, [options])
 - **Returns** (number): The handle of the created object
 
 ```lua
-object.delete(objectId)
+da_obj.delete(objectId)
 ```
 - `objectId` (number): The handle of the object to delete
 
 ```lua
-local vehicleId = object.createVehicle(hash, pos, [options])
+local vehicleId = da_obj.createVehicle(hash, pos, [options])
 ```
 - `hash` (string/hash): The vehicle model hash to create
 - `pos` (vector3/vector4): The position to place the vehicle (w component can be used for heading)
 - `options` (table, optional): Additional creation options (see Options table below)
 - **Returns** (number): The handle of the created vehicle
 
+```lua
+local pedId = da_obj.createPed(hash, pos, [options])
+```
+- `hash` (string/hash): The ped model hash to create
+- `pos` (vector3/vector4): The position to place the ped (w component can be used for heading)
+- `options` (table, optional): Additional creation options (see Options table below)
+- **Returns** (number): The handle of the created ped
+
 ### Object Attachment
 
 ```lua
-object.attach(objectId, targetId, boneIndex, position, rotation, [options])
+da_obj.attach(objectId, targetId, boneIndex, position, rotation, [options])
 ```
 - `objectId` (number): The object handle to attach
 - `targetId` (number): The target entity handle to attach to
@@ -57,14 +65,14 @@ object.attach(objectId, targetId, boneIndex, position, rotation, [options])
 - `options` (table, optional): Additional options for the attached object
 
 ```lua
-object.detach(objectId)
+da_obj.detach(objectId)
 ```
 - `objectId` (number): The handle of the attached object to detach
 
 ### Object Expression
 
 ```lua
-object.expression(objectId, expression, value, [type])
+da_obj.expression(objectId, expression, value, [type])
 ```
 - `objectId` (number): The object handle
 - `expression` (string/hash): The expression hash to set
@@ -74,7 +82,7 @@ object.expression(objectId, expression, value, [type])
 ### Object Property Configuration
 
 ```lua
-object.set(objectId, options)
+da_obj.set(objectId, options)
 ```
 - `objectId` (number): The object handle
 - `options` (table): Configuration options (see Options table below)

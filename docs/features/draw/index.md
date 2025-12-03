@@ -180,8 +180,8 @@ end)
 ## Implementation Notes
 
 - All drawing functions must be called every frame (in a loop with Citizen.Wait(0))
-- Screen coordinates range from 0.0 to 1.0, with (0,0) at top-left and (1,1) at bottom-right
-- Text drawing checks if coordinates are on screen before rendering
+- Screen coordinates must be between 0.0 and 1.0 (exclusive), with (0,0) at top-left and (1,1) at bottom-right
+- Text drawing checks if coordinates are on screen before rendering (returns early if coordinates are <= 0 or >= 1)
 - The bounding box calculation uses entity dimensions and rotation matrix
 - Colors are specified as tables with r, g, b, a components ranging from 0 to 255
 - All 3D drawing is only visible within certain render distances

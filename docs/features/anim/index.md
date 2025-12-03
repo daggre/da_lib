@@ -15,7 +15,7 @@ The Animation module provides a comprehensive interface for working with animati
 ### Entity Animation Methods
 
 ```lua
-anim.ped(entity, dict, name, [blendIn], [blendOut], [duration], [flags], [rate], [ikFlags], [taskFilter])
+da_anim.ped(entity, dict, name, [blendIn], [blendOut], [duration], [flags], [rate], [ikFlags], [taskFilter])
 ```
 - `entity` (number): Entity handle to animate
 - `dict` (string): Animation dictionary
@@ -29,7 +29,7 @@ anim.ped(entity, dict, name, [blendIn], [blendOut], [duration], [flags], [rate],
 - `taskFilter` (boolean, optional): Task filter flag (default: false)
 
 ```lua
-anim.object(entity, dict, name, [loop], [stayInAnim], [delta], [bitset])
+da_anim.object(entity, dict, name, [loop], [stayInAnim], [delta], [bitset])
 ```
 - `entity` (number): Object entity handle
 - `dict` (string): Animation dictionary
@@ -39,13 +39,15 @@ anim.object(entity, dict, name, [loop], [stayInAnim], [delta], [bitset])
 - `delta` (number, optional): Animation delta (default: 0.0)
 - `bitset` (number, optional): Bitset flags (default: 0)
 
+**Note**: The implementation includes internal parameters `p3` (hardcoded to 0.0) and `p6` (hardcoded to "") that are not exposed in the public API.
+
 ```lua
-anim.adv(entity, dict, name, [x], [y], [z], [yaw], [speed], [speedMult], [duration], [flags], [time])
+da_anim.adv(entity, dict, name, [x], [y], [z], [yaw], [speed], [speedMult], [duration], [flags], [time])
 ```
 - `entity` (number): Entity handle to animate
 - `dict` (string): Animation dictionary
 - `name` (string): Animation name
-- `x`, `y`, `z` (number, optional): Position coordinates
+- `x`, `y`, `z` (number, optional): Position coordinates (false if not specified)
 - `yaw` (number, optional): Yaw rotation (default: 0.0)
 - `speed` (number, optional): Animation speed (default: 1.0)
 - `speedMult` (number, optional): Speed multiplier (default: 1.0)
@@ -53,30 +55,32 @@ anim.adv(entity, dict, name, [x], [y], [z], [yaw], [speed], [speedMult], [durati
 - `flags` (number, optional): Animation flags (default: 0)
 - `time` (number, optional): Start time offset (default: 0.0)
 
+**Note**: The implementation includes internal parameters `p14`, `p15`, `p16` (all default to 0) and automatically sets pitch and roll to 0.0.
+
 ### Animation Control
 
 ```lua
-anim.stop(ped)
+da_anim.stop(ped)
 ```
 - `ped` (number): Entity handle to stop animations on
 
 ```lua
-local state = anim.get(entity, [dict], [name])
+local state = da_anim.get(entity, [dict], [name])
 ```
 - `entity` (number): Entity handle to check
 - `dict` (string, optional): Animation dictionary
 - `name` (string, optional): Animation name
 - **Returns**:
-  - With `dict` and `name`: Animation progress (0-1) or 0 if finished
-  - Without parameters: Whether any animation is playing (boolean)
+  - With `dict` and `name`: Animation current time (number) or 0 if finished
+  - Without `dict` and `name`: 1 if any animation is playing, 0 if not
 
 ```lua
-anim.set(entity, dict, name, [time], [speedMulti])
+da_anim.set(entity, dict, name, [time], [speedMulti])
 ```
 - `entity` (number): Entity handle to control
 - `dict` (string): Animation dictionary
 - `name` (string): Animation name
-- `time` (number, optional): Time to set the animation to (-1 to stop)
+- `time` (number, optional): Time to set the animation to (-1 to stop the animation)
 - `speedMulti` (number, optional): Speed multiplier to set
 
 ## Examples
@@ -86,11 +90,11 @@ anim.set(entity, dict, name, [time], [speedMulti])
 ```lua
 -- Play a drinking animation on the player
 local playerPed = PlayerPedId()
-anim.ped(playerPed, "amb_rest_drunk", "a_player_drinking", 3.0, 3.0, -1, 1, 1.0)
+da_anim.ped(playerPed, "amb_rest_drunk", "a_player_drinking", 3.0, 3.0, -1, 1, 1.0)
 
 -- Stop the animation after 5 seconds
 Citizen.SetTimeout(5000, function()
-    anim.stop(playerPed)
+    da_anim.stop(playerPed)
 end)
 ```
 
@@ -101,7 +105,7 @@ end)
 local doorObject = GetClosestObjectOfType(coords.x, coords.y, coords.z, 2.0, GetHashKey("p_door_val_jail_cell01x"), false, false, false)
 if doorObject ~= 0 then
     -- Open the door
-    anim.object(doorObject, "script_common@jail_cell@open_cell_door", "action", 0, 1)
+    da_anim.object(doorObject, "script_common@jail_cell@open_cell_door", "action", 0, 1)
 end
 ```
 
@@ -111,7 +115,7 @@ end
 -- Play an animation that moves the player to a specific position
 local playerPed = PlayerPedId()
 local targetCoords = GetEntityCoords(targetEntity)
-anim.adv(playerPed, "amb_misc@world_human_pray_dustoff@male_a@idle_a", "idle_a",
+da_anim.adv(playerPed, "amb_misc@world_human_pray_dustoff@male_a@idle_a", "idle_a",
     targetCoords.x, targetCoords.y, targetCoords.z, 0.0, 1.0, 1.0, 5000, 0, 0.0)
 ```
 
@@ -120,18 +124,18 @@ anim.adv(playerPed, "amb_misc@world_human_pray_dustoff@male_a@idle_a", "idle_a",
 ```lua
 -- Check if an entity is playing a specific animation
 local entity = PlayerPedId()
-local isPlaying = anim.get(entity, "amb_misc@world_human_smoke@male_a@idle_a", "idle_a")
-if isPlaying > 0 then
-    print("Animation is playing, progress: " .. isPlaying)
+local currentTime = da_anim.get(entity, "amb_misc@world_human_smoke@male_a@idle_a", "idle_a")
+if currentTime > 0 then
+    print("Animation is playing, current time: " .. currentTime)
 end
 
 -- Check if entity is playing any animation
-if anim.get(entity) then
+if da_anim.get(entity) == 1 then
     print("Entity is playing some animation")
 end
 
 -- Control animation speed
-anim.set(entity, "amb_misc@world_human_smoke@male_a@idle_a", "idle_a", nil, 0.5) -- Half speed
+da_anim.set(entity, "amb_misc@world_human_smoke@male_a@idle_a", "idle_a", nil, 0.5) -- Half speed
 ```
 
 ### Animation in Game Logic
@@ -140,9 +144,9 @@ anim.set(entity, "amb_misc@world_human_smoke@male_a@idle_a", "idle_a", nil, 0.5)
 -- Only allow interaction when not in animation
 RegisterCommand('interact', function()
     local playerPed = PlayerPedId()
-    if not anim.get(playerPed) then
+    if da_anim.get(playerPed) == 0 then
         -- Not in animation, allow interaction
-        anim.ped(playerPed, "script_common@chores@common@lean_broom", "lean_broom_enter", 3.0, 3.0, -1, 1, 1.0)
+        da_anim.ped(playerPed, "script_common@chores@common@lean_broom", "lean_broom_enter", 3.0, 3.0, -1, 1, 1.0)
     else
         -- Already animating, can't interact
         print("You're already busy with something")

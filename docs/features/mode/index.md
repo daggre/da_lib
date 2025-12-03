@@ -16,56 +16,46 @@ The Mode system provides a state management framework for RedM resources. It all
 ### Mode Registration and Control
 
 ```lua
-mode.register(modeName, [priority], [options])
+da_mode.register(modeDefinition)
 ```
-- `modeName` (string): Unique identifier for the mode
-- `priority` (number, optional): Priority level (higher numbers take precedence)
-- `options` (table, optional): Configuration options with lifecycle callbacks:
-  - `onActivate`: Function called when mode is activated
-  - `onDeactivate`: Function called when mode is deactivated
-  - `onPrimary`: Function called when mode becomes the primary mode
-  - `onLosePrimary`: Function called when mode loses primary status
-  - `keymaps`: Table of keymap configurations
+- `modeDefinition` (table): Mode definition object with the following properties:
+  - `name` (string, required): Unique identifier for the mode
+  - `priority` (number, optional): Priority level (higher numbers take precedence, default: 0)
+  - `onActivate` (function, optional): Called when mode is activated
+  - `onDeactivate` (function, optional): Called when mode is deactivated
+  - `onPrimary` (function, optional): Called when mode becomes the primary mode
+  - `onLosePrimary` (function, optional): Called when mode loses primary status
+  - `keymaps` (table, optional): Keymap configurations
+  - `disableGame` (boolean, optional): Whether this mode disables game controls
 
 ```lua
-mode.activate(modeName)
+da_mode.activate(modeName)
 ```
 - `modeName` (string): The mode to activate
 
 ```lua
-mode.deactivate(modeName)
+da_mode.deactivate(modeName)
 ```
 - `modeName` (string): The mode to deactivate
 
 ```lua
-mode.toggle(modeName)
+da_mode.toggle(modeName)
 ```
 - `modeName` (string): The mode to toggle on/off
-- **Returns** (boolean): The new state of the mode (true if activated, false if deactivated)
 
 ### Mode State Checking
 
 ```lua
-local isActive = mode.check(modeName)
+local isActive = da_mode.isActive(modeName)
 ```
 - `modeName` (string): The mode to check
 - **Returns** (boolean): Whether the specified mode is currently active
 
 ```lua
-local isPrimary = mode.isPrimary(modeName)
+local isPrimary = da_mode.isPrimary(modeName)
 ```
 - `modeName` (string): The mode to check
 - **Returns** (boolean): Whether the specified mode is currently the primary mode
-
-```lua
-local activeMode = mode.current()
-```
-- **Returns** (string): The name of the currently active highest-priority mode
-
-```lua
-local allModes = mode.getAll()
-```
-- **Returns** (table): All currently active modes
 
 ### Mode Events
 
@@ -83,21 +73,21 @@ The mode system triggers events when modes change:
 
 ```lua
 -- Register gameplay modes
-mode.register('normal', 1)
-mode.register('combat', 2)
-mode.register('conversation', 3)
-mode.register('cinematic', 4, {skipCutscenes = false})
+da_mode.register({name = 'normal', priority = 1})
+da_mode.register({name = 'combat', priority = 2})
+da_mode.register({name = 'conversation', priority = 3})
+da_mode.register({name = 'cinematic', priority = 4})
 
 -- Activate a mode
 function enterCombat()
-    mode.activate('combat')
+    da_mode.activate('combat')
     -- Combat-specific setup
 end
 
 -- Check current mode
 Citizen.CreateThread(function()
     while true do
-        if mode.check('combat') then
+        if da_mode.isActive('combat') then
             -- Enable combat UI
         else
             -- Hide combat UI
@@ -110,7 +100,9 @@ end)
 ### Advanced Mode Registration with Lifecycle Hooks
 
 ```lua
-mode.register("freecam", 80, {
+da_mode.register({
+    name = "freecam",
+    priority = 80,
     onActivate = function()
         print("Freecam mode activated")
         SetNuiFocus(false, false)
@@ -118,7 +110,7 @@ mode.register("freecam", 80, {
         freecam.camera = CreateCam("DEFAULT_SCRIPTED_CAMERA", true)
         -- Additional setup code
     end,
-    
+
     onDeactivate = function()
         print("Freecam mode deactivated")
         -- Cleanup camera
@@ -126,13 +118,13 @@ mode.register("freecam", 80, {
         freecam.camera = nil
         -- Additional cleanup code
     end,
-    
+
     onPrimary = function()
         print("Freecam is now the primary mode")
         -- Enable specific controls for this mode
         freecam.attachControls()
     end,
-    
+
     onLosePrimary = function()
         print("Freecam is no longer the primary mode")
         -- Disable specific controls for this mode
@@ -144,11 +136,13 @@ mode.register("freecam", 80, {
 ### Advanced Keymap Configuration
 
 ```lua
-mode.register("objectEditor", 70, {
+da_mode.register({
+    name = "objectEditor",
+    priority = 70,
     onActivate = function()
         -- Mode activation code
     end,
-    
+
     -- Define complex keymaps with modifiers and specific event types
     keymaps = {
         -- Standard key without modifiers

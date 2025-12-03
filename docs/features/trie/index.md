@@ -68,7 +68,8 @@ da_trie.run(parent, name, params)
 - `parent` (string): Name of the parent menu
 - `name` (string): Name of the option to execute
 - `params` (any): Parameters to pass to the option's function
-- **Returns** (boolean): Whether the option was successfully executed
+
+**Note**: This function does not return a value. It executes the option's function directly.
 
 ## Examples
 
@@ -220,50 +221,56 @@ end)
 -- Root menu is always accessible
 da_trie.addRoot("devRoot")
 
--- Dynamic object selection menu that appears based on object type
-da_trie.add("devRoot", "selected", "s", function()
-    -- This function is called when the menu is about to be displayed
-    -- It can be used to set up dynamic submenu content
+-- Create object-specific menus based on selection
+da_trie.addRoot("devRoot")
 
-    -- Clear previous options if they exist
-    da_trie.clear("selected")
+-- Add options that are dynamically shown based on object type
+local objectType = GetSelectedObjectType()
 
-    local objectType = GetSelectedObjectType()
-    if not objectType then return end
+if objectType == "VEHICLE" then
+    da_trie.addOpt("devRoot", "modify vehicle", "m", ModifyVehicle, function()
+        return GetSelectedObjectType() == "VEHICLE"
+    end)
+    da_trie.addOpt("devRoot", "enter driver seat", "e", EnterDriverSeat, function()
+        return GetSelectedObjectType() == "VEHICLE"
+    end)
+elseif objectType == "PED" then
+    da_trie.addOpt("devRoot", "modify ped", "m", ModifyPed, function()
+        return GetSelectedObjectType() == "PED"
+    end)
+    da_trie.addOpt("devRoot", "set animation", "a", SetPedAnimation, function()
+        return GetSelectedObjectType() == "PED"
+    end)
+elseif objectType == "PROP" then
+    da_trie.addOpt("devRoot", "modify prop", "m", ModifyProp, function()
+        return GetSelectedObjectType() == "PROP"
+    end)
+    da_trie.addOpt("devRoot", "duplicate prop", "d", DuplicateProp, function()
+        return GetSelectedObjectType() == "PROP"
+    end)
+end
 
-    -- Add different options based on the selected object type
-    if objectType == "VEHICLE" then
-        da_trie.addOpt("selected", "modify vehicle", "m", ModifyVehicle)
-        da_trie.addOpt("selected", "enter driver seat", "e", EnterDriverSeat)
-    elseif objectType == "PED" then
-        da_trie.addOpt("selected", "modify ped", "m", ModifyPed)
-        da_trie.addOpt("selected", "set animation", "a", SetPedAnimation)
-    elseif objectType == "PROP" then
-        da_trie.addOpt("selected", "modify prop", "m", ModifyProp)
-        da_trie.addOpt("selected", "duplicate prop", "d", DuplicateProp)
-    end
+-- Add mode toggle with conditional menu options
+da_trie.addOpt("devRoot", "toggle gizmo mode", "g", function()
+    da_mode.toggle("gizmo")
 end)
 
--- Add mode toggles that change the entire command set
-da_trie.addOpt("devRoot", "toggle gizmo mode", "g", function()
-    local isActive = da_mode.toggle("gizmo")
-
-    -- When gizmo mode activates, create gizmo-specific menus
-    if isActive then
-        da_trie.add("devRoot", "gizmo", "g")
-        da_trie.addOpt("gizmo", "translate mode", "t", function()
-            SetGizmoMode("translate")
-        end)
-        da_trie.addOpt("gizmo", "rotate mode", "r", function()
-            SetGizmoMode("rotate")
-        end)
-        da_trie.addOpt("gizmo", "scale mode", "s", function()
-            SetGizmoMode("scale")
-        end)
-    else
-        -- Remove gizmo menu when deactivating mode
-        da_trie.remove("devRoot", "gizmo")
-    end
+-- Create gizmo-specific menu (always present but conditionally visible)
+da_trie.add("devRoot", "gizmo", "g")
+da_trie.addOpt("gizmo", "translate mode", "t", function()
+    SetGizmoMode("translate")
+end, function()
+    return da_mode.isActive("gizmo")
+end)
+da_trie.addOpt("gizmo", "rotate mode", "r", function()
+    SetGizmoMode("rotate")
+end, function()
+    return da_mode.isActive("gizmo")
+end)
+da_trie.addOpt("gizmo", "scale mode", "s", function()
+    SetGizmoMode("scale")
+end, function()
+    return da_mode.isActive("gizmo")
 end)
 ```
 
@@ -314,11 +321,11 @@ RegisterNUICallback("selectMenuOption", function(data, cb)
     local optionName = data.option
 
     -- Execute selected option
-    local success = da_trie.run(parentMenu, optionName, data.params or {})
+    da_trie.run(parentMenu, optionName, data.params or {})
 
-    -- Return result to UI
+    -- Acknowledge to UI
     cb({
-        success = success
+        success = true
     })
 end)
 

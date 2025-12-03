@@ -63,16 +63,20 @@ da_control.trackShortPress(key, releaseCallback, [ms])
 ```lua
 local released = da_control.waitForRelease(keys, [timeout])
 ```
-- `keys` (number/table): Single key or array of keys to wait for release
+- `keys` (number/table): Single key code (number) or array of key codes to wait for release
 - `timeout` (number, optional): Maximum time to wait in milliseconds (default: 10000)
 - **Returns** (boolean): Whether all keys were released before timeout
 
+**Note**: This function uses numeric key codes, not string key names like the other control functions.
+
 ### Control Passthrough Module (da_controlpass)
+
+**Note**: All passthrough functions use numeric key codes, not string key names.
 
 ```lua
 da_controlpass:start(haltKey, [callback])
 ```
-- `haltKey` (number): Key that will stop the passthrough when released
+- `haltKey` (number): Key code that will stop the passthrough when released
 - `callback` (function, optional): Function to call when passthrough stops
 
 ```lua
@@ -83,7 +87,7 @@ Stops the active passthrough mode.
 ```lua
 da_controlpass:toggle(haltKey, [callback])
 ```
-- `haltKey` (number): Key that will stop the passthrough when released
+- `haltKey` (number): Key code that will stop the passthrough when released
 - `callback` (function, optional): Function to call when passthrough stops
 - Toggles the passthrough mode on/off
 
@@ -96,7 +100,7 @@ local active = da_controlpass:isActive()
 da_controlpass:set(active, haltKey, [callback])
 ```
 - `active` (boolean): Whether to activate (true) or deactivate (false) passthrough
-- `haltKey` (number): Key that will stop the passthrough when released
+- `haltKey` (number): Key code that will stop the passthrough when released
 - `callback` (function, optional): Function to call when passthrough stops
 
 ## Examples
@@ -107,16 +111,16 @@ da_controlpass:set(active, haltKey, [callback])
 -- Check if player is pressing the interact key and run key
 Citizen.CreateThread(function()
     while true do
-        local keys = {"INPUT_INTERACT_ANIMAL", "INPUT_SPRINT"}
+        local keys = {"e", "shift"}
         local pressed = da_control.isPressed(keys)
         local justPressed = da_control.isJustPressed(keys)
 
-        if justPressed["INPUT_INTERACT_ANIMAL"] then
+        if justPressed["e"] then
             -- Player just pressed the interact key
             TriggerEvent('myResource:interact')
         end
 
-        if pressed["INPUT_SPRINT"] then
+        if pressed["shift"] then
             -- Player is holding the sprint key
             -- Do something continuously while sprint is held
         end
@@ -133,7 +137,7 @@ end)
 Citizen.CreateThread(function()
     while true do
         -- Check if E key is long-pressed (500ms)
-        if da_control.isLongPressed("INPUT_INTERACT_ANIMAL", 500) then
+        if da_control.isLongPressed("e", 500) then
             -- Perform long-press action
             TriggerEvent('myResource:longInteract')
         end
@@ -153,7 +157,7 @@ function openInventory()
 end
 
 -- When inventory key is pressed
-da_control.trackShortPress("INPUT_OPEN_SATCHEL_MENU", openInventory, 300)
+da_control.trackShortPress("RightBracket", openInventory, 300)
 ```
 
 ### Waiting For Key Release
@@ -163,7 +167,8 @@ da_control.trackShortPress("INPUT_OPEN_SATCHEL_MENU", openInventory, 300)
 function performActionAfterKeyRelease()
     print("Please release the key to continue...")
 
-    if da_control.waitForRelease("INPUT_ATTACK", 5000) then
+    -- Uses numeric key code from dat.keyHash
+    if da_control.waitForRelease(dat.keyHash['MouseLeft'], 5000) then
         print("Key released, continuing...")
         -- Action continues here
     else
@@ -177,8 +182,8 @@ end
 ```lua
 -- Start a control passthrough for a special interaction
 function beginSpecialMode()
-    -- Start passthrough that will end when INPUT_FRONTEND_CANCEL is released
-    da_controlpass:start("INPUT_FRONTEND_CANCEL", function()
+    -- Start passthrough that will end when Escape is released
+    da_controlpass:start(dat.keyHash['Escape'], function()
         print("Special mode ended")
     end)
 
@@ -187,7 +192,7 @@ end
 
 -- Example of toggling passthrough mode
 function toggleFreeCamera()
-    da_controlpass:toggle("INPUT_FRONTEND_CANCEL", function()
+    da_controlpass:toggle(dat.keyHash['Escape'], function()
         print("Camera mode toggled off")
     end)
 

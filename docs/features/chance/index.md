@@ -23,12 +23,6 @@ local value = da_chance.roll(max, [min])
 - **Returns** (number): Random integer between min and max
 
 ```lua
-local diceResult = da_chance.dice(sides)
-```
-- `sides` (number): Number of sides on the die
-- **Returns** (number): Result of the dice roll (1 to sides)
-
-```lua
 local results = da_chance.multiDice(sides, amount)
 ```
 - `sides` (number): Number of sides on each die
@@ -116,7 +110,7 @@ local randomValue = da_chance.roll(100)
 print("Random value: " .. randomValue)
 
 -- Roll a 20-sided die
-local d20Result = da_chance.dice(20)
+local d20Result = da_chance.roll(20)
 print("D20 roll: " .. d20Result)
 
 -- Roll multiple dice (e.g., 3d6)
