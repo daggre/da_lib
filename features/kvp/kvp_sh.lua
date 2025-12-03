@@ -16,15 +16,15 @@ KVP.rrawget = function(resource, key) return GetExternalKvpString(resource, key)
 
 KVP.set_string = function(key, value) SetResourceKvp(key, value) end
 KVP.get_string = function(key) return GetResourceKvpString(key) end
-KVP.rget_string = function(resource, key) GetExternalKvpString(resource, key) end
+KVP.rget_string = function(resource, key) return GetExternalKvpString(resource, key) end
 
 KVP.get_int = function(key) return GetResourceKvpInt(key) end
 KVP.set_int = function(key, value) SetResourceKvpInt(key, value) end
-KVP.rget_int = function(resource, key) GetExternalKvpInt(resource, key) end
+KVP.rget_int = function(resource, key) return GetExternalKvpInt(resource, key) end
 
 KVP.get_float = function(key) return GetResourceKvpFloat(key) end
 KVP.set_float = function(key, value) SetResourceKvpFloat(key, value) end
-KVP.rget_float = function(resource, key) GetExternalKvpFloat(resource, key) end
+KVP.rget_float = function(resource, key) return GetExternalKvpFloat(resource, key) end
 
 KVP.delete = function(key) DeleteResourceKvp(key) end
 
