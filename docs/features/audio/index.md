@@ -14,17 +14,18 @@ The Audio module provides functionality for playing audio streams from entities 
 ### Client-Side Audio
 
 ```lua
-local streamId = audio.play(entity, streamName, soundSet)
+da_audio.play(entity, streamName, soundSet)
 ```
 - `entity` (number): Entity handle to play the sound from
 - `streamName` (string): Name of the audio stream to play
-- `soundSet` (string/number): Sound set the stream belongs to
-- **Returns** (number): Stream ID for later reference
+- `soundSet` (string/number): Sound set the stream belongs to (automatically converted to string)
+
+**Note**: Keep a reference to the entity if you need to stop the stream later.
 
 ```lua
-audio.stop(streamId)
+da_audio.stop(entity)
 ```
-- `streamId` (number): ID of the stream to stop
+- `entity` (number): Entity handle to stop the audio stream on
 
 ### Server-Side Events
 
@@ -49,11 +50,11 @@ TriggerServerEvent("da_lib.audio.stopStream", netId)
 ```lua
 -- Play a stream from the player's ped
 local playerPed = PlayerPedId()
-local streamId = audio.play(playerPed, "MUSIC_STOP", "RDRO_Music_Moonshiner_Cripps")
+da_audio.play(playerPed, "MUSIC_STOP", "RDRO_Music_Moonshiner_Cripps")
 
 -- Stop the stream after 10 seconds
 Citizen.SetTimeout(10000, function()
-    audio.stop(streamId)
+    da_audio.stop(playerPed)
 end)
 ```
 
@@ -110,16 +111,17 @@ local campfire = GetClosestObjectOfType(coords.x, coords.y, coords.z, 5.0,
 local phonograph = GetClosestObjectOfType(coords.x, coords.y, coords.z, 5.0,
     GetHashKey("p_phonograph01x"), false, false, false)
 
-local fireSound = audio.play(campfire, "CAMPFIRE_LIGHT", "CAMPFIRE_SOUNDS")
-local musicSound = audio.play(phonograph, "PIANO_PLAYER_IDLE_02", "SALOON_MUSIC")
+-- Track the entities to stop streams later
+da_audio.play(campfire, "CAMPFIRE_LIGHT", "CAMPFIRE_SOUNDS")
+da_audio.play(phonograph, "PIANO_PLAYER_IDLE_02", "SALOON_MUSIC")
 
--- Stop specific streams
+-- Stop specific streams using the entity handles
 function stopCampfireSound()
-    audio.stop(fireSound)
+    da_audio.stop(campfire)
 end
 
 function stopMusicSound()
-    audio.stop(musicSound)
+    da_audio.stop(phonograph)
 end
 ```
 

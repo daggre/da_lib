@@ -26,21 +26,9 @@ Key features:
 
 [Read more about Delay Cache](delay.md)
 
-### [Temp Cache](temp.md)
-
-The Temporary Cache provides short-lived storage for values that need to be quickly accessed but don't need to persist.
-
-Key features:
-- Simple key-value storage
-- Automatically clears on resource restart
-- Lightweight alternative to KVP for runtime data
-
-[Read more about Temp Cache](temp.md)
-
 ## Choosing the Right Cache
 
 | Cache Type | Use Case | Stores Results | Time-Based |
 |------------|----------|----------------|------------|
 | Lazy       | Expensive calculations that can be reused | Yes | Yes |
 | Delay      | Rate-limiting operations | No | Yes |
-| Temp       | Temporary data storage | Yes | No |
