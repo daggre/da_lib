@@ -117,4 +117,31 @@ Util.GetVehiclesNearPoint = function(coords, radius, filter)
     return entities
 end
 
+---Get a ground position in front of a set of coordinates
+---@param coords table The coordinates to search from
+---@param dist number The distance forward to search
+---@param heading number|nil The heading to search forward from, if nil the camera heading is used
+---@return table The ground position and heading vector4 in front of the coordinates
+Util.GetGroundPositionForward = function(coords, dist, heading)
+    assert(coords, "coords is required")
+    assert(coords.x, "valid x coordinate is required")
+    assert(coords.y, "valid y coordinate is required")
+    assert(dist and type(dist) == "number", "valid dist is required")
+
+    if not heading then
+        local rot = GetFinalRenderedCamRot()
+        heading = rot.z
+    end
+
+    pos = GetOffsetFromCoordAndHeadingInWorldCoords(coords.x, coords.y, coords.z, heading, 0.0, dist+0.0, 0.0)
+
+    local hit, hitZ = nil, nil
+    for height = -20, 1000 do
+        hit, hitZ = GetGroundZAndNormalFor_3dCoord(pos.x, pos.y, height+0.0)
+        if hit then break; end
+    end
+
+    return vector4(pos.x, pos.y, hitZ, heading)
+end
+
 _ENV.da_util = Util
