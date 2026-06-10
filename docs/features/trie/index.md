@@ -130,7 +130,7 @@ da_trie.addOpt("objects", "freeze object", "f", function()
     FreezeObject(GetSelectedObject())
 end, function()
     -- Only show when object mode is active AND an object is selected
-    return da_mode.check("object") and GetSelectedObject() ~= nil
+    return da_mode.isActive("object") and GetSelectedObject() ~= nil
 end)
 
 -- Add commands that only appear when an object is in a specific state

@@ -57,15 +57,17 @@ local isPrimary = da_mode.isPrimary(modeName)
 - `modeName` (string): The mode to check
 - **Returns** (boolean): Whether the specified mode is currently the primary mode
 
-### Mode Events
+### Internal Events
 
-The mode system triggers events when modes change:
+The mode system uses local events to communicate with the controller:
 
-- `mode:activated` - When a mode is activated
-- `mode:deactivated` - When a mode is deactivated
-- `mode:changed` - When the active mode changes
-- `mode:primary` - When a mode becomes primary
-- `mode:losePrimary` - When a mode loses primary status
+- `modeController:registerMode` — Register a mode definition
+- `modeController:activateMode` — Activate a mode by name
+- `modeController:deactivateMode` — Deactivate a mode by name
+- `modeController:toggleMode` — Toggle a mode on/off
+- `modeController:dispatchEvents` — Dispatch input events to the controller
+
+These are triggered internally by `da_mode.*` calls. You do not need to trigger them directly.
 
 ## Examples
 
@@ -133,7 +135,9 @@ da_mode.register({
 })
 ```
 
-### Advanced Keymap Configuration
+### Keymap Configuration
+
+Keymaps are an array of objects in the mode definition. Each entry specifies a key, an event type, and a callback function.
 
 ```lua
 da_mode.register({
@@ -142,73 +146,76 @@ da_mode.register({
     onActivate = function()
         -- Mode activation code
     end,
-
-    -- Define complex keymaps with modifiers and specific event types
     keymaps = {
-        -- Standard key without modifiers
-        {key = "DELETE", func = DeleteSelectedObject},
-        
-        -- Key with modifiers
-        {key = "MOUSE1", mod = "SHIFT", func = function() SelectObject(true) end},
-        
-        -- Specific event type (justPressed, pressed, justReleased, released)
-        {key = "R", eventType = "justPressed", func = RotateMode},
-        
-        -- Primary-only keymap (only works when this mode is primary)
-        {key = "MOUSE2", primaryOnly = true, func = RightClickAction},
-        
-        -- Combined modifiers
-        {key = "Z", mod = {"CTRL", "SHIFT"}, func = RedoAction},
-        
-        -- Different handlers for different event types on same key
-        {key = "MOUSE1", eventType = "justPressed", func = StartDrag},
-        {key = "MOUSE1", eventType = "justReleased", func = EndDrag}
+        -- Standard key: justPressed event
+        {
+            key = "r",
+            event = "justPressed",
+            fn = function() ToggleGizmo() end,
+        },
+
+        -- Primary-only keymap (only fires when this mode is highest priority)
+        {
+            key = "Escape",
+            event = "justPressed",
+            primary = true,
+            fn = function() da_mode.deactivate("objectEditor") end,
+        },
+
+        -- Key with modifier check
+        {
+            key = "MouseLeft",
+            event = "justPressed",
+            primary = true,
+            modifiers = { shift = true },
+            fn = function() SpawnSelectedObject() end,
+        },
+
+        -- Different handlers for different event types on the same key
+        {
+            key = "MouseLeft",
+            event = "justPressed",
+            primary = true,
+            modifiers = { shift = false },
+            fn = function() SelectObject() end,
+        },
     }
 })
 ```
 
-### Mode Control Passthrough (MCP) Implementation
+### Mode Control Passthrough (MCP)
+
+MCP (`da_mcp`) is a separate system for toggling NUI cursor focus on/off within a mode — useful for tools that need to switch between game controls and a UI cursor.
 
 ```lua
--- Define MCP toggle functions in your mode
-local isMCPActive = false
-
-local function activateMCP()
-    if isMCPActive then return end
-    isMCPActive = true
-    
-    -- Toggle to UI focus mode
-    SetNuiFocus(true, true)
-    -- Send NUI message to show cursor
-    SendNUIMessage({type = "setCursorMode", enabled = true})
-end
-
-local function deactivateMCP()
-    if not isMCPActive then return end
-    isMCPActive = false
-    
-    -- Toggle to game control mode
-    SetNuiFocus(false, false)
-    -- Send NUI message to hide cursor
-    SendNUIMessage({type = "setCursorMode", enabled = false})
-end
-
--- Register mode with MCP toggle on middle mouse button
-mode.register("editorMode", 100, {
+-- Toggle NUI cursor on middle mouse click inside a mode
+da_mode.register({
+    name = "editorMode",
+    priority = 100,
     onActivate = function()
-        -- Default to game controls on activation
-        deactivateMCP()
+        SetNuiFocus(false, false)
     end,
-    
+    onDeactivate = function()
+        SetNuiFocus(false, false)
+        da_mcp.deactivate()
+    end,
     keymaps = {
-        -- Toggle between cursor mode and game control mode
-        {key = "MOUSE3", eventType = "justPressed", func = function()
-            if isMCPActive then
-                deactivateMCP()
-            else
-                activateMCP()
-            end
-        end}
+        {
+            key = "MouseMiddle",
+            event = "justPressed",
+            primary = true,
+            fn = function()
+                if da_mcp.active then
+                    da_mcp.deactivate()
+                    SetNuiFocus(false, false)
+                else
+                    da_mcp.activate({
+                        activate = function() SetNuiFocus(true, true) end,
+                        deactivate = function() SetNuiFocus(false, false) end,
+                    })
+                end
+            end,
+        },
     }
 })
 ```
@@ -216,45 +223,31 @@ mode.register("editorMode", 100, {
 ### Mode Dependencies and Relationships
 
 ```lua
--- Create modes that interact with each other
-local modes = {
-    editor = {
-        active = false,
-        -- Base editor mode
-    },
-    
-    gizmo = {
-        -- Depends on editor mode
-        checkActivation = function()
-            -- Only allow gizmo mode when editor is active
-            return modes.editor.active
-        end
-    }
-}
-
--- Register modes with dependencies
-mode.register("editor", 50, {
+-- Register modes that interact with each other
+da_mode.register({
+    name = "editor",
+    priority = 50,
     onActivate = function()
-        modes.editor.active = true
+        log.info("editor mode on")
     end,
     onDeactivate = function()
-        modes.editor.active = false
         -- Auto-deactivate dependent modes
-        if mode.check("gizmo") then
-            mode.deactivate("gizmo")
+        if da_mode.isActive("gizmo") then
+            da_mode.deactivate("gizmo")
         end
-    end
+    end,
 })
 
-mode.register("gizmo", 60, {
+da_mode.register({
+    name = "gizmo",
+    priority = 60,
     onActivate = function()
-        -- Check if activation is allowed
-        if not modes.gizmo.checkActivation() then
-            print("Cannot activate gizmo without editor mode")
-            return false -- Prevent activation
+        if not da_mode.isActive("editor") then
+            log.warn("gizmo requires editor mode")
+            da_mode.deactivate("gizmo")
+            return
         end
-        -- Setup gizmo
-    end
+    end,
 })
 ```
 

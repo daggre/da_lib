@@ -110,5 +110,5 @@ This approach minimizes network traffic while maintaining accuracy. The time syn
 
 ## Dependencies
 
-- Requires the Net module (`da_lib/lib/net_cl.lua`) for blocking server events
+- Requires the Net module (`da_lib/features/net/net_cl.lua`) for blocking server events
 - Server-side controller (`epoch_srv_ctl.lua`) must be loaded for server time retrieval
