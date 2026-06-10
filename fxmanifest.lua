@@ -49,6 +49,7 @@ client_scripts {
     'features/chance/chance_cl.lua',
     'features/control/control_cl.lua',
     'features/draw/draw_cl.lua',
+    'features/texture/texture_cl.lua',
     'features/epoch/epoch_cl.lua',
     'features/fx/fx_cl.lua',
     'features/object/object_cl.lua',
