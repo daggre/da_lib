@@ -129,14 +129,14 @@ The options table can include the following properties:
 
 ```lua
 -- Load a model and create an object
-local modelHash = joaat("p_campfire02x")
-if object.load(modelHash) then
+local modelHash = `p_campfire02x`
+if da_obj.load(modelHash) then
     local coords = vector3(100.0, 200.0, 50.0)
-    local campfire = object.create(modelHash, coords)
+    local campfire = da_obj.createObj(modelHash, coords)
     
     -- Delete after 30 seconds
     Citizen.SetTimeout(30000, function()
-        object.delete(campfire)
+        da_obj.delete(campfire)
     end)
 end
 ```
@@ -154,7 +154,7 @@ local chestOptions = {
     fadeIn = true
 }
 
-local chest = object.create(joaat("p_chest01x"), GetEntityCoords(PlayerPedId()), chestOptions)
+local chest = da_obj.createObj(`p_chest01x`, GetEntityCoords(PlayerPedId()), chestOptions)
 ```
 
 ### Creating and Configuring Vehicles
@@ -169,32 +169,32 @@ local wagonOptions = {
         tint = 2,
         livery = 1,
         lanterns = 1,
-        propset = joaat("pg_veh_wagontraveller01x_loot01x")
+        propset = `pg_veh_wagontraveller01x_loot01x`
     }
 }
 
-local wagon = object.createVehicle(joaat("wagon01x"), wagonPos, wagonOptions)
+local wagon = da_obj.createVehicle(`wagon01x`, wagonPos, wagonOptions)
 ```
 
 ### Attaching Objects
 
 ```lua
 -- Create and attach a lantern to the player's hand
-local lantern = object.create(joaat("p_lantern09x"), vector3(0,0,0), {visible = true})
+local lantern = da_obj.createObj(`p_lantern09x`, vector3(0,0,0), {visible = true})
 local player = PlayerPedId()
 local boneIndex = GetEntityBoneIndexByName(player, "SKEL_R_Hand")
 local position = vector3(0.0, 0.0, 0.0)
 local rotation = vector3(0.0, 0.0, 0.0)
 
-object.attach(lantern, player, boneIndex, position, rotation, {
+da_obj.attach(lantern, player, boneIndex, position, rotation, {
     collision = false,
     frozen = false
 })
 
 -- Detach after 10 seconds
 Citizen.SetTimeout(10000, function()
-    object.detach(lantern)
-    object.delete(lantern)
+    da_obj.detach(lantern)
+    da_obj.delete(lantern)
 end)
 ```
 
@@ -207,7 +207,7 @@ local objectOptions = {
     frozen = true
 }
 
-local statue = object.create(joaat("p_statue01x"), GetEntityCoords(PlayerPedId()), objectOptions)
+local statue = da_obj.createObj(`p_statue01x`, GetEntityCoords(PlayerPedId()), objectOptions)
 ```
 
 ## Implementation Notes

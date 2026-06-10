@@ -1,92 +1,280 @@
 # Getting Started with da_lib
 
-This guide will help you get started with da_lib in your RedM project.
+This guide explains how to use da_lib features in your own RedM resource.
 
-> [!CAUTION]
-> This documentation was AI generated and has high chance of hallucinations.
+## How da_lib Features Work
+
+da_lib does **not** use an exports-based API. Each feature is a standalone Lua file that, when loaded, creates global variables in your resource's Lua environment. You include the files you need directly in your resource's `fxmanifest.lua`.
+
+da_lib must be started before any resource that depends on it. Add `ensure da_lib` to `server.cfg` before your resource.
 
 ## Installation
 
-1. Copy the da_lib folder to your server's resources directory
-2. Add `ensure da_lib` to your server.cfg file
-3. Restart your server or start the resource manually
+1. Place the `da_lib` folder in your server's resources directory (e.g., `resources/[da]/da_lib`)
+2. Add to `server.cfg`:
+   ```
+   ensure da_log
+   ensure da_lib
+   ```
+3. In your resource's `fxmanifest.lua`, include the specific feature files you need (see examples below)
 
-## Quick Start
+## Feature Import Examples
 
-### Basic Usage
+Each feature file creates one or more globals when loaded. Import only what your resource needs.
 
-Most features in da_lib can be accessed through exports. Here's a basic example:
+### Logging (da_log)
 
 ```lua
--- In your client script
-local cache = exports.da_lib:getCache()
-local audio = exports.da_lib:getAudio()
-local draw = exports.da_lib:getDraw()
+-- fxmanifest.lua
+shared_scripts {
+    '@da_log/log_sh.lua',
+}
+```
+Creates global: `log`
+```lua
+log.info("Player connected:", playerName)
+log.debug("State:", { health = 100, pos = playerCoords })
+log.error("Failed to load resource:", resourceName)
+```
 
--- Use the lazy cache
-cache.lazy.someFunction = function()
-    return "Expensive calculation result"
+### Animation
+
+```lua
+-- fxmanifest.lua
+client_scripts {
+    '@da_lib/features/anim/anim_cl.lua',
+}
+```
+Creates global: `da_anim`
+```lua
+-- Play animation on ped
+da_anim.ped(PlayerPedId(), "ai@react@point@base", "point_fwd", 3.0, 0.5, -1, 0)
+-- Stop all animations
+da_anim.stop(PlayerPedId())
+```
+
+### Mode System
+
+```lua
+-- fxmanifest.lua
+client_scripts {
+    '@da_lib/features/mode/mode_cl.lua',
+}
+```
+Creates global: `da_mode`
+```lua
+da_mode.register({
+    name = "mymode",
+    priority = 10,
+    onActivate = function() ... end,
+    onDeactivate = function() ... end,
+    keymaps = {
+        x = { justPressed = { fn = function() ... end } }
+    }
+})
+da_mode.activate("mymode")
+da_mode.deactivate("mymode")
+```
+
+### Delay Cache
+
+```lua
+-- fxmanifest.lua
+shared_scripts {
+    '@da_lib/features/cache/cache_delay.lua',
+}
+```
+Creates global: `delay`
+```lua
+-- Returns true only once per 1000ms per named cache entry
+if delay.myCheck(1000) then
+    -- runs at most once per second
 end
-
--- Call the function with a 5-second cache
-local result = cache.lazy(5000).someFunction()
-
--- Play an audio sound
-audio.playSound("DISTANT_SHOTS", 0.5)
-
--- Draw text on screen
-RegisterNetEvent('someEvent', function()
-    draw.text("Hello World", 0.5, 0.5, 0.5, 255, 255, 255, 255)
-end)
 ```
 
-### Feature Import Examples
-
-Here are examples of importing different features:
-
-#### Animation System
+### Lazy Cache
 
 ```lua
-local anim = exports.da_lib:getAnim()
-
--- Play an animation
-anim.playAnimation('WORLD_HUMAN_SMOKE')
-
--- Stop animation
-anim.stopAnimation()
+-- fxmanifest.lua
+shared_scripts {
+    '@da_lib/features/cache/cache_lazy.lua',
+}
+```
+Creates global: `lazy`
+```lua
+lazy.getPlayerMoney = function()
+    return API.getMoney()  -- expensive call
+end
+-- Returns cached result for 2 seconds
+local money = lazy(2000).getPlayerMoney()
 ```
 
-#### Object Management
+### Object System
 
 ```lua
-local object = exports.da_lib:getObject()
-
+-- fxmanifest.lua
+client_scripts {
+    '@da_lib/data/object.lua',  -- hash lookup tables
+    '@da_lib/features/object/object_cl.lua',
+}
+```
+Creates global: `da_obj`
+```lua
 -- Spawn an object
-local objId = object.create('p_bottlemedicine01x', vector3(x, y, z))
-
--- Remove the object
-object.remove(objId)
+local hash = `p_campfire01x`
+da_obj.load(hash)
+local obj = da_obj.createObj(hash, coords, { frozen = true })
+-- Apply options
+da_obj.set(obj, { frozen = false, collision = true })
+-- Delete
+da_obj.delete(obj)
 ```
 
-#### Mode System
+### Input Control
 
 ```lua
-local mode = exports.da_lib:getMode()
+-- fxmanifest.lua
+client_scripts {
+    '@da_lib/data/key.lua',
+    '@da_lib/features/control/control_cl.lua',
+}
+```
+Creates global: `da_control`
+```lua
+-- Wait for a key to be released
+da_control.waitForRelease("x")
+-- Check long press (holds for 300ms)
+if da_control.isLongPressed("x") then ... end
+```
 
--- Register a mode
-mode.register('camping')
+### Networking
 
--- Check if a mode is active
-if mode.check('camping') then
-    -- Do something while in camping mode
-end
+```lua
+-- fxmanifest.lua
+client_scripts {
+    '@da_lib/features/net/net_cl.lua',
+}
+-- and/or server_scripts for server side
+```
+Creates global: `da_net`
+```lua
+-- Client: register event handlers
+da_net.event("myresource:doThing", function(data) ... end)
+da_net.events({ ["myresource:a"] = fn1, ["myresource:b"] = fn2 })
+
+-- Blocking request from client to server (waits for response, 2s timeout)
+local result = TriggerBlockingServerEvent("myresource:getData", 2000, playerId)
+```
+
+### Particle Effects
+
+```lua
+-- fxmanifest.lua
+client_scripts {
+    '@da_lib/features/fx/fx_cl.lua',
+}
+```
+Creates global: `fx`
+```lua
+local handle = fx.new("core", "ent_amb_fire_campfire_01", {
+    entity = someEntity,
+    bone = "SKEL_ROOT",
+    loop = true,
+    scale = 1.0,
+})
+fx.remove({ handle = handle })
+```
+
+### Drawing
+
+```lua
+-- fxmanifest.lua
+client_scripts {
+    '@da_lib/features/draw/draw_cl.lua',
+}
+```
+Creates globals: `DrawSphere`, `DrawCylinder`, `DrawLine`, `DrawText`, `DrawScreenText`, etc.
+```lua
+DrawText("Hello World", vector3(x, y, z), { r=255, g=255, b=255, a=255 }, 0.5)
+DrawSphere(coords, 1.0, { r=255, g=0, b=0, a=100 })
+```
+
+### API Abstraction (framework-agnostic)
+
+```lua
+-- fxmanifest.lua
+shared_scripts {
+    '@da_lib/features/api/api_sh.lua',
+}
+```
+Creates globals: `DAAPI`, `API`
+```lua
+-- DAAPI.ActiveFramework is the active framework name (from convar "framework")
+-- API calls dispatch to the active framework implementation or the default
+API.notify("Hello!")
+API.hasJob("lawman")
+API.teleport(vector4(x, y, z, heading), true)
+```
+
+### KVP (Persistent Key-Value Storage)
+
+```lua
+-- fxmanifest.lua
+shared_scripts {
+    '@da_lib/features/kvp/kvp_sh.lua',
+}
+```
+Creates global: `kvp`
+```lua
+kvp.encode("mykey", { value = 42 })
+local data = kvp.decode("mykey")   -- returns table
+kvp.delete("mykey")
+```
+
+### Utilities
+
+```lua
+-- fxmanifest.lua
+client_scripts {
+    '@da_lib/features/util/util_cl.lua',
+}
+```
+Creates global: `da_util`
+```lua
+local entities = da_util.GetEntitiesNearPoint(coords, 10.0)
+local peds = da_util.GetPedsNearPoint(coords, 5.0)
+local groundPos = da_util.GetGroundPositionForward(coords, 5.0, heading)
+```
+
+## Full Import Example (typical resource)
+
+```lua
+-- fxmanifest.lua
+fx_version 'cerulean'
+games {'rdr3'}
+rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
+lua54 'yes'
+
+shared_scripts {
+    '@da_log/log_sh.lua',
+    '@da_lib/features/api/api_sh.lua',
+}
+
+client_scripts {
+    '@da_lib/data/key.lua',
+    '@da_lib/features/control/control_cl.lua',
+    '@da_lib/features/mode/mode_cl.lua',
+    '@da_lib/features/object/object_cl.lua',
+    'src/my_script_cl.lua',
+}
+
+dependencies {
+    'da_lib',
+}
 ```
 
 ## Next Steps
 
-Explore the [Documentation](README.md) for more detailed information about each feature module.
-
-- [Lazy Cache](features/cache/lazy.md) - For efficient function caching
-- [Animation System](features/anim/index.md) - For animation control
-- [Audio Management](features/audio/index.md) - For sound control
-- [And more...](README.md#features)
+- [Feature Reference](README.md) — full list of available feature modules
+- [da_log README](../../da_log/README.md) — logging configuration
+- [da_mode system](../../CLAUDE.md#mode-system-da_lib) — priority-based state management
