@@ -39,6 +39,7 @@ client_scripts {
     'data/propset.lua',
     'data/taskFilter.lua',
     'data/vehicle.lua',
+    'data/weapon.lua',
 
     'features/anim/anim_cl.lua',
     'features/util/util_cl.lua',
