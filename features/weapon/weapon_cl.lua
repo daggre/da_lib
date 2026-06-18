@@ -58,11 +58,18 @@ Weapon.attach = function(weaponHash, attachPoint)
     Weapon.give(weaponHash, {attachPoint = attachPoint})
 end
 
+Weapon.defaultAttachpoint = function(weaponHash, alternate)
+    local attachPoint, altAttachpoint = dat.getWeaponAttachpoint(weaponHash)
+    if alternate and altAttachpoint then return altAttachpoint end
+    return attachPoint
+end
+
 -- Give a weapon to the local player.
 --   opts.ammo    number  starting ammo (default 100)
 --   opts.equip   bool    force into hand now (default false)
 --   opts.holster bool    force into holster (default true)
 Weapon.give = function(weaponName, opts)
+    log.debug("giving weapon", weaponName, opts)
     local default = function(v,d) if v ~= nil then return v end return d end
     local weaponHash = resolveHash(weaponName)
     if not weaponHash then log.warn("da_Weapon.give: invalid weapon", weaponName); return false end
@@ -70,9 +77,9 @@ Weapon.give = function(weaponName, opts)
 
     local ped = PlayerPedId()
     local ammo = default(opts.ammo, 100)
-    local equipNow = default(opts.equipNow, true)
-    local holster = default(opts.holster, false)
-    local attachPoint = default(opts.attachPoint, 0)
+    local equipNow = default(opts.equipNow, false)
+    local holster = default(opts.holster, true)
+    local attachPoint = default(opts.attachPoint, Weapon.defaultAttachpoint(weaponHash)[0])
     local allowMultiple = default(opts.allowMultiple, false)
     local p7 = 0.5
     local p8 = 1.0
@@ -81,7 +88,8 @@ Weapon.give = function(weaponName, opts)
     local permanentDegradation = default(opts.permanentDegradation, 0.0)
     local p12 = false
 
-    return GiveWeaponToPed_2(
+    log.debug("giving", ped, ammo, equipNow, holster, attachPoint)
+    GiveWeaponToPed_2(
         ped,
         weaponHash,
         ammo,
@@ -96,21 +104,34 @@ Weapon.give = function(weaponName, opts)
         permanentDegradation,
         p12
     )
+    log.debug("Gave")
 end
+
+-- eRemoveItemReason; RDR3 ignores the removal unless a valid reason is given.
+local REMOVE_REASON_DEFAULT = 0xF77DE93D
 
 -- Remove a single weapon from the local player.
 Weapon.remove = function(weaponName)
     local weaponHash = resolveHash(weaponName)
     if not weaponHash then log.warn("da_weapon.remove: invalid weapon", weaponName); return false end
     log.debug("Removing weapon", weaponName)
-    RemoveWeaponFromPed(PlayerPedId(), weaponHash, false, 0)
+    RemoveWeaponFromPed(PlayerPedId(), weaponHash, true, REMOVE_REASON_DEFAULT)
     return true
 end
 
--- Remove every weapon from the local player.
+-- Remove every weapon from the local player. RemoveAllPedWeapons does not
+-- reliably clear RDR3 inventory weapons, so also remove each known weapon.
 Weapon.removeAll = function()
     log.debug("Removing all weapons")
     RemoveAllPedWeapons(PlayerPedId(), true, false)
+    if dat and dat.weapon then
+        local ped = PlayerPedId()
+        for _, w in ipairs(dat.weapon) do
+            if HasPedGotWeapon(ped, w.hash, 0, false) then
+                RemoveWeaponFromPed(ped, w.hash, true, REMOVE_REASON_DEFAULT)
+            end
+        end
+    end
     return true
 end
 
