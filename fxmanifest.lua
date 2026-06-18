@@ -43,6 +43,7 @@ client_scripts {
 
     'features/anim/anim_cl.lua',
     'features/util/util_cl.lua',
+    'features/util/dataview.lua',
 
     'features/net/net_cl.lua',
     'features/lock/lock_cl.lua',
