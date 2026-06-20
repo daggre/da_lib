@@ -15,4 +15,11 @@ Mode.isActive = function(mode) return exports.da_lib:isModeActive(mode) end
 Mode.isPrimary = function(mode) return exports.da_lib:isModePrimary(mode) end
 Mode.activateMCP = function(mode) return exports.da_lib:activateMCP(mode) end
 
+-- Read-only inspection (used by da_audit and tests).
+Mode.primary = function() return exports.da_lib:primaryMode() end
+Mode.list = function() return exports.da_lib:modeList() end
+Mode.activeList = function() return exports.da_lib:activeModeList() end
+Mode.keymapCache = function() return exports.da_lib:keymapCache() end
+Mode.clearGameKeys = function() return exports.da_lib:clearGameKeys() end
+
 _ENV.da_mode = Mode

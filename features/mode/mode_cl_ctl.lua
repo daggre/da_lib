@@ -50,7 +50,7 @@ function ModeController:activateMode(modeName)
     self:sortActiveModes()
 
     if mode.onActivate then mode.onActivate(); end
-    log.debug("Mode activated: " .. modeName)
+    log.spam("Mode activated: " .. modeName)
     self:cacheInputEventChecks()
 end
 
@@ -63,7 +63,7 @@ function ModeController:deactivateMode(modeName)
         if m.name == modeName then
             table.remove(self.activeModes, i)
             if mode.onDeactivate then mode.onDeactivate(); end
-            log.debug("Mode deactivated: " .. modeName)
+            log.spam("Mode deactivated: " .. modeName)
             self:sortActiveModes()
             self:cacheInputEventChecks()
             break
@@ -90,6 +90,34 @@ function ModeController:sortActiveModes()
     end
 end
 
+local GAME_EVENTS = { "pressed", "justPressed", "released", "justReleased" }
+
+-- Game keymaps are stored keyed by key name, each value a list of maps shaped
+-- { pressed = fn, justPressed = fn, ... }. Expand them into the same flat
+-- { key, event, fn, ... } shape every other keymap uses, so the dispatch cache
+-- (which iterates ipairs(mode.keymaps)) picks them up. Tagged active = true so
+-- they ride the Game pseudo-mode's active flag — i.e. a disableGame mode suppresses them.
+local function expandGameKeymaps()
+    local out = {}
+    for key, maps in pairs(GameKeymaps) do
+        for _, map in ipairs(maps) do
+            for _, event in ipairs(GAME_EVENTS) do
+                if map[event] then
+                    out[#out + 1] = {
+                        key = key,
+                        event = event,
+                        fn = map[event],
+                        active = true,
+                        consume = map.consume,
+                        modifiers = map.modifiers,
+                    }
+                end
+            end
+        end
+    end
+    return out
+end
+
 function ModeController:getModesSort()
     local sortedModes = {}
     local gameModeActive = true
@@ -102,7 +130,7 @@ function ModeController:getModesSort()
         priority = 0,
         name = "Game",
         active = gameModeActive,
-        keymaps = GameKeymaps,
+        keymaps = expandGameKeymaps(),
     })
 
     -- Sort modes active to inactive, priority descending
@@ -325,11 +353,65 @@ exports("addGameKey", function(key, map)
     end
     map.resource = GetInvokingResource()
     RegisterGameKeymap(key, map)
+    ModeController:cacheInputEventChecks()
 end)
 
 exports("isModeActive", function(mode) return ModeController.modes[mode] and ModeController.modes[mode].active end)
 exports("isModePrimary", function(mode) return ModeController:primaryModeName() == mode end)
 exports("activateMCP", function(mode) return ModeController:activateMCP(mode) end)
+
+-- Read-only inspection surface. These let other resources (e.g. da_audit) see the
+-- controller's state without reaching into it; until now enumeration lived only in
+-- the CLI commands below. Each returns a fresh table so callers can't mutate state.
+exports("primaryMode", function() return ModeController:primaryModeName() end)
+exports("modeList", function()
+    local primary = ModeController:primaryModeName()
+    local out = {}
+    for name, mode in pairs(ModeController.modes) do
+        out[#out + 1] = {
+            name = name,
+            active = mode.active == true,
+            primary = name == primary,
+            priority = mode.priority or 0,
+            disableGame = mode.disableGame == true,
+            resource = mode.resource,
+        }
+    end
+    return out
+end)
+exports("activeModeList", function()
+    local out = {}
+    for _, mode in ipairs(ModeController.activeModes) do out[#out + 1] = mode.name end
+    return out
+end)
+exports("keymapCache", function()
+    local kc = ModeController.keyEventMap
+    local function copySet(set)
+        local t = {}
+        for k in pairs(set or {}) do t[k] = true end
+        return t
+    end
+    return {
+        pressed = copySet(kc.pressed),
+        justPressed = copySet(kc.justPressed),
+        released = copySet(kc.released),
+        justReleased = copySet(kc.justReleased),
+        modifiers = copySet(kc.modifiers),
+    }
+end)
+
+-- Remove the game keymaps a resource registered (symmetric with the onResourceStop
+-- cleanup below, but callable — e.g. for test teardown). Scoped to the invoking resource.
+exports("clearGameKeys", function()
+    local res = GetInvokingResource()
+    for key, keymaps in pairs(GameKeymaps) do
+        for i = #keymaps, 1, -1 do
+            if keymaps[i].resource == res then table.remove(keymaps, i) end
+        end
+        if not next(keymaps) then GameKeymaps[key] = nil end
+    end
+    ModeController:cacheInputEventChecks()
+end)
 
 AddEventHandler("onResourceStop", function(resourceName)
     -- Remove any Game keymaps associated with resource
@@ -404,5 +486,3 @@ cli.add_subcmd("mode", "deactivate", { desc = "Deactivate mode",
 })
 
 Citizen.CreateThread(function() ModeController:collectEvents() end)
-
--- TODO: Add game mode and ability to register game mode keymaps from mode_cl
