@@ -5,7 +5,8 @@ local Lock = {}
 
 -- Exclusive Lock --
 local function _lock(owner, id, timeout, currentTime)
-    timeout = tonumber(timeout) and (tonumber(timeout)/1000) + currentTime or DefaultTimeout
+    -- timeout is a duration in ms; convert to seconds and add to now (os.time is seconds).
+    timeout = tonumber(timeout) and (tonumber(timeout)/1000) or DefaultTimeout
     Lock[id] = {
         owner = owner,
         timeout = timeout + currentTime,
@@ -38,11 +39,13 @@ local function xunlock(owner, id)
     return false
 end
 
-RegisterBlockingServerEvent("da_lib.xlock", function(owner, id, timeout)
+-- Blocking-event handlers receive the source as their first arg (net_srv calls
+-- handler(src, ...)); the lock owner is supplied explicitly by the caller.
+RegisterBlockingServerEvent("da_lib.xlock", function(src, owner, id, timeout)
     return xlock(owner, id, timeout)
 end)
 
-RegisterBlockingServerEvent("da_lib.xunlock", function(owner, id)
+RegisterBlockingServerEvent("da_lib.xunlock", function(src, owner, id)
     return xunlock(owner, id)
 end)
 
@@ -52,7 +55,7 @@ exports("xunlock", xunlock)
 
 -- Exclusive Global Lock --
 local function _gl_lock(owner, id, timeout, currentTime)
-    timeout = tonumber(timeout) and (tonumber(timeout)/1000) + currentTime or DefaultTimeout
+    timeout = tonumber(timeout) and (tonumber(timeout)/1000) or DefaultTimeout
     Lock[id] = {
         owner = owner,
         timeout = timeout + currentTime,
@@ -87,11 +90,11 @@ local function gl_xunlock(owner, id)
     return false
 end
 
-RegisterBlockingServerEvent("da_lib.gl_xlock", function(owner, id, timeout)
+RegisterBlockingServerEvent("da_lib.gl_xlock", function(src, owner, id, timeout)
     return gl_xlock(owner, id, timeout)
 end)
 
-RegisterBlockingServerEvent("da_lib.gl_xunlock", function(owner, id)
+RegisterBlockingServerEvent("da_lib.gl_xunlock", function(src, owner, id)
     return gl_xunlock(owner, id)
 end)
 
