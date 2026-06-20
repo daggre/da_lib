@@ -77,7 +77,7 @@ function ModeController:sortActiveModes()
     end)
 
     if self.primaryMode ~= self.activeModes[1] then
-        log.debug("Primary mode changed: " ..
+        log.spam("Primary mode changed: " ..
             (self.primaryMode and self.primaryMode.name or "nil") .. " -> " ..
             (self.activeModes[1] and self.activeModes[1].name or "nil"))
         if self.primaryMode and self.primaryMode.onLosePrimary then
@@ -295,60 +295,64 @@ function ModeController:activateMCP(modeName)
     return false
 end
 
-da_net.events({
-    ["modeController:registerMode"] = function(...) ModeController:registerMode(...) end,
-    ["modeController:unregisterMode"] = function(...) ModeController:unregisterMode(...) end,
-    ["modeController:activateMode"] = function(...) ModeController:activateMode(...) end,
-    ["modeController:deactivateMode"] = function(...) ModeController:deactivateMode(...) end,
-    ["modeController:toggleMode"] = function(...)
-        if ModeController.modes[...] then
-            if ModeController.modes[...].active then
-                ModeController:deactivateMode(...)
-            else
-                ModeController:activateMode(...)
-            end
-        end
-    end,
-    ["modeController:simulateEvent"] = function(...) ModeController:dispatchEvent(...) end,
-    ["modeController:dispatchEvents"] = function(...) ModeController:dispatchEvents(...) end,
-    ["mode:addGameKey"] = function(key, map)
-        if not dat.keyHash[key] then log.error("Key not found: " .. key) return; end
-        if not map then log.error("Map required") return; end
-        if not map.pressed and not map.justPressed and not map.released and not map.justReleased then
-            log.error("Map must have at least one event")
-            return
-        end
-        local resource = GetInvokingResource()
-        map.resource = resource
-        RegisterGameKeymap(key, map)
-    end,
-    ["onResourceStop"] = function(resourceName)
-        -- Remove any Game keymaps associated with resource
-        for key, keymaps in pairs(GameKeymaps) do
-            for i, keymap in ipairs(keymaps) do
-                if keymap.resource == resourceName then
-                    log.debug("Removing resource keymap", resourceName, key, keymap)
-                    table.remove(GameKeymaps[key], i)
-                end
-            end
-        end
-        -- Deactivate and unregister resource that stopped
-        for modeName, mode in pairs(ModeController.modes) do
-            if mode.resource == resourceName then
-                if mode.active then
-                    log.warn("Resource stopped with active mode: " .. modeName)
-                    ModeController:deactivateMode(modeName)
-                end
-                log.debug("Unregistering mode: " .. modeName)
-                ModeController:unregisterMode(modeName)
-            end
+-- Consumer-facing interface. The mode facade (mode_cl.lua) calls these exports;
+-- the caller is captured with GetInvokingResource() so resource-stop cleanup works.
+exports("registerMode", function(mode)
+    if mode then mode.resource = GetInvokingResource() end
+    ModeController:registerMode(mode)
+end)
+exports("unregisterMode", function(modeName) ModeController:unregisterMode(modeName) end)
+exports("activateMode", function(modeName) ModeController:activateMode(modeName) end)
+exports("deactivateMode", function(modeName) ModeController:deactivateMode(modeName) end)
+exports("toggleMode", function(modeName)
+    local mode = ModeController.modes[modeName]
+    if mode then
+        if mode.active then
+            ModeController:deactivateMode(modeName)
+        else
+            ModeController:activateMode(modeName)
         end
     end
-})
+end)
+exports("dispatchEvents", function(events) ModeController:dispatchEvents(events) end)
+exports("simulateEvent", function(event) ModeController:dispatchEvent(event) end)
+exports("addGameKey", function(key, map)
+    if not dat.keyHash[key] then log.error("Key not found: " .. key) return; end
+    if not map then log.error("Map required") return; end
+    if not map.pressed and not map.justPressed and not map.released and not map.justReleased then
+        log.error("Map must have at least one event")
+        return
+    end
+    map.resource = GetInvokingResource()
+    RegisterGameKeymap(key, map)
+end)
 
 exports("isModeActive", function(mode) return ModeController.modes[mode] and ModeController.modes[mode].active end)
 exports("isModePrimary", function(mode) return ModeController:primaryModeName() == mode end)
 exports("activateMCP", function(mode) return ModeController:activateMCP(mode) end)
+
+AddEventHandler("onResourceStop", function(resourceName)
+    -- Remove any Game keymaps associated with resource
+    for key, keymaps in pairs(GameKeymaps) do
+        for i, keymap in ipairs(keymaps) do
+            if keymap.resource == resourceName then
+                log.spam("Removing resource keymap", resourceName, key, keymap)
+                table.remove(GameKeymaps[key], i)
+            end
+        end
+    end
+    -- Deactivate and unregister resource that stopped
+    for modeName, mode in pairs(ModeController.modes) do
+        if mode.resource == resourceName then
+            if mode.active then
+                log.warn("Resource stopped with active mode: " .. modeName)
+                ModeController:deactivateMode(modeName)
+            end
+            log.spam("Unregistering mode: " .. modeName)
+            ModeController:unregisterMode(modeName)
+        end
+    end
+end)
 
 cli.add_cmd("mode", { desc = "Object commands" })
 cli.add_subcmd("mode", "primary", { desc = "List primary mode",
