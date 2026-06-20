@@ -25,6 +25,7 @@ server_scripts {
     -- API
     'features/api/api_sh.lua',
     'features/api/default/default_srv.lua',
+    'features/api/transport_srv.lua',
 }
 
 client_scripts {
@@ -57,6 +58,7 @@ client_scripts {
     'features/object/object_cl.lua',
     'features/mode/mode_cl_ctl.lua',
     'features/mode/mode_cl.lua',
+    'features/mode/mcp_cl.lua',
     'features/move/move_cl.lua',
     'features/nui/nui_cl.lua',
     'features/trie/trie_cl.lua',
