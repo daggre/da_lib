@@ -144,4 +144,20 @@ Util.GetGroundPositionForward = function(coords, dist, heading)
     return vector4(pos.x, pos.y, hitZ, heading)
 end
 
+-- Dependency check: is another resource present/running?
+-- Framework-invariant, so it lives here rather than behind the framework API seam.
+-- NOTE: holdover mechanism (lazy-cached export probe) parked for redesign — remove or improve.
+local lazyDepends = {}
+Util.dependsOn = function(resourceName, cache)
+    cache = cache == nil and 15000 or cache
+    if not lazyDepends[resourceName] then
+        lazyDepends[resourceName] = true
+        lazy["depends_" .. resourceName] = function()
+            if next(exports[resourceName]) then return true end
+            return false
+        end
+    end
+    return lazy(cache)["depends_" .. resourceName]()
+end
+
 _ENV.da_util = Util
