@@ -51,15 +51,22 @@ local change = function(weaponHash, attachPoint)
     return true
 end
 
-Weapon.equip = function(weaponHash, attachPoint)
+-- Draw a weapon. opts.clip (number) loads the clip to that amount after drawing —
+-- applied even if the weapon is already in hand. Clip is independent of reserve
+-- (see ADR-0004), so this sets the loaded rounds exactly without touching reserve.
+Weapon.equip = function(weaponHash, attachPoint, opts)
     attachPoint = attachPoint or 0
     local currentHash = Weapon.current(attachPoint)
-    if currentHash == weaponHash then return; end
-    if currentHash ~= `weapon_unarmed` then
-        change(`weapon_unarmed`, 0)
+    if currentHash ~= weaponHash then
+        if currentHash ~= `weapon_unarmed` then
+            change(`weapon_unarmed`, 0)
+        end
+        if weaponHash == `weapon_unarmed` then return; end
+        change(weaponHash, attachPoint)
     end
-    if weaponHash == `weapon_unarmed` then return; end
-    change(weaponHash, attachPoint)
+    if opts and opts.clip ~= nil and weaponHash ~= `weapon_unarmed` then
+        Weapon.ammo.setClip(weaponHash, opts.clip)
+    end
 end
 
 Weapon.holster = function()
@@ -161,19 +168,31 @@ Weapon.has = function(weaponName)
     return HasPedGotWeapon(PlayerPedId(), weaponHash, 0, false)
 end
 
--- ===================== AMMO =====================
--- Reserve = ammo carried on the person, pooled by ammo type (e.g. all rifles
--- share one rifle pool). Clip = rounds currently loaded in the weapon.
+-- ===================== AMMO — da_weapon.ammo.* =====================
+-- Grouped under da_weapon.ammo so calls read unambiguously: da_weapon.ammo.getSpare,
+-- not da_weapon.getSpare (which reads like a spare *weapon*).
+--
+-- Reserve (GetPedAmmoByType) is the TOTAL ammo for an ammo type, pooled across all
+-- weapons of that type (e.g. all rifles share one rifle pool). The clip is a SUBSET
+-- of that total — loaded rounds count toward it — so spare (not loaded) = reserve -
+-- clip, and emptying the clip returns its rounds to spare without changing reserve.
+-- Confirmed empirically; see ADR-0004.
+local Ammo = {}
 
-Weapon.ammoType = function(weaponName)
+Ammo.ammoType = function(weaponName)
     local weaponHash = resolveHash(weaponName)
     if not weaponHash then return nil end
     return GetAmmoTypeForWeapon(weaponHash) or nil
 end
 
--- Reserve ammo for the weapon's ammo type, on the person.
-Weapon.getReserve = function(weaponName)
-    return GetPedAmmoByType(PlayerPedId(), Weapon.ammoType(weaponName)) or 0
+-- Total ammo for the weapon's ammo type (includes the loaded clip).
+Ammo.getReserve = function(weaponName)
+    return GetPedAmmoByType(PlayerPedId(), Ammo.ammoType(weaponName)) or 0
+end
+
+-- Spare ammo not currently loaded in the clip (reserve total minus clip).
+Ammo.getSpare = function(weaponName)
+    return math.max(0, Ammo.getReserve(weaponName) - Ammo.getClip(weaponName))
 end
 
 -- eRemoveItemReason; the per-type ammo remover ignores the call with an invalid
@@ -181,9 +200,9 @@ end
 local AMMO_REMOVE_REASON = 0x2188E0A3 -- REMOVE_REASON_USED
 
 -- Remove an amount of reserve ammo for the weapon's ammo type.
-Weapon.removeReserve = function(weaponName, amount)
-    local ammoType = Weapon.ammoType(weaponName)
-    if not ammoType then log.warn("da_weapon.removeReserve: invalid weapon", weaponName); return false end
+Ammo.removeReserve = function(weaponName, amount)
+    local ammoType = Ammo.ammoType(weaponName)
+    if not ammoType then log.warn("da_weapon.ammo.removeReserve: invalid weapon", weaponName); return false end
     -- _REMOVE_AMMO_FROM_PED_BY_TYPE(ped, ammoType, amount, removeReason)
     Citizen.InvokeNative(0xB6CFEC32E3742779, PlayerPedId(), ammoType, amount or 0, AMMO_REMOVE_REASON)
     return true
@@ -193,9 +212,9 @@ end
 -- by ammo type, so all weapons sharing the type see the change. RedM's raw
 -- SetPedAmmoByType only raises (lowering is a no-op, citizenfx/fivem #3980), so to
 -- lower we subtract the difference via removeReserve. Confirmed by da_test.
-Weapon.setReserve = function(weaponName, amount)
-    local ammoType = Weapon.ammoType(weaponName)
-    if not ammoType then log.warn("da_weapon.setReserve: invalid weapon", weaponName); return false end
+Ammo.setReserve = function(weaponName, amount)
+    local ammoType = Ammo.ammoType(weaponName)
+    if not ammoType then log.warn("da_weapon.ammo.setReserve: invalid weapon", weaponName); return false end
     amount = math.max(0, amount or 0)
     log.debug("Setting reserve ammo", weaponName, amount)
     local ped = PlayerPedId()
@@ -203,50 +222,68 @@ Weapon.setReserve = function(weaponName, amount)
     if amount > current then
         SetPedAmmoByType(ped, ammoType, amount)        -- raise
     elseif amount < current then
-        Weapon.removeReserve(weaponName, current - amount) -- lower
+        Ammo.removeReserve(weaponName, current - amount) -- lower
     end
     return true
 end
 
-Weapon.addReserve = function(weaponName, amount)
+Ammo.addReserve = function(weaponName, amount)
     if not resolveHash(weaponName) then return false end
-    return Weapon.setReserve(weaponName, math.max(0, Weapon.getReserve(weaponName) + (amount or 0)))
+    return Ammo.setReserve(weaponName, math.max(0, Ammo.getReserve(weaponName) + (amount or 0)))
 end
 
 -- Clear ALL of the player's reserve ammo (every ammo type) to zero in one call.
-Weapon.clearAmmo = function()
+Ammo.clearAmmo = function()
     log.debug("Clearing all reserve ammo")
     Citizen.InvokeNative(0x1B83C0DEEBCBB214, PlayerPedId()) -- _REMOVE_ALL_PED_AMMO
     return true
 end
 
 -- Rounds loaded in the clip/cylinder.
-Weapon.getClip = function(weaponName)
+Ammo.getClip = function(weaponName)
     local weaponHash = resolveHash(weaponName)
     if not weaponHash then return 0 end
     local _, clip = GetAmmoInClip(PlayerPedId(), weaponHash)
     return clip or 0
 end
 
-Weapon.setClip = function(weaponName, amount)
+Ammo.setClip = function(weaponName, amount)
     local weaponHash = resolveHash(weaponName)
     if not weaponHash then return false end
     return SetAmmoInClip(PlayerPedId(), weaponHash, amount or 0)
 end
 
+-- Empty the clip. Reserve (GetPedAmmoByType) is the TOTAL for the ammo type and the
+-- clip is a subset of it (see ADR-0004), so clearing the clip simply returns those
+-- rounds to the spare pool — the total is unchanged and nothing is lost. Pass
+-- opts.discard to instead drop those rounds (lower the total). Returns the count
+-- that was loaded.
+Ammo.unload = function(weaponName, opts)
+    opts = opts or {}
+    if not resolveHash(weaponName) then log.warn("da_weapon.ammo.unload: invalid weapon", weaponName); return 0 end
+    local clip = Ammo.getClip(weaponName) or 0
+    Ammo.setClip(weaponName, 0)
+    if clip > 0 and opts.discard then
+        Ammo.removeReserve(weaponName, clip)
+    end
+    return clip
+end
+
 -- Toggle infinite reserve ammo for a specific weapon.
-Weapon.setInfiniteAmmo = function(toggle, weaponName)
+Ammo.setInfiniteAmmo = function(toggle, weaponName)
     local weaponHash = resolveHash(weaponName)
-    if not weaponHash then log.warn("da_weapon.setInfiniteAmmo: invalid weapon", weaponName); return false end
+    if not weaponHash then log.warn("da_weapon.ammo.setInfiniteAmmo: invalid weapon", weaponName); return false end
     SetPedInfiniteAmmo(PlayerPedId(), toggle and true or false, weaponHash)
     return true
 end
 
 -- Toggle a never-needs-reloading clip across the player's weapons.
-Weapon.setInfiniteClip = function(toggle)
+Ammo.setInfiniteClip = function(toggle)
     Citizen.InvokeNative(0xFBAA1E06B6BCA741, PlayerPedId(), toggle and true or false) -- _SET_PED_INFINITE_AMMO_CLIP
     return true
 end
+
+Weapon.ammo = Ammo
 
 -- Quick one-weapon dump for console use. The full audit lives in da_audit.weapon.
 Weapon.debug = function()
@@ -254,9 +291,9 @@ Weapon.debug = function()
     log.debug({
         hash = w,
         name = dat.getWeaponName(w) or "",
-        ammoType = Weapon.ammoType(w),
-        reserve = Weapon.getReserve(w),
-        clip = Weapon.getClip(w),
+        ammoType = Ammo.ammoType(w),
+        reserve = Ammo.getReserve(w),
+        clip = Ammo.getClip(w),
     })
 end
 
