@@ -1,41 +1,30 @@
 log.debug("Initializing Framework API Client Defaults")
 
--- Register dependency checks to be lazy cached
-local lazyDepends = {}
-local LazyCacheRegisterDependCheck = function(resourceName)
-    if not lazyDepends[resourceName] then
-        lazyDepends[resourceName] = true
-        lazy["depends_"..resourceName] = function()
-            if next(exports[resourceName]) then return true end
-            return false
-        end
-    end
-end
-
+-- Default adapter (client): the graceful-degradation base. Enumerates the full
+-- client API contract explicitly. Functions split into two kinds:
+--   * standalone-meaningful — a real answer when no framework is installed
+--   * no-op — framework-specific effects (inventory, hunger) go nowhere
 local FW = {}
 
+-- Standalone-meaningful --
 ---@diagnostic disable-next-line: duplicate-set-field
 FW.notify = function(message) log.info(message) end
 
 FW.hasItems = function(items)
+    -- No inventory: report a large amount of everything so item-gated content runs.
     local hasItems = {}
     for itemName in pairs(items) do
         if not hasItems[itemName] then
             hasItems[itemName] = {}
         end
-        -- No inventory, mock having large amounts of everything
         table.insert(hasItems[itemName], { name = itemName, amount = 999 })
     end
     return hasItems
 end
 
----@diagnostic disable-next-line: duplicate-set-field
-FW.hasJob = function(jobName) return false end
-
-FW.checkDepends = function(resourceName, cache)
-    cache = cache == nil and 15000 or cache
-    LazyCacheRegisterDependCheck(resourceName)
-    return lazy(cache)['depends_' .. resourceName]()
+FW.isDead = function(entity)
+    entity = entity or PlayerPedId()
+    return IsEntityDead(entity)
 end
 
 FW.teleport = function(coords, fade)
@@ -63,14 +52,23 @@ FW.revive = function(entity)
 
     SetEntityInvincible(entity, false)
     ClearPedBloodDamage(entity)
-    -- SetEntityMaxHealth(entity, 200)
-    -- SetPedMaxHealth(entity, 200)
     SetEntityHealth(entity, GetEntityMaxHealth(entity))
 end
 
-FW.isDead = function(entity)
-    entity = entity or PlayerPedId()
-    return IsEntityDead(entity)
-end
+---@diagnostic disable-next-line: duplicate-set-field
+FW.hasJob = function(jobName) return false end
+
+-- No inventory: a gate query reports having the item so item-gated content runs...
+FW.hasItem = function(itemName) return true end
+-- ...but an enumeration query has no inventory to return.
+FW.getItems = function(filter) return {} end
+
+-- No-op (info goes nowhere without a framework) --
+FW.addItem = function(itemName, amount) return nil end
+FW.eat = function(amount) return nil end
+FW.drink = function(amount) return nil end
+FW.consume = function(name, args) return nil end
+FW.replaceItem = function(from, to, isInternalMove) return nil end
+FW.setDoorStatus = function(args, status, value) return nil end
 
 DAAPI.Default = FW
