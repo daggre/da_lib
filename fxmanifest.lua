@@ -41,6 +41,7 @@ client_scripts {
     'data/taskFilter.lua',
     'data/vehicle.lua',
     'data/weapon.lua',
+    'data/clothing.lua',
 
     'features/anim/anim_cl.lua',
     'features/util/util_cl.lua',
@@ -63,6 +64,7 @@ client_scripts {
     'features/nui/nui_cl.lua',
     'features/trie/trie_cl.lua',
     'features/weapon/weapon_cl.lua',
+    'features/clothing/clothing_cl.lua',
     'features/kvp/kvp_cl_ctl.lua',
 
     -- API
