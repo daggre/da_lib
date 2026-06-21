@@ -63,6 +63,28 @@ FW.hasItem = function(itemName) return true end
 -- ...but an enumeration query has no inventory to return.
 FW.getItems = function(filter) return {} end
 
+-- Outfit persistence. No framework DB, so store locally via KVP keyed by slot.
+-- A framework adapter would override these to persist per-character in its DB.
+local OUTFIT_KEY = "outfit:"
+FW.saveOutfit = function(slot, data)
+    kvp.encode(OUTFIT_KEY .. tostring(slot), data)
+    return true
+end
+FW.loadOutfit = function(slot)
+    return kvp.decode(OUTFIT_KEY .. tostring(slot))
+end
+FW.deleteOutfit = function(slot)
+    kvp.delete(OUTFIT_KEY .. tostring(slot))
+    return true
+end
+FW.listOutfits = function()
+    local slots = {}
+    for _, key in ipairs(kvp.search(OUTFIT_KEY)) do
+        slots[#slots + 1] = key:sub(#OUTFIT_KEY + 1)
+    end
+    return slots
+end
+
 -- No-op (info goes nowhere without a framework) --
 FW.addItem = function(itemName, amount) return nil end
 FW.eat = function(amount) return nil end
