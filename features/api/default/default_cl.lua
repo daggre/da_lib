@@ -85,6 +85,29 @@ FW.listOutfits = function()
     return slots
 end
 
+-- Horse tack loadout persistence. Same KVP-by-slot pattern as outfits; a tack
+-- loadout (saddle + equipment) is owned by the player and applied to a horse
+-- later, so it persists independently. A framework adapter would override these.
+local TACK_KEY = "tack:"
+FW.saveTack = function(slot, data)
+    kvp.encode(TACK_KEY .. tostring(slot), data)
+    return true
+end
+FW.loadTack = function(slot)
+    return kvp.decode(TACK_KEY .. tostring(slot))
+end
+FW.deleteTack = function(slot)
+    kvp.delete(TACK_KEY .. tostring(slot))
+    return true
+end
+FW.listTack = function()
+    local slots = {}
+    for _, key in ipairs(kvp.search(TACK_KEY)) do
+        slots[#slots + 1] = key:sub(#TACK_KEY + 1)
+    end
+    return slots
+end
+
 -- No-op (info goes nowhere without a framework) --
 FW.addItem = function(itemName, amount) return nil end
 FW.eat = function(amount) return nil end
