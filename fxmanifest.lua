@@ -42,6 +42,7 @@ client_scripts {
     'data/vehicle.lua',
     'data/weapon.lua',
     'data/clothing.lua',
+    'data/horse.lua',
 
     'features/anim/anim_cl.lua',
     'features/util/util_cl.lua',
@@ -65,6 +66,8 @@ client_scripts {
     'features/trie/trie_cl.lua',
     'features/weapon/weapon_cl.lua',
     'features/clothing/clothing_cl.lua',
+    'features/horse/horse_cl.lua',
+    'features/camera/camera_cl.lua',
     'features/kvp/kvp_cl_ctl.lua',
 
     -- API
