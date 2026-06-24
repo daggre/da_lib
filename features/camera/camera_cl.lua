@@ -29,6 +29,17 @@ local function lookRot(from, to)
     return { x = pitch, y = 0.0, z = yaw }
 end
 
+-- Unit forward vector for a camera rotation (order 2, ZXY): yaw = rot.z, pitch =
+-- rot.x. Inverse of lookRot's convention (yaw 0 faces +Y).
+local function forwardVec(rot)
+    local yaw = (rot.z or 0.0) / DEG
+    local pitch = (rot.x or 0.0) / DEG
+    local cp = math.cos(pitch)
+    return -math.sin(yaw) * cp, math.cos(yaw) * cp, math.sin(pitch)
+end
+
+local function vlen(x, y, z) return math.sqrt(x * x + y * y + z * z) end
+
 -- ---- low-level scripted cam ----
 
 -- Create an inactive scripted cam at a pose.
@@ -84,6 +95,75 @@ end
 
 -- Convenience: spline from one pose to another.
 Cam.splineFromTo = function(fromPose, toPose, opts)
+    return Cam.spline({ fromPose, toPose }, opts)
+end
+
+-- A bowed midpoint that swings the camera AROUND the subject rather than letting a
+-- straight 2-node spline chord-cut across it (which skims the head when the start
+-- pose is off to the side or behind). Both the start and target cameras aim at the
+-- subject, so the closest approach of their forward rays is ~the pivot to orbit.
+-- The midpoint sits on the angular bisector at the average orbit radius, which
+-- bows outward from the chord and clears the head. Returns a pose, or nil when the
+-- swing is small enough (< `minAngle` deg) that a straight spline already reads
+-- fine. nil is also returned for degenerate geometry (near-parallel rays, subject
+-- behind a camera) so the caller falls back to a plain spline.
+Cam.arcMidpoint = function(from, to, minAngle)
+    minAngle = minAngle or 50.0
+    local fp, tp = from.pos, to.pos
+
+    local f1x, f1y, f1z = forwardVec(from.rot)
+    local f2x, f2y, f2z = forwardVec(to.rot)
+    local rx, ry, rz = fp.x - tp.x, fp.y - tp.y, fp.z - tp.z
+    local b = f1x * f2x + f1y * f2y + f1z * f2z   -- dot of unit dirs
+    local denom = 1.0 - b * b
+    if denom < 1e-4 then return nil end           -- near-parallel: no stable pivot
+    local d = f1x * rx + f1y * ry + f1z * rz
+    local e = f2x * rx + f2y * ry + f2z * rz
+    local t1 = (b * e - d) / denom
+    local t2 = (e - b * d) / denom
+    if t1 <= 0.0 or t2 <= 0.0 then return nil end -- subject behind a camera
+
+    -- pivot = midpoint of the two rays' closest approach
+    local pvx = (fp.x + f1x * t1 + tp.x + f2x * t2) * 0.5
+    local pvy = (fp.y + f1y * t1 + tp.y + f2y * t2) * 0.5
+    local pvz = (fp.z + f1z * t1 + tp.z + f2z * t2) * 0.5
+
+    local v1x, v1y, v1z = fp.x - pvx, fp.y - pvy, fp.z - pvz
+    local v2x, v2y, v2z = tp.x - pvx, tp.y - pvy, tp.z - pvz
+    local r1, r2 = vlen(v1x, v1y, v1z), vlen(v2x, v2y, v2z)
+    if r1 < 0.01 or r2 < 0.01 then return nil end
+    local u1x, u1y, u1z = v1x / r1, v1y / r1, v1z / r1
+    local u2x, u2y, u2z = v2x / r2, v2y / r2, v2z / r2
+
+    local cosang = u1x * u2x + u1y * u2y + u1z * u2z
+    if cosang > math.cos(minAngle / DEG) then return nil end  -- small swing: straight is fine
+
+    -- angular bisector = the arc's mid direction around the pivot
+    local bx, by, bz = u1x + u2x, u1y + u2y, u1z + u2z
+    local bl = vlen(bx, by, bz)
+    if bl < 1e-3 then
+        -- ~180° (start directly behind): bisector is degenerate, so swing sideways
+        -- (horizontal perpendicular to the start dir) to orbit past the side, not
+        -- straight over the head.
+        bx, by, bz = -u1y, u1x, 0.0
+        bl = vlen(bx, by, bz)
+        if bl < 1e-3 then bx, by, bz, bl = 1.0, 0.0, 0.0, 1.0 end
+    end
+    bx, by, bz = bx / bl, by / bl, bz / bl
+
+    local radius = (r1 + r2) * 0.5
+    local midPos = { x = pvx + bx * radius, y = pvy + by * radius, z = pvz + bz * radius }
+    return { pos = midPos, rot = lookRot(midPos, { x = pvx, y = pvy, z = pvz }), fov = from.fov }
+end
+
+-- Like splineFromTo, but inserts an arc midpoint for large swings so the camera
+-- curves around the subject instead of cutting across it. opts.minAngle (deg)
+-- tunes the threshold.
+Cam.splineArc = function(fromPose, toPose, opts)
+    local mid = Cam.arcMidpoint(fromPose, toPose, opts and opts.minAngle)
+    if mid then
+        return Cam.spline({ fromPose, mid, toPose }, opts)
+    end
     return Cam.spline({ fromPose, toPose }, opts)
 end
 

@@ -17,15 +17,60 @@ Clothing.setColor = function(ped, category, palette, tint0, tint1, tint2)
     Citizen.InvokeNative(0x4EFC1F8FF1AD94DE, ped, category, palette, tint0, tint1, tint2)
 end
 
+-- ---- cold-load asset streaming ----
+-- On a COLD first load the component's drawable isn't resident and
+-- _APPLY_SHOP_ITEM_TO_PED silently no-ops — confirmed in da_test: heads/eyes/
+-- teeth/bodies fail to apply cold, but apply fine once their asset is streamed in
+-- (warm loads "just worked" only because the assets were already cached). So we
+-- request the asset bundle and wait for it before applying. Bounded so a slow or
+-- bad asset can never hang a caller.
+local REQ_BUNDLE = 0x91FE941F9FCFB702 -- _REQUEST_META_PED_ASSET_BUNDLE(asset, p1=1) -> reqId
+local HAS_LOADED = 0xB0B2C6D170B0E8E5 -- _HAS_META_PED_ASSET_LOADED(reqId) -> bool
+local REL_REQ    = 0x13E7320C762F0477 -- _RELEASE_META_PED_ASSET_REQUEST(reqId)
+local APPLY_ITEM = 0xD3A7B003ED343FD9 -- _APPLY_SHOP_ITEM_TO_PED(ped, hash, immediately, isMp, p4)
+
+local function mask32(h) return h & 0xFFFFFFFF end
+
+-- Request a component's asset bundle and wait (bounded) until streamed in.
+-- Returns the requestId — release it once the component has been applied. Safe to
+-- release after apply: the ped holds the asset (da_test: applied items survived
+-- the release).
+local function requestComponent(componentHash)
+    local reqId = Citizen.InvokeNative(REQ_BUNDLE, mask32(componentHash), 1)
+    if not reqId or reqId == 0 then return nil end
+    local deadline = GetGameTimer() + 5000
+    while not Citizen.InvokeNative(HAS_LOADED, reqId) and GetGameTimer() < deadline do
+        Citizen.Wait(0)
+    end
+    return reqId
+end
+
+local function isOn(ped, m)
+    for _, h in ipairs(Clothing.equipped(ped)) do
+        if mask32(h) == m then return true end
+    end
+    return false
+end
+
 Clothing.equip = function(componentHash, opts, ped)
     opts = opts or {}
     ped = ped or PlayerPedId()
-    local immediately = false
-    Citizen.InvokeNative(0xD3A7B003ED343FD9, ped, componentHash, immediately, true, true)
+    local m = mask32(componentHash)
+    -- stream the asset in first so the apply isn't a cold no-op
+    local reqId = requestComponent(componentHash)
+    -- a single apply after load isn't always enough for face components, so
+    -- re-issue until it reads back (bounded). Warm/resident items take one pass.
+    local deadline = GetGameTimer() + 1500
+    repeat
+        Citizen.InvokeNative(APPLY_ITEM, ped, componentHash, false, true, true)
+        Clothing.apply(ped)
+        if isOn(ped, m) then break end
+        Citizen.Wait(30)
+    until GetGameTimer() > deadline
     if opts.color then
         Clothing.setColor(ped, opts.category, opts.palette, opts.tint0, opts.tint1, opts.tint2)
     end
-    Clothing.apply(ped)
+    if reqId then Citizen.InvokeNative(REL_REQ, reqId) end
 end
 
 -- Remove whatever component occupies a category (by category hash), e.g. take
@@ -144,25 +189,51 @@ Clothing.outfit.restore = function(outfit, ped)
         end
     end
     Clothing.setOutfitPreset(4, ped)
-    -- Equips apply asynchronously, so firing them back-to-back drops some. restore
-    -- is a whole-outfit orchestration, so it verifies via Clothing.equipped and
-    -- re-issues any that didn't land (bounded). Returns true once all are on (or
-    -- the deadline passes).
     local want = outfit.components or {}
-    local deadline = GetGameTimer() + 3000
+
+    -- COLD-LOAD FIX (confirmed via da_test): on a first load the component meshes
+    -- aren't resident and the apply silently no-ops. Request every bundle up front
+    -- so they stream in PARALLEL, wait until loaded, THEN apply + re-issue until
+    -- each reads back. (Applying without streaming dropped heads/eyes/teeth/bodies;
+    -- the asset request lands all 15.) Release the requests at the end — applied
+    -- items survive it (the ped holds the asset).
+    local reqs = {}
+    for _, h in ipairs(want) do
+        reqs[#reqs + 1] = { id = Citizen.InvokeNative(REQ_BUNDLE, mask32(h), 1) }
+    end
+    local loadDeadline = GetGameTimer() + 8000
+    while GetGameTimer() < loadDeadline do
+        local allLoaded = true
+        for _, r in ipairs(reqs) do
+            if r.id and not Citizen.InvokeNative(HAS_LOADED, r.id) then allLoaded = false; break end
+        end
+        if allLoaded then break end
+        Citizen.Wait(0)
+    end
+
+    -- apply + verify (re-issue the APPLY, not just the variation update — re-issuing
+    -- only the update was the bug that left face components off).
+    local allOn = false
+    local deadline = GetGameTimer() + 5000
     while true do
         local have = {}
-        for _, h in ipairs(Clothing.equipped(ped)) do have[h & 0xFFFFFFFF] = true end
-        local allOn = true
+        for _, h in ipairs(Clothing.equipped(ped)) do have[mask32(h)] = true end
+        allOn = true
         for _, h in ipairs(want) do
-            if not have[h & 0xFFFFFFFF] then
+            if not have[mask32(h)] then
                 allOn = false
-                Clothing.equip(h, nil, ped)
+                Citizen.InvokeNative(APPLY_ITEM, ped, mask32(h), false, true, true)
             end
         end
-        if allOn or GetGameTimer() > deadline then return allOn end
+        Clothing.apply(ped)
+        if allOn or GetGameTimer() > deadline then break end
         Citizen.Wait(30)
     end
+
+    for _, r in ipairs(reqs) do
+        if r.id then Citizen.InvokeNative(REL_REQ, r.id) end
+    end
+    return allOn
 end
 
 -- Capture the current outfit and persist it under `slot` via the API.
