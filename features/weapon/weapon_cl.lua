@@ -133,6 +133,46 @@ Weapon.attach = function(weaponName, attachPoint)
     return Weapon.give(weaponName, { attachPoint = attachPoint })
 end
 
+-- Back/sidearm attach-point partners: pistol holsters (2<->3), back long-gun
+-- (9<->10) and bow (7<->8) slots. _GET_DEFAULT_WEAPON_ATTACH_POINT gives a
+-- weapon's PRIMARY slot; its partner here is the SECONDARY. Slots without a
+-- partner (hand, knife, lasso, thrown, lantern) aren't back/sidearm, so they
+-- have no alternate and are skipped by swapAttach.
+local ATTACH_PARTNER = { [2] = 3, [3] = 2, [7] = 8, [8] = 7, [9] = 10, [10] = 9 }
+
+-- The secondary (alternate) attach point for a back weapon or sidearm, or nil if
+-- the weapon isn't one — callers use the nil to skip it.
+Weapon.altAttachpoint = function(weaponName)
+    local hash = resolveHash(weaponName)
+    if not hash then return nil end
+    return ATTACH_PARTNER[defaultAttachpoint(hash)]
+end
+
+-- Which back/sidearm slot currently holds this weapon, or nil. Scans only the
+-- swappable slots (broader slot inspection lives in da_audit.weapon).
+local attachpointOf = function(weaponHash)
+    for slot in pairs(ATTACH_PARTNER) do
+        if Weapon.current(slot) == weaponHash then return slot end
+    end
+    return nil
+end
+
+-- Move a carried back weapon / sidearm to the other slot of its pair: long guns
+-- swap back-left<->back-right, pistols/revolvers swap holster sides. Re-giving
+-- with ammo 0 + allowMultiple relocates the holstered weapon without changing its
+-- reserve (the proven RDO attach call). Returns the slot it now occupies, or nil
+-- if the weapon isn't owned or isn't a back/sidearm.
+Weapon.swapAttach = function(weaponName)
+    local hash = resolveHash(weaponName)
+    if not hash or not Weapon.has(hash) then return nil end
+    local primary = defaultAttachpoint(hash)
+    local secondary = ATTACH_PARTNER[primary]
+    if not secondary then return nil end
+    local target = (attachpointOf(hash) == secondary) and primary or secondary
+    Weapon.give(hash, { ammo = 0, attachPoint = target, allowMultiple = true })
+    return target
+end
+
 -- eRemoveItemReason; RDR3 ignores the removal unless a valid reason is given.
 local REMOVE_REASON_DEFAULT = 0xF77DE93D
 

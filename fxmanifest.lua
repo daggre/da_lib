@@ -33,6 +33,7 @@ client_scripts {
     'data/flags_af.lua',
     'data/flags_aik.lua',
     'data/animation.lua',
+    'data/bones.lua',
     'data/key.lua',
     'data/object.lua',
     'data/ped.lua',

@@ -119,7 +119,7 @@ da_trie.add("devRoot", "objects", "o")
 da_trie.add("devRoot", "animation", "a")
 
 -- Add mode activation commands with keyboard shortcuts
-da_trie.addOpt("camera", "freecam mode", "f", function()
+da_trie.addOpt("camera", "freecam", "f", function()
     -- Toggle freecam mode on/off
     da_mode.toggle("freecam")
 end)
@@ -204,11 +204,11 @@ end, function()
 end)
 
 -- Add contextual mode commands to main menu for easy access
-da_trie.addOpt("devRoot", "toggle object mode", "o", function()
+da_trie.addOpt("devRoot", "toggle editor", "e", function()
     da_mode.toggle("object")
 end)
 
-da_trie.addOpt("devRoot", "toggle freecam", "c", function()
+da_trie.addOpt("devRoot", "freecam", "f", function()
     da_mode.toggle("freecam")
 end)
 ```
