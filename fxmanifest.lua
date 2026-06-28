@@ -44,15 +44,19 @@ client_scripts {
     'data/weapon.lua',
     'data/clothing.lua',
     'data/horse.lua',
+    'data/hunting.lua', -- Lowest priority
 
     'features/anim/anim_cl.lua',
     'features/util/util_cl.lua',
     'features/util/dataview.lua',
+    'features/event/event_cl_ctl.lua',
+    'features/event/event_cl.lua',
 
     'features/net/net_cl.lua',
     'features/lock/lock_cl.lua',
     'features/audio/audio_cl.lua',
     'features/chance/chance_cl.lua',
+    'features/condition/condition_cl.lua',
     'features/control/control_cl.lua',
     'features/draw/draw_cl.lua',
     'features/texture/texture_cl.lua',
@@ -62,6 +66,7 @@ client_scripts {
     'features/mode/mode_cl_ctl.lua',
     'features/mode/mode_cl.lua',
     'features/mode/mcp_cl.lua',
+    'features/mode/game/init_cl.lua',
     'features/move/move_cl.lua',
     'features/nui/nui_cl.lua',
     'features/trie/trie_cl.lua',
