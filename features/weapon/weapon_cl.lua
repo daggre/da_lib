@@ -205,7 +205,7 @@ end
 Weapon.has = function(weaponName)
     local weaponHash = resolveHash(weaponName)
     if not weaponHash then return false end
-    return HasPedGotWeapon(PlayerPedId(), weaponHash, 0, false)
+    return HasPedGotWeapon(PlayerPedId(), weaponHash, 0, false) == 1
 end
 
 -- ===================== AMMO — da_weapon.ammo.* =====================

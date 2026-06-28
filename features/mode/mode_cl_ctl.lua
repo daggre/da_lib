@@ -123,7 +123,9 @@ function ModeController:getModesSort()
     local gameModeActive = true
 
     for _, mode in pairs(self.modes) do
-        if mode.disableGame then gameModeActive = false end
+        -- Only an *active* disableGame mode suppresses the baseline Game keymaps;
+        -- a merely-registered (inactive) one must not, or game keys would never fire.
+        if mode.active and mode.disableGame then gameModeActive = false end
         table.insert(sortedModes, mode)
     end
     table.insert(sortedModes, {
