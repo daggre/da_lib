@@ -66,7 +66,6 @@ client_scripts {
     'features/mode/mode_cl_ctl.lua',
     'features/mode/mode_cl.lua',
     'features/mode/mcp_cl.lua',
-    'features/mode/game/init_cl.lua',
     'features/move/move_cl.lua',
     'features/nui/nui_cl.lua',
     'features/trie/trie_cl.lua',
@@ -79,4 +78,5 @@ client_scripts {
     -- API
     'features/api/api_sh.lua',
     'features/api/default/default_cl.lua',
+    'features/mode/game/init_cl.lua',
 }

@@ -208,6 +208,17 @@ Weapon.has = function(weaponName)
     return HasPedGotWeapon(PlayerPedId(), weaponHash, 0, false) == 1
 end
 
+Weapon.equipped = function(attachPoint)
+    attachPoint = attachPoint or 1
+    local _, weaponHash = GetCurrentPedWeapon(PlayerPedId(), true, 1, true)
+    return weaponHash
+end
+
+Weapon.unarmed = function()
+    return Weapon.equipped(1) == `weapon_unarmed`
+end
+
+
 -- ===================== AMMO — da_weapon.ammo.* =====================
 -- Grouped under da_weapon.ammo so calls read unambiguously: da_weapon.ammo.getSpare,
 -- not da_weapon.getSpare (which reads like a spare *weapon*).
