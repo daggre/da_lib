@@ -1,4 +1,7 @@
 if dat == nil then dat = {} end
+
+-- These are all the birds I should divide these into birds that are only
+-- plucked and birds that are harvested for organs and meat (animation)
 dat.bird = {
     "a_c_bat_01",
     "a_c_bluejay_01",
@@ -9,7 +12,6 @@ dat.bird = {
     "a_c_chicken_01",
     "a_c_cormorant_01",
     "a_c_cranewhooping_01",
-    "a_c_crawfish_01",
     "a_c_crow_01",
     "a_c_duck_01",
     "a_c_eagle_01",
@@ -42,42 +44,57 @@ dat.bird = {
     "a_c_woodpecker_02",
 }
 
-dat.fish = {
-    "a_c_fishbluegil_01_ms",
-    "a_c_fishbluegil_01_sm",
-    "a_c_fishbullheadcat_01_ms",
-    "a_c_fishbullheadcat_01_sm",
-    "a_c_fishchainpickerel_01_ms",
-    "a_c_fishchainpickerel_01_sm",
-    "a_c_fishchannelcatfish_01_lg",
-    "a_c_fishchannelcatfish_01_xl",
-    "a_c_fishlakesturgeon_01_lg",
-    "a_c_fishlargemouthbass_01_lg",
-    "a_c_fishlargemouthbass_01_ms",
-    "a_c_fishlongnosegar_01_lg",
-    "a_c_fishmuskie_01_lg",
-    "a_c_fishnorthernpike_01_lg",
-    "a_c_fishperch_01_ms",
-    "a_c_fishperch_01_sm",
-    "a_c_fishrainbowtrout_01_lg",
-    "a_c_fishrainbowtrout_01_ms",
-    "a_c_fishredfinpickerel_01_ms",
-    "a_c_fishredfinpickerel_01_sm",
-    "a_c_fishrockbass_01_ms",
-    "a_c_fishrockbass_01_sm",
-    "a_c_fishsalmonsockeye_01_lg",
-    "a_c_fishsalmonsockeye_01_ml",
-    "a_c_fishsalmonsockeye_01_ms",
-    "a_c_fishsmallmouthbass_01_lg",
-    "a_c_fishsmallmouthbass_01_ms",
-    "a_c_sharkhammerhead_01",
-    "a_c_sharktiger",
-    "a_c_turtlesea_01",
+-- I need to confirm this, when looted these models are plucked
+dat.plucked = {
+    "a_c_bluejay_01",
+    "a_c_californiacondor_01",
+    "a_c_cardinal_01",
+    "a_c_carolinaparakeet_01",
+    "a_c_cedarwaxwing_01",
+    "a_c_cormorant_01",
+    "a_c_cranewhooping_01",
+    "a_c_crow_01",
+    "a_c_eagle_01",
+    "a_c_egret_01",
+    "a_c_hawk_01",
+    "a_c_heron_01",
+    "a_c_loon_01",
+    "a_c_oriole_01",
+    "a_c_owl_01",
+    "a_c_parrot_01",
+    "a_c_pelican_01",
+    "a_c_pigeon",
+    "a_c_quail_01",
+    "a_c_raven_01",
+    "a_c_redfootedbooby_01",
+    "a_c_robin_01",
+    "a_c_rooster_01",
+    "a_c_roseatespoonbill_01",
+    "a_c_seagull_01",
+    "a_c_songbird_01",
+    "a_c_sparrow_01",
+    "a_c_vulture_01",
+    "a_c_woodpecker_01",
+    "a_c_woodpecker_02",
 }
 
+-- I need to confirm this, when looted these models are opened up and meat is harvested
+dat.birdMeat = {
+    "a_c_chicken_01",
+    "a_c_duck_01",
+    "a_c_goosecanada_01",
+    "a_c_pheasant_01",
+    "a_c_prairiechicken_01",
+    "a_c_turkey_01",
+    "a_c_turkey_02",
+    "a_c_turkeywild_01",
+}
+
+-- Thse animals are stuffed into a pouch as soon as they are picked up, unskinnable
 dat.smallAnimal = {
     "a_c_chipmunk_01",
     "a_c_crab_01",
+    "a_c_crawfish_01",
     "a_c_frogbull_01",
     "a_c_muskrat_01",
     "a_c_rat_01",
@@ -85,6 +102,7 @@ dat.smallAnimal = {
     "a_c_toad_01",
 }
 
+-- These are domestic animals (pets), may want to treat them differently for hunting
 dat.domestic = {
     "a_c_cat_01",
     "a_c_dogamericanfoxhound_01",
@@ -104,6 +122,51 @@ dat.domestic = {
     "a_c_donkey_01",
 }
 
+-- These are animals that are stowed on each side of the saddle (2 slots)
+dat.stowSaddle = {
+    "a_c_californiacondor_01",
+    "a_c_chicken_01",
+    "a_c_cormorant_01",
+    "a_c_cranewhooping_01",
+    "a_c_duck_01",
+    "a_c_eagle_01",
+    "a_c_egret_01",
+    "a_c_goosecanada_01",
+    "a_c_hawk_01",
+    "a_c_heron_01",
+    "a_c_loon_01",
+    "a_c_owl_01",
+    "a_c_parrot_01",
+    "a_c_pelican_01",
+    "a_c_pheasant_01",
+    "a_c_prairiechicken_01",
+    "a_c_quail_01",
+    "a_c_raven_01",
+    "a_c_rooster_01",
+    "a_c_roseatespoonbill_01",
+    "a_c_seagull_01",
+    "a_c_turkey_01",
+    "a_c_turkey_02",
+    "a_c_turkeywild_01",
+    "a_c_vulture_01",
+    "a_c_woodpecker_01",
+    "a_c_woodpecker_02",
+
+    "a_c_badger_01",
+    "a_c_possum_01",
+    "a_c_rabbit_01",
+    "a_c_raccoon_01",
+    "a_c_skunk_01",
+    "a_c_snake_01",
+    "a_c_snake_pelt_01",
+    "a_c_snakeblacktailrattle_01",
+    "a_c_snakeferdelance_01",
+    "a_c_snakeredboa10ft_01",
+    "a_c_snakeredboa_01",
+    "a_c_snakewater_01",
+}
+
+-- These animals are carriable and skinnable
 dat.skinnable = {
     "a_c_alligator_01",
     "a_c_alligator_02",
@@ -159,6 +222,7 @@ dat.skinnable = {
     "a_c_wolf_small",
 }
 
+-- These animals are not able to be carried, but can be skinned for a carriable pelt
 dat.largeAnimal = {
     "a_c_alligator_01",
     "a_c_alligator_02",
@@ -180,8 +244,21 @@ dat.largeAnimal = {
     "a_c_pig_01",
 }
 
-dat.pelts = {
+-- These pelts are large and are attached on the back of the horse, not draped in pelt slots
+dat.largePelts = {
     "p_cs_pelt_elklegendary",
+    "p_cs_pelt_xlarge",
+    "p_cs_pelt_xlarge_alligator",
+    "p_cs_pelt_xlarge_bear",
+    "p_cs_pelt_xlarge_bearlegendary",
+    "p_cs_pelt_xlarge_buffalo",
+    "p_cs_pelt_xlarge_elk",
+    "p_cs_pelt_xlarge_tbuffalo",
+    "p_cs_pelt_xlarge_wbuffalo",
+}
+
+-- These pelts are either carried in a pouch or are draped across the horse in pelt slots
+dat.pelts = {
     "p_cs_pelt_large",
     "p_cs_pelt_med_armadillo",
     "p_cs_pelt_med_badger",
@@ -196,36 +273,38 @@ dat.pelts = {
     "p_cs_pelt_wolf",
     "p_cs_pelt_wolf_roll",
     "p_cs_pelt_ws_alligator",
-    "p_cs_pelt_xlarge",
-    "p_cs_pelt_xlarge_alligator",
-    "p_cs_pelt_xlarge_bear",
-    "p_cs_pelt_xlarge_bearlegendary",
-    "p_cs_pelt_xlarge_buffalo",
-    "p_cs_pelt_xlarge_elk",
-    "p_cs_pelt_xlarge_tbuffalo",
-    "p_cs_pelt_xlarge_wbuffalo",
 }
 
-if dat.lookup == nil then dat.lookup = {} end
-dat.lookup.skinnable = {}
-dat.skinnableHash = {}
-for _, name in ipairs(dat.skinnable) do
-    local hash = GetHashKey(name)
-    dat.lookup.skinnable[hash] = name
-    table.insert(dat.skinnableHash, hash)
-end
+dat.fish = {
+    "a_c_fishbluegil_01_ms",
+    "a_c_fishbluegil_01_sm",
+    "a_c_fishbullheadcat_01_ms",
+    "a_c_fishbullheadcat_01_sm",
+    "a_c_fishchainpickerel_01_ms",
+    "a_c_fishchainpickerel_01_sm",
+    "a_c_fishchannelcatfish_01_lg",
+    "a_c_fishchannelcatfish_01_xl",
+    "a_c_fishlakesturgeon_01_lg",
+    "a_c_fishlargemouthbass_01_lg",
+    "a_c_fishlargemouthbass_01_ms",
+    "a_c_fishlongnosegar_01_lg",
+    "a_c_fishmuskie_01_lg",
+    "a_c_fishnorthernpike_01_lg",
+    "a_c_fishperch_01_ms",
+    "a_c_fishperch_01_sm",
+    "a_c_fishrainbowtrout_01_lg",
+    "a_c_fishrainbowtrout_01_ms",
+    "a_c_fishredfinpickerel_01_ms",
+    "a_c_fishredfinpickerel_01_sm",
+    "a_c_fishrockbass_01_ms",
+    "a_c_fishrockbass_01_sm",
+    "a_c_fishsalmonsockeye_01_lg",
+    "a_c_fishsalmonsockeye_01_ml",
+    "a_c_fishsalmonsockeye_01_ms",
+    "a_c_fishsmallmouthbass_01_lg",
+    "a_c_fishsmallmouthbass_01_ms",
+    "a_c_sharkhammerhead_01",
+    "a_c_sharktiger",
+    "a_c_turtlesea_01",
+}
 
-dat.peltsHash = {}
-for _, name in ipairs(dat.pelts) do
-    table.insert(dat.peltsHash, GetHashKey(name))
-end
-
-dat.carriableHash = {}
-for _, category in ipairs({
-    dat.skinnable, dat.smallAnimal, dat.bird, dat.fish, dat.domestic,
-}) do
-    for _, name in ipairs(category) do
-        local hash = GetHashKey(name)
-        table.insert(dat.carriableHash, hash)
-    end
-end
