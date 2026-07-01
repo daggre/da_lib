@@ -244,6 +244,33 @@ dat.largeAnimal = {
     "a_c_pig_01",
 }
 
+-- Whole carcasses you shoulder and place on the rear seat of the horse (the
+-- carriable-entity transport path, GET_CARRIABLE_ENTITY_STATE / rear-seat Stow).
+-- HAND-CURATED — not derived from the other lists. Seeded with the medium animals
+-- (skinnable that are neither largeAnimal nor stowSaddle); adjust by hand. Small
+-- animals that ride in a saddle-side slot live in dat.stowSaddle, the un-carriable
+-- big game in dat.largeAnimal.
+dat.carriable = {
+    "a_c_beaver_01",
+    "a_c_bighornram_01",
+    "a_c_buck_01",
+    "a_c_cougar_01",
+    "a_c_coyote_01",
+    "a_c_deer_01",
+    "a_c_fox_01",
+    "a_c_gilamonster_01",
+    "a_c_goat_01",
+    "a_c_iguana_01",
+    "a_c_iguanadesert_01",
+    "a_c_panther_01",
+    "a_c_pronghorn_01",
+    "a_c_sheep_01",
+    "a_c_turtlesnapping_01",
+    "a_c_wolf",
+    "a_c_wolf_medium",
+    "a_c_wolf_small",
+}
+
 -- These pelts are large and are attached on the back of the horse, not draped in pelt slots
 dat.largePelts = {
     "p_cs_pelt_elklegendary",
@@ -308,3 +335,48 @@ dat.fish = {
     "a_c_turtlesea_01",
 }
 
+-- ============================ hash tables ============================
+-- AddInteract (da_xinteracts) keys interacts on model HASHES and accepts a table
+-- of them, so every list above also needs a parallel hash form. For each list
+-- dat.<name> we generate:
+--   dat.<name>Hash  - array of GetHashKey(name), pass straight to AddInteract
+--   dat.<name>Set   - set keyed by hash -> name, for O(1) "is this model an X?"
+-- Model names already resolve through dat.getName (animals via dat.ped, pelt props
+-- via dat.object), so we don't register a getName lookup here.
+local huntingLists = {
+    "bird", "plucked", "birdMeat", "smallAnimal", "domestic",
+    "stowSaddle", "skinnable", "largeAnimal", "carriable",
+    "largePelts", "pelts", "fish",
+}
+
+for _, key in ipairs(huntingLists) do
+    local names = dat[key]
+    local hashes, set = {}, {}
+    for _, name in ipairs(names) do
+        local h = GetHashKey(name)
+        hashes[#hashes + 1] = h
+        set[h] = name
+    end
+    dat[key .. "Hash"] = hashes
+    dat[key .. "Set"] = set
+end
+
+-- ============================ harvest yields ============================
+-- The inventory item a model grants when harvested (small animal pouched, bird
+-- plucked/butchered, gather prop). Skinning is NOT here: a skinned pelt is a
+-- carriable ENTITY, not an inventory item.
+--
+-- dat.huntItem maps a model NAME to the real inventory item name your framework
+-- expects. It's intentionally empty — fill it in. Until a model is mapped,
+-- dat.itemFor falls back to a name DERIVED from the model ("a_c_squirrel_01" ->
+-- "squirrel"), which is a readable placeholder, not a guaranteed-real item id.
+dat.huntItem = dat.huntItem or {}
+
+-- Resolve the inventory item for a model (hash or name). Override wins; otherwise
+-- derive: drop the "a_c_" prefix and a trailing "_NN" index.
+dat.itemFor = function(model)
+    local name = dat.getName(model) or model
+    if type(name) ~= "string" then return nil end
+    if dat.huntItem[name] then return dat.huntItem[name] end
+    return (name:gsub("^a_c_", ""):gsub("_%d+$", ""))
+end

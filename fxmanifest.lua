@@ -34,6 +34,7 @@ client_scripts {
     'data/flags_aik.lua',
     'data/animation.lua',
     'data/bones.lua',
+    'data/control.lua',
     'data/key.lua',
     'data/object.lua',
     'data/ped.lua',
