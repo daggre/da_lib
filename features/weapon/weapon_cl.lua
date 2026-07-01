@@ -209,13 +209,13 @@ Weapon.has = function(weaponName)
 end
 
 Weapon.equipped = function(attachPoint)
-    attachPoint = attachPoint or 1
-    local _, weaponHash = GetCurrentPedWeapon(PlayerPedId(), true, 1, true)
+    attachPoint = attachPoint or 0
+    local _, weaponHash = GetCurrentPedWeapon(PlayerPedId(), true, attachPoint, true)
     return weaponHash
 end
 
 Weapon.unarmed = function()
-    return Weapon.equipped(1) == `weapon_unarmed`
+    return Weapon.equipped(0) == `weapon_unarmed`
 end
 
 
