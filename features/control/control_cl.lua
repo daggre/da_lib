@@ -104,6 +104,22 @@ Control.isLongPressed = function(key, ms)
     return ControlPressed[key] and GetGameTimer() > ControlPressed[key] + ms
 end
 
+Control.trackLongPress = function(key, holdCallback, ms)
+    ms = ms or DefaultLongPressMS
+    Citizen.CreateThread(function()
+        local deadline = GetGameTimer() + ms
+        while GetGameTimer() < deadline do
+            if not Control.isPressed({key})[key] then
+                log.debug("trackLongPress: released before threshold", key)
+                return
+            end
+            Citizen.Wait(0)
+        end
+        log.debug("trackLongPress: threshold reached, firing", key)
+        if holdCallback then holdCallback(); end
+    end)
+end
+
 Control.trackShortPress = function(key, releaseCallback, ms)
     ms = ms or DefaultLongPressMS -- 100ms
     local keyPressedTimeout = GetGameTimer() + ms

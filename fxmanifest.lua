@@ -63,6 +63,7 @@ client_scripts {
     'features/texture/texture_cl.lua',
     'features/epoch/epoch_cl.lua',
     'features/fx/fx_cl.lua',
+    'features/hud/cores_cl.lua',
     'features/object/object_cl.lua',
     'features/mode/mode_cl_ctl.lua',
     'features/mode/mode_cl.lua',
