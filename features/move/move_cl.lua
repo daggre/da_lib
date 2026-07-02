@@ -27,4 +27,20 @@ Move.to = function(ped, coords, timeout, forceCoords, speed, slideDistance)
     end
 end
 
+Move.toEntity = function(ped, target, distance, timeout, speed)
+    speed = speed or 1.0
+    timeout = timeout or 5000
+    distance = distance or 1.0
+    TaskGoToEntity(ped, target, timeout, distance, speed, 1, 1)
+    local t = GetGameTimer() + timeout
+    local p = GetEntityCoords(ped)
+    local q = GetEntityCoords(target)
+    while #(p-q) > distance or GetGameTimer() > t do
+        Citizen.Wait(10)
+        p = GetEntityCoords(ped)
+        q = GetEntityCoords(target)
+    end
+
+end
+
 _ENV.da_move = Move
