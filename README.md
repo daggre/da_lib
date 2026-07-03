@@ -67,10 +67,6 @@ da_anim.ped(PlayerPedId(), "ai@react@point@base", "point_fwd", 3.0, 0.5, -1, 0)
 
 See [docs/README.md](docs/README.md) for the full feature module reference and [docs/getting-started.md](docs/getting-started.md) for detailed usage examples.
 
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
-
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for code style and contribution guidelines.
