@@ -70,6 +70,7 @@ client_scripts {
     'features/mode/mcp_cl.lua',
     'features/move/move_cl.lua',
     'features/nui/nui_cl.lua',
+    'features/raycast/raycast_cl.lua',
     'features/trie/trie_cl.lua',
     'features/weapon/weapon_cl.lua',
     'features/clothing/clothing_cl.lua',
