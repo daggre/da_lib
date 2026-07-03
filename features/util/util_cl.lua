@@ -117,6 +117,28 @@ Util.GetVehiclesNearPoint = function(coords, radius, filter)
     return entities
 end
 
+Util.GetClosestPedNearPoint = function(coords, radius, filter)
+    local closestEntity = nil
+    local closestDist = radius
+    local itemset = CreateItemset(true)
+    local size = Citizen.InvokeNative(0x59B57C4B06531E1E, coords.xyz, radius+0.0, itemset, 1, Citizen.ResultAsInteger()) -- GetEntitiesNearPoint
+    for i = 0, size - 1 do
+        local entity = GetIndexedItemInItemset(i, itemset)
+        if not filter or filter(entity) then
+            local entityCoords = GetEntityCoords(entity)
+            local distance = #(coords - entityCoords)
+            if distance < closestDist then
+                closestEntity = entity
+                closestDist = distance
+            end
+        end
+    end
+    if IsItemsetValid(itemset) then
+        DestroyItemset(itemset)
+    end
+    return closestEntity
+end
+
 ---Get a ground position in front of a set of coordinates
 ---@param coords table The coordinates to search from
 ---@param dist number The distance forward to search
