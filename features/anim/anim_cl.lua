@@ -13,17 +13,25 @@ end
 
 local anim = {}
 
-anim.ped = function(entity, dict, name, blendIn, blendOut, duration, flags, rate, ikFlags, taskFilter)
-    blendIn = tonumber(blendIn) or 3.0
-    blendOut = tonumber(blendOut) or 0.5
-    duration = tonumber(duration) or -1
-    flags = tonumber(flags) or 0
-    rate = tonumber(rate) or 0
-    local p8 = false
-    ikFlags = tonumber(ikFlags) or 0
-    local p10 = false
-    taskFilter = taskFilter ~= nil and taskFilter or false
-    local p12 = false
+-- opts (all optional): {
+--   blendIn  = 3.0,   -- blend-in speed
+--   blendOut = 0.5,   -- blend-out speed
+--   duration = -1,    -- ms, -1 = play to natural end
+--   flags    = 0,     -- animation flags bitfield
+--   rate     = 0,     -- playback rate
+--   ikFlags  = 0,     -- IK flags bitfield
+--   filter   = false, -- task filter name (e.g. "headandneckonly_filter")
+-- }
+anim.ped = function(entity, dict, name, opts)
+    opts = opts or {}
+    local blendIn  = tonumber(opts.blendIn)  or 3.0
+    local blendOut = tonumber(opts.blendOut) or 0.5
+    local duration = tonumber(opts.duration) or -1
+    local flags    = tonumber(opts.flags)    or 0
+    local rate     = tonumber(opts.rate)     or 0
+    local ikFlags  = tonumber(opts.ikFlags)  or 0
+    local filter   = opts.filter ~= nil and opts.filter or false
+    local p8, p10, p12 = false, false, false
 
     log.spam("Playing ped anim:", {
         entity = entity,
@@ -35,11 +43,11 @@ anim.ped = function(entity, dict, name, blendIn, blendOut, duration, flags, rate
         flags = flags,
         rate = rate,
         ikFlags = ikFlags,
-        taskFilter = taskFilter
+        filter = filter
     })
     LoadAnimDict(dict)
     -- ClearPedSecondaryTask(entity)
-    TaskPlayAnim(entity, dict, name, blendIn, blendOut, duration, flags, rate, p8, ikFlags, p10, taskFilter, p12)
+    TaskPlayAnim(entity, dict, name, blendIn, blendOut, duration, flags, rate, p8, ikFlags, p10, filter, p12)
     RemoveAnimDict(dict)
 end
 
