@@ -83,3 +83,7 @@ client_scripts {
     'features/api/default/default_cl.lua',
     'features/mode/game/init_cl.lua',
 }
+
+dependencies {
+    'da_log',
+}
