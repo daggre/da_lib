@@ -26,10 +26,22 @@ function ModeController:primaryModeName()
     return primary and primary.name or nil
 end
 
+function ModeController:assertModeFormat(m)
+    assert(m.name ~= nil, "Mode missing name")
+    assert(m.priority == nil or tonumber(m.priority), ("Failed to register mode '%s': Invalid priority"):format(m.name))
+    if m.keymaps ~= nil then
+        for _, km in ipairs(m.keymaps) do
+            assert(type(km.key) == "string" and dat.keyHash[km.key] ~= nil, ("Failed to register mode '%s': Invalid keymap %s"):format(m.name, km))
+            assert(type(km.event) == "string" and ModeController.keyEventMap[km.event] ~= nil, ("Failed to register mode '%s': Invalid key event %s"):format(m.name, km))
+        end
+    end
+end
+
 function ModeController:registerMode(modeDefinition)
     if not modeDefinition then log.error("Mode definition required") return; end
     local modeName = modeDefinition.name
     if not modeName then log.error("Mode must have a name") return; end
+    ModeController:assertModeFormat(modeDefinition)
     self.modes[modeName] = modeDefinition
     log.debug("Mode registered: " .. modeName)
     self:cacheInputEventChecks()

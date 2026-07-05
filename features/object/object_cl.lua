@@ -171,7 +171,9 @@ end
 object.create = function(hash, pos, opts, objType)
     local handle = nil
     objType = objType or object.getType(hash)
-    if objType == nil or objType == "object" then
+    -- "other" = models contributed by other resources (e.g. da_props streams);
+    -- they're plain map objects, so spawn them through the object path.
+    if objType == nil or objType == "object" or objType == "other" then
         handle = object.createObj(hash, pos, opts)
     elseif objType == "ped" then
         handle = object.createPed(hash, pos, opts)
