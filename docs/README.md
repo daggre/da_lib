@@ -67,7 +67,3 @@ Features are imported individually via `fxmanifest.lua` includes. Each file crea
 ## Contributing
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for code style and pull request guidelines.
-
-## License
-
-MIT License — see [LICENSE](../LICENSE) for details.
