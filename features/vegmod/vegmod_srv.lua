@@ -67,4 +67,16 @@ AddEventHandler("da_vegmod:sync:server", function(resource, handle, coords, opts
     })
 end)
 
+-- Late-join catch-up: replay every sphere placed for `resource` to just the
+-- requesting client. Its sync:client handler spawns the ones it's missing.
+RegisterServerEvent("da_vegmod:request:server")
+AddEventHandler("da_vegmod:request:server", function(resource)
+    local src = source
+    for uid, entry in pairs(Vegmod.Server) do
+        if entry.resource == resource then
+            TriggerClientEvent("da_vegmod:sync:client", src, entry.resource, entry.src, uid, entry.handle, entry.coords, entry.opts)
+        end
+    end
+end)
+
 _ENV.da_vegmod = Vegmod

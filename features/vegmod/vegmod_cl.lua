@@ -107,6 +107,7 @@ end
 RegisterNetEvent("da_vegmod:sync:client")
 AddEventHandler("da_vegmod:sync:client", function(res, source, uid, handle, coords, opts)
     if res ~= Vegmod.Resource then return end
+    if Vegmod.Server[uid] then return end -- already have this uid (duplicate / catch-up replay)
     log.spam({
         sid = source,
         uid = uid,
@@ -133,6 +134,20 @@ RegisterNetEvent("da_vegmod:remove:client")
 AddEventHandler("da_vegmod:remove:client", function(res, uid)
     if res ~= Vegmod.Resource then return end
     removeByUid(uid)
+end)
+
+-- Ask the server for every sphere already placed for this resource; the server
+-- replays them via da_vegmod:sync:client and we spawn the ones we're missing.
+Vegmod.request = function()
+    TriggerServerEvent("da_vegmod:request:server", Vegmod.Resource)
+end
+
+-- Late-join / resource-restart catch-up. Self-contained (no da_game dependency)
+-- so any resource that includes da_vegmod syncs on its own. Fires once we're in
+-- the session; on a mid-game restart NetworkIsPlayerActive is already true.
+Citizen.CreateThread(function()
+    while NetworkIsPlayerActive(PlayerId()) ~= 1 do Citizen.Wait(250) end
+    Vegmod.request()
 end)
 
 _ENV.da_vegmod = Vegmod
