@@ -16,6 +16,10 @@ Hud.Icon = {
     ALWAYS_BLINK = 3,
 }
 
+for i, c in ipairs(Hud.Icon.VisibilityIndex) do
+    Hud.Icon[c] = i-1
+end
+
 Hud.Icon.Set = function(index, value)
     UitutorialSetRpgIconVisibility(index, value)
 end
