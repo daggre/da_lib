@@ -77,3 +77,24 @@ Net.events = function(events)
 end
 
 _ENV.da_net = Net
+
+
+-- ServerId (aka source)
+-- MyClient     -- GetPlayerServerId(PlayerId())
+-- OtherClient  -- GetPlayerServerId(NetworkGetPlayerIndexFromPed(<entity>))
+-- Server       -- source
+
+-- NetId (aka the thing in square brackets)
+-- MyClient     -- NetworkGetNetworkIdFromEntity(PlayerPedId())
+-- OtherClient  -- NetworkGetNetworkIdFromEntity(<entity>)
+-- Server       -- NA?
+
+-- PlayerId (aka the thing in squirly {16}, aka Player Index)
+-- MyClient     -- PlayerId()
+-- OtherClient  -- NA
+-- Server       -- NA
+
+-- Entity (6 digit number correspondign to clientside object)
+-- MyClient     -- PlayerPedId()
+-- OtherClient  -- NetworkGetEntityFromNetworkId(<netid>)
+-- Server       -- NA?
