@@ -21,6 +21,7 @@ server_scripts {
     'features/lock/lock_srv_ctl.lua',
     'features/epoch/epoch_srv_ctl.lua',
     'features/audio/audio_srv_ctl.lua',
+    'features/vegmod/vegmod_srv.lua',
 
     -- API
     'features/api/api_sh.lua',
@@ -76,6 +77,7 @@ client_scripts {
     'features/clothing/clothing_cl.lua',
     'features/horse/horse_cl.lua',
     'features/camera/camera_cl.lua',
+    'features/vegmod/vegmod_cl.lua',
     'features/kvp/kvp_cl_ctl.lua',
 
     -- API
