@@ -44,8 +44,10 @@ client_scripts {
     'data/taskFilter.lua',
     'data/vehicle.lua',
     'data/weapon.lua',
+    'data/animal.lua',
     'data/clothing.lua',
     'data/horse.lua',
+    'data/interact.lua',
     'data/hunting.lua', -- Lowest priority
 
     'features/anim/anim_cl.lua',
@@ -66,9 +68,12 @@ client_scripts {
     'features/fx/fx_cl.lua',
     'features/hud/cores_cl.lua',
     'features/object/object_cl.lua',
+    'features/object/bone_transform_cl.lua',
     'features/mode/mode_cl_ctl.lua',
     'features/mode/mode_cl.lua',
     'features/mode/mcp_cl.lua',
+    'features/interact/interact_cl_ctl.lua',
+    'features/interact/interact_cl.lua',
     'features/move/move_cl.lua',
     'features/nui/nui_cl.lua',
     'features/raycast/raycast_cl.lua',

@@ -108,6 +108,15 @@ FW.listTack = function()
     return slots
 end
 
+-- Item metadata is written on the SERVER — the inventory lives there — so the CLIENT side of this
+-- call is the transport event, not a framework decision. It belongs here because Default is what
+-- every adapter falls back to, and without it `API.setItemMetadata` is simply nil on the client:
+-- there is a `da_lib:setItemMetadata` handler on the server waiting for a message nobody sends.
+-- (Found porting the canteen, whose whole job is writing a water level back onto an item.)
+FW.setItemMetadata = function(itemData, metadata)
+    TriggerServerEvent("da_lib:setItemMetadata", itemData, metadata)
+end
+
 -- No-op (info goes nowhere without a framework) --
 FW.addItem = function(itemName, amount) return nil end
 FW.eat = function(amount) return nil end
