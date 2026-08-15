@@ -45,10 +45,22 @@ anim.ped = function(entity, dict, name, opts)
         ikFlags = ikFlags,
         filter = filter
     })
+    -- Release only what THIS call asked the streamer for.
+    --
+    -- `RemoveAnimDict` was unconditional, so playing two anims from one dict released it TWICE while
+    -- only requesting it once — the second call hands back a dict somebody else is still holding. The
+    -- symptom is the second row of a shared dict: it looks like the animation is stopped rather than
+    -- played, because the clip it needs has been marked reclaimable underneath a live task, and a
+    -- looping full-body row is exactly the case where that shows.
+    --
+    -- A dict that was ALREADY loaded when we got here belongs to whoever loaded it (da_anims preloads
+    -- every dict a state will use, and holds them for the life of the run) — releasing theirs is what
+    -- caused the bug, so this call now leaves it alone.
+    local wasLoaded = HasAnimDictLoaded(dict)
     LoadAnimDict(dict)
     -- ClearPedSecondaryTask(entity)
     TaskPlayAnim(entity, dict, name, blendIn, blendOut, duration, flags, rate, p8, ikFlags, p10, filter, p12)
-    RemoveAnimDict(dict)
+    if not wasLoaded then RemoveAnimDict(dict) end
 end
 
 anim.object = function(entity, dict, name, p3, loop, stayInAnim, p6, delta, bitset)
