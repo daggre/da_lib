@@ -74,3 +74,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for code style and contribution guideline
 ## Credits
 
 Developed by daggre_actual
+
+## License
+
+[MIT](LICENSE) © daggre_actual
