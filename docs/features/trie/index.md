@@ -43,6 +43,15 @@ da_trie.addOpt(parent, name, key, function, condition)
 - `condition` (function, optional): Function that returns boolean to determine if option should be shown
 - **Returns** (boolean): Whether the option was successfully added
 
+```lua
+da_trie.removeOpt(parent, name)
+```
+- `parent` (string): Name of the parent menu
+- `name` (string): Name of the option to remove
+- **Returns** (boolean): Whether an option was removed
+- `add`/`addOpt` only ever overwrite by name; this is the one way to take an option back out — used
+  when an entry's owning resource stops (see [devmenu](../devmenu/index.md))
+
 ### Menu Retrieval
 
 ```lua

@@ -60,6 +60,15 @@ Trie.addOpt = function(parent, name, key, fn, condition, label)
     return true
 end
 
+-- Drop a single option. `add`/`addOpt` only ever overwrite by name, so without this an option can
+-- never be taken back out — which is what a menu entry owned by another resource needs when that
+-- resource stops.
+Trie.removeOpt = function(parent, name)
+    if not Option[parent] or not Option[parent][name] then return false end
+    Option[parent][name] = nil
+    return true
+end
+
 -- Drop a whole subtree — the node, its options, and every descendant. Used when a resource rebuilds
 -- its menu from scratch.
 --

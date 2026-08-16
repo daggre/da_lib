@@ -29,6 +29,7 @@ Features are imported individually via `fxmanifest.lua` includes. Each file crea
 | Audio | `features/audio/audio_cl.lua` | `da_audio` | [audio](features/audio/index.md) |
 | Chance | `features/chance/chance_cl.lua` | `da_chance` | [chance](features/chance/index.md) |
 | Control | `features/control/control_cl.lua` | `da_control`, `da_controlpass` | [control](features/control/index.md) |
+| Dev menu | `features/devmenu/devmenu_cl.lua` | `da_devmenu` | [devmenu](features/devmenu/index.md) |
 | Draw | `features/draw/draw_cl.lua` | `DrawSphere`, `DrawLine`, `DrawText`, etc. | [draw](features/draw/index.md) |
 | Epoch | `features/epoch/epoch_cl.lua` | `epoch` | [epoch](features/epoch/index.md) |
 | FX | `features/fx/fx_cl.lua` | `fx` | [fx](features/fx/index.md) |

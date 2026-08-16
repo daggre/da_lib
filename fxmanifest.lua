@@ -78,6 +78,7 @@ client_scripts {
     'features/nui/nui_cl.lua',
     'features/raycast/raycast_cl.lua',
     'features/trie/trie_cl.lua',
+    'features/devmenu/devmenu_cl.lua',
     'features/weapon/weapon_cl.lua',
     'features/clothing/clothing_cl.lua',
     'features/horse/horse_cl.lua',
