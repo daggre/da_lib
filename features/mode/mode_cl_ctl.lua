@@ -74,6 +74,9 @@ end
 function ModeController:unregisterMode(modeName)
     self.modes[modeName] = nil
     log.debug("Mode unregistered: " .. modeName)
+    -- Symmetric with registerMode. Without it an INACTIVE mode's keymaps outlived the mode itself
+    -- in the dispatch cache — deactivateMode is what normally rebuilds, and it never ran.
+    self:cacheInputEventChecks()
 end
 
 function ModeController:activateMode(modeName)
@@ -471,14 +474,28 @@ exports("clearGameKeys", function()
 end)
 
 AddEventHandler("onResourceStop", function(resourceName)
-    -- Remove any Game keymaps associated with resource
+    -- Remove any Game keymaps associated with resource.
+    --
+    -- BACKWARDS, like clearGameKeys above, and for the reason that export was written that way:
+    -- table.remove slides every later element down one, so a forward ipairs walk then steps over
+    -- whatever moved into the slot it just emptied. One keymap per key survived each stop —
+    -- holding a function reference into a script host that no longer exists. Registering fresh
+    -- ones on restart stacked a new pair on top of the corpse, and the next press dispatched it:
+    --
+    --     SCRIPT ERROR: Execution of function reference in script host failed:
+    --
+    -- with nothing before it, because there was no live code left to raise a Lua error. Clean on a
+    -- cold boot, broken after a couple of restarts, and the resource named is never the one at
+    -- fault. Any resource binding TWO maps to one key hit it (da_anims binds X twice — plain and
+    -- ALT), and the survivor was un-droppable: the next stop skipped it the same way.
     for key, keymaps in pairs(GameKeymaps) do
-        for i, keymap in ipairs(keymaps) do
-            if keymap.resource == resourceName then
-                log.spam("Removing resource keymap", resourceName, key, keymap)
-                table.remove(GameKeymaps[key], i)
+        for i = #keymaps, 1, -1 do
+            if keymaps[i].resource == resourceName then
+                log.spam("Removing resource keymap", resourceName, key, keymaps[i])
+                table.remove(keymaps, i)
             end
         end
+        if not next(keymaps) then GameKeymaps[key] = nil end
     end
     -- Deactivate and unregister resource that stopped
     for modeName, mode in pairs(ModeController.modes) do
@@ -491,6 +508,11 @@ AddEventHandler("onResourceStop", function(resourceName)
             ModeController:unregisterMode(modeName)
         end
     end
+
+    -- The dispatch cache holds its OWN records, so dropping a keymap from the registry above
+    -- changes nothing until the cache is rebuilt. Unconditional: deactivateMode rebuilds only
+    -- when the mode was active, and a game keymap is not a mode at all.
+    ModeController:cacheInputEventChecks()
 end)
 
 cli.add_cmd("mode", { desc = "Object commands" })
