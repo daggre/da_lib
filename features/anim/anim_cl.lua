@@ -13,6 +13,32 @@ end
 
 local anim = {}
 
+-- Lua 5.4 keeps integers and floats apart, and the native invoker passes each one through as the
+-- type it was given. A FLOAT parameter handed an integer is not the same number to the game: a
+-- blendIn of `1` does not play the blend `1.0` plays, and nothing errors — it just looks wrong.
+-- That's the whole reason `1.01` behaved and `1` didn't.
+--
+-- Everything reaching here has crossed a boundary that loses the distinction: NUI hands over JSON
+-- (`1.0` encodes as `1`), a contenteditable field hands over the string "1", and `tonumber("1")`
+-- returns an INTEGER. So a value is not trustworthy just because it was a float where it was
+-- authored — it has to be re-floated at the call site.
+--
+-- `+ 0.0` is the house spelling for "this is a float" (see da_lib camera/object).
+local flt = function(v, default)
+    local n = tonumber(v)
+    if n == nil then return default end
+    return n + 0.0
+end
+
+-- The mirror case: durations, flags and bitfields are INTEGER parameters, and a UI field that
+-- picked up a stray `.0` (or a computed millisecond value that came out float) is the same class of
+-- silent mismatch in the other direction.
+local int = function(v, default)
+    local n = tonumber(v)
+    if n == nil then return default end
+    return math.tointeger(n) or math.tointeger(math.floor(n)) or default
+end
+
 -- opts (all optional): {
 --   blendIn  = 3.0,   -- blend-in speed
 --   blendOut = 0.5,   -- blend-out speed
@@ -24,12 +50,12 @@ local anim = {}
 -- }
 anim.ped = function(entity, dict, name, opts)
     opts = opts or {}
-    local blendIn  = tonumber(opts.blendIn)  or 3.0
-    local blendOut = tonumber(opts.blendOut) or 0.5
-    local duration = tonumber(opts.duration) or -1
-    local flags    = tonumber(opts.flags)    or 0
-    local rate     = tonumber(opts.rate)     or 0
-    local ikFlags  = tonumber(opts.ikFlags)  or 0
+    local blendIn  = flt(opts.blendIn,  3.0)
+    local blendOut = flt(opts.blendOut, 0.5)
+    local duration = int(opts.duration, -1)
+    local flags    = int(opts.flags,     0)
+    local rate     = flt(opts.rate,      0.0)
+    local ikFlags  = int(opts.ikFlags,   0)
     local filter   = opts.filter ~= nil and opts.filter or false
     local p8, p10, p12 = false, false, false
 
@@ -65,10 +91,12 @@ end
 
 anim.object = function(entity, dict, name, p3, loop, stayInAnim, p6, delta, bitset)
     p3 = 0.0
+    -- `loop`/`stayInAnim` are BOOL parameters and callers pass `loop = true` (every prop row in
+    -- da_anims/lib does), so these keep their pass-through defaults — only `delta` is a float.
     loop = loop or 0
     stayInAnim = stayInAnim or 0
     p6 = ""
-    delta = delta or 0.0
+    delta = flt(delta, 0.0)
     bitset = bitset or 0
 
     log.spam("Playing object anim:", {
@@ -88,17 +116,17 @@ anim.object = function(entity, dict, name, p3, loop, stayInAnim, p6, delta, bits
 end
 
 anim.adv = function(entity, dict, name, x, y, z, yaw, speed, speedMult, duration, flags, time, p14, p15, p16)
-    x = tonumber(x) or false
-    y = tonumber(y) or false
-    z = tonumber(z) or false
+    x = flt(x, false)
+    y = flt(y, false)
+    z = flt(z, false)
     local pitch = 0.0
     local roll = 0.0
-    yaw = tonumber(yaw) or 0.0
-    speed = tonumber(speed) or 1.0
-    speedMult = tonumber(speedMult) or 1.0
-    duration = tonumber(duration) or -1
-    flags = tonumber(flags) or 0
-    time = tonumber(time) or 0.0
+    yaw = flt(yaw, 0.0)
+    speed = flt(speed, 1.0)
+    speedMult = flt(speedMult, 1.0)
+    duration = int(duration, -1)
+    flags = int(flags, 0)
+    time = flt(time, 0.0)
     p14 = p14 or 0
     p15 = p15 or 0
     p16 = p16 or 0
@@ -135,6 +163,9 @@ end
 
 anim.set = function(entity, dict, name, time, speedMulti)
     if time then
+        -- A phase (0.0-1.0) and a speed multiplier are both floats: `anim.set(e, d, n, 1)` means
+        -- "the end of the clip", not whatever an integer 1 lands on.
+        time = flt(time, 0.0)
         if time < 0 then
             StopEntityAnim(entity, dict, name, 0.0)
         else
@@ -142,7 +173,7 @@ anim.set = function(entity, dict, name, time, speedMulti)
         end
     end
     if speedMulti then
-        SetEntityAnimSpeed(entity, dict, name, speedMulti)
+        SetEntityAnimSpeed(entity, dict, name, flt(speedMulti, 1.0))
     end
 end
 
