@@ -7,6 +7,30 @@ local RegisterGameKeymap = function(key, map)
     table.insert(GameKeymaps[key], map)
 end
 
+-- Every callback the controller holds — mode lifecycle hooks, keymap fns, keymap conditions — was
+-- authored in ANOTHER resource and arrived here as a function reference. Calling one crosses the
+-- script-host boundary, and when the callee throws, all that surfaces on this side is
+--
+--     SCRIPT ERROR: Execution of function reference in script host failed:
+--
+-- attributed to da_lib, with no message and no stack. The real error, with its traceback, is logged
+-- by the OWNING resource on the line above — but the da_lib line is the one that reads like the
+-- culprit, so the hunt starts in the wrong resource.
+--
+-- Worse, the throw propagates: an onActivate that dies takes out the rest of activateMode with it,
+-- so the mode ends up flagged active with its keymaps never cached — active but deaf.
+--
+-- So every crossing goes through here. The error is caught, labelled with WHICH callback died and
+-- WHICH resource owns it, and the controller carries on with its own bookkeeping intact.
+local function callHook(what, owner, fn, ...)
+    local ok, err = pcall(fn, ...)
+    if ok then return true; end
+    log.error(("%s failed (owner: %s): %s"):format(what, owner or "unknown", tostring(err)))
+    log.error("^ the real error and its stack were logged by '" .. tostring(owner or "unknown") ..
+        "' just above this line")
+    return false
+end
+
 local ModeController = {
     eventMap = {},
     keyEventMap = {
@@ -61,7 +85,9 @@ function ModeController:activateMode(modeName)
     table.insert(self.activeModes, mode)
     self:sortActiveModes()
 
-    if mode.onActivate then mode.onActivate(); end
+    if mode.onActivate then
+        callHook(("mode '%s' onActivate"):format(modeName), mode.resource, mode.onActivate)
+    end
     log.spam("Mode activated: " .. modeName)
     self:cacheInputEventChecks()
 end
@@ -74,7 +100,9 @@ function ModeController:deactivateMode(modeName)
     for i, m in ipairs(self.activeModes) do
         if m.name == modeName then
             table.remove(self.activeModes, i)
-            if mode.onDeactivate then mode.onDeactivate(); end
+            if mode.onDeactivate then
+                callHook(("mode '%s' onDeactivate"):format(modeName), mode.resource, mode.onDeactivate)
+            end
             log.spam("Mode deactivated: " .. modeName)
             self:sortActiveModes()
             self:cacheInputEventChecks()
@@ -93,11 +121,13 @@ function ModeController:sortActiveModes()
             (self.primaryMode and self.primaryMode.name or "nil") .. " -> " ..
             (self.activeModes[1] and self.activeModes[1].name or "nil"))
         if self.primaryMode and self.primaryMode.onLosePrimary then
-            self.primaryMode.onLosePrimary()
+            callHook(("mode '%s' onLosePrimary"):format(self.primaryMode.name),
+                self.primaryMode.resource, self.primaryMode.onLosePrimary)
         end
         self.primaryMode = self.activeModes[1]
         if self.primaryMode and self.primaryMode.onPrimary then
-            self.primaryMode.onPrimary()
+            callHook(("mode '%s' onPrimary"):format(self.primaryMode.name),
+                self.primaryMode.resource, self.primaryMode.onPrimary)
         end
     end
 end
@@ -122,6 +152,7 @@ local function expandGameKeymaps()
                         active = true,
                         consume = map.consume,
                         modifiers = map.modifiers,
+                        resource = map.resource,
                     }
                 end
             end
@@ -182,7 +213,17 @@ function ModeController:cacheInputEventChecks()
                     if not eventMap[key][event] then
                         eventMap[key][event] = {}
                     end
-                    table.insert(eventMap[key][event], keymap)
+                    -- A shallow record rather than the keymap itself: dispatch only ever reads
+                    -- these three fields, and the record is where the blame goes. A game keymap
+                    -- carries the resource that registered it; a mode's own keymaps belong to
+                    -- whoever registered the mode.
+                    table.insert(eventMap[key][event], {
+                        fn        = keymap.fn,
+                        modifiers = keymap.modifiers,
+                        consume   = keymap.consume,
+                        owner     = keymap.resource or mode.resource,
+                        mode      = mode.name,
+                    })
                     keyEventMap[event][key] = true
                     -- Cache modifiers
                     if keymap.modifiers then
@@ -219,7 +260,9 @@ function ModeController:dispatchEvent(event)
             end
         end
         if fireEvent then
-            Citizen.CreateThread(function() modeEvent.fn(event)
+            Citizen.CreateThread(function()
+                callHook(("keymap '%s' %s (mode '%s')"):format(event.key, event.type, modeEvent.mode),
+                    modeEvent.owner, modeEvent.fn, event)
             end)
             if modeEvent.consume then
                 break
